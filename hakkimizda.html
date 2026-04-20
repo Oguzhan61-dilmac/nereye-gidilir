@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nereye Gidilir? | Hakkımızda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./scripts/theme.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="./index.html">Nereye Gidilir?</a>
+        <nav class="main-nav">
+          <a href="./index.html">Keşfet</a>
+          <a href="./map.html">Harita</a>
+          <a href="./blog.html">Blog</a>
+          <a href="./hakkimizda.html">Hakkımızda</a>
+          <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme"><span id="themeIcon">🌓</span></button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="content-page">
+      <div class="container content-card">
+        <h1>Hakkımızda</h1>
+        <p>
+          Nereye Gidilir?, Türkiye'deki gezi noktalarını tek bir yerde toplayan, hızlı filtreleme ve görsel odaklı keşif deneyimi
+          sunan statik bir seyahat demosudur. Projede önceliğimiz, kullanıcıya sade ama güçlü bir arayüzle güvenilir rota önerisi
+          verebilmektir.
+        </p>
+
+        <h2>Vizyon</h2>
+        <p>
+          Her şehir için keşfedilebilir, güncellenebilir ve görsel kalitesi yüksek bir gezi envanteri oluşturmak. Kullanıcıların
+          yalnızca birkaç filtre ile kendi zevkine uygun noktaları bulmasını kolaylaştırmak.
+        </p>
+
+        <h2>Nasıl Çalışır?</h2>
+        <ul>
+          <li>Veri seti JSON formatında yüklenir ve tarayıcı tarafında filtrelenir.</li>
+          <li>Arama, il ve kategori filtreleriyle sonuçlar anlık olarak güncellenir.</li>
+          <li>Detay sayfasında konum bağlantıları üzerinden doğrudan haritaya geçiş sağlanır.</li>
+        </ul>
+
+        <h2>Teknik Not</h2>
+        <p>
+          Veri kaynağı olarak <code>dataset/places_tr_top1000.json</code> kullanılır. Görseli olmayan veya placeholder olan kayıtlar
+          listede gösterilmez.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-wrap">
+        <p>© 2026 Nereye Gidilir? • Hakkımızda</p>
+        <span class="footer-chip">Hakkında</span>
+      </div>
+    </footer>
+  </body>
+</html>
+

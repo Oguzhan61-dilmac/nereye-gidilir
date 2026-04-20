@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nereye Gidilir? | Türkiye Keşif Rehberi</title>
+  <meta name="description" content="Türkiye'nin gizli cennetlerini, tarihi mekanlarını ve doğal güzelliklerini harita üzerinde anında keşfedin.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  
+  <!-- App Styles -->
+  <link rel="stylesheet" href="./style.css?v=SPA">
+</head>
+<body class="theme-light">
+  
+  <!-- GLOBAL LOADER -->
+  <div id="loaderOverlay" class="loader-overlay hidden">
+    <div class="loader-content">
+      <div class="spinner"></div>
+      <p id="loaderMessage">Haritalar Hazırlanıyor...</p>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="app-header glass-panel">
+    <div class="header-container">
+      <a href="#explore" class="brand-logo">Nereye Gidilir?</a>
+      <nav class="nav-links">
+        <a href="#explore" class="nav-link active" data-target="explore">Keşfet</a>
+        <a href="#map" class="nav-link" data-target="map">Harita</a>
+        <button id="themeToggle" class="theme-btn" aria-label="Temayı Değiştir">
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main id="appContainer" class="app-main">
+
+    <!-- VIEW 1: EXPLORE (HOME) -->
+    <section id="view-explore" class="view-section active">
+      <div class="explore-hero">
+        <h1 class="hero-title">Türkiye'nin Güzelliklerini Keşfet</h1>
+        <p class="hero-subtitle">Müzeler, şelaleler, antik kentler ve daha fazlası interaktif haritada seni bekliyor.</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Interactive D3 Map Box -->
+        <div class="interactive-map-box glass-panel">
+          <div class="box-header">Dinamik Türkiye Haritası</div>
+          <div id="d3MapContainer" class="d3-container"></div>
+        </div>
+
+        <!-- Controls Box -->
+        <div class="controls-box glass-panel">
+          <div class="box-header">Bir İl Seçin</div>
+          <div class="selection-info">
+            <span id="globalCityLabel" class="highlight-badge">Tüm Türkiye</span>
+            <span id="globalStatsLabel" class="stats-badge">Veri Yok</span>
+          </div>
+
+          <div class="input-group">
+            <select id="provinceSelect" class="premium-select">
+              <option value="">İl Seçiniz...</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <select id="districtSelect" class="premium-select" disabled>
+              <option value="">Önce İl Seçin</option>
+            </select>
+          </div>
+
+          <div class="action-buttons">
+            <a href="#map" id="btnGoToMap" class="btn-primary disabled">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+              Seçili İlin Haritasına Git
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results List -->
+      <div class="results-section">
+        <div class="results-header">
+          <h2>Keşfet Listesi</h2>
+          <!-- Search & Filter Bar -->
+          <div class="filter-bar glass-panel">
+            <input type="text" id="searchInput" class="search-input" placeholder="Mekan, müze, mağara ara..." disabled>
+            <select id="categoryFilter" class="filter-select" disabled>
+              <option value="">Tüm Kategoriler</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="placesGrid" class="places-grid">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <p>Lütfen önce arama yapmak için haritadan veya listeden bir il seçin.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: MAP (LEAFLET FULLSCREEN) -->
+    <section id="view-map" class="view-section">
+      <div class="map-toolbar glass-panel">
+        <button id="btnBackFromMap" class="btn-icon" aria-label="Geri Dön">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <div class="map-title" id="mapTitle">Şehir Haritası</div>
+        <div class="map-controls">
+          <select id="mapCategoryFilter" class="filter-select map-select">
+            <option value="">Tüm Kategoriler</option>
+          </select>
+        </div>
+      </div>
+      <div id="leafletMap" class="fullscreen-map"></div>
+    </section>
+
+    <!-- VIEW 3: PLACE DETAILS -->
+    <section id="view-place" class="view-section">
+      <button id="btnBackFromPlace" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Geri Dön
+      </button>
+
+      <div class="place-detail-container glass-panel">
+        <div class="place-header">
+          <div class="place-title-group">
+            <span id="detailCategory" class="badge">Kategori</span>
+            <h1 id="detailTitle">Mekan İsmi</h1>
+            <p id="detailLocation" class="location-text">İl, İlçe</p>
+          </div>
+        </div>
+
+        <div class="place-content">
+          <div class="place-image-col">
+            <div id="detailImageWrapper" class="image-wrapper skeleton-loading">
+              <!-- Görüntü JS ile eklenecek -->
+            </div>
+            <div class="action-buttons-col">
+              <a href="#" id="btnDirections" target="_blank" class="btn-primary full-width">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                Yol Tarifi Al
+              </a>
+              <a href="#" id="btnWikipedia" target="_blank" class="btn-secondary full-width hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                Wikipedia'da Oku
+              </a>
+            </div>
+          </div>
+          
+          <div class="place-info-col">
+            <h3>Hakkında</h3>
+            <p id="detailDescription" class="description-text">Wikipedia'dan özet verisi çekiliyor...</p>
+            
+            <div class="tags-section">
+              <h3>Özellikler</h3>
+              <div id="detailTags" class="tags-container">
+                <!-- Tags JS ile eklenecek -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>&copy; 2026 Nereye Gidilir? • Gerçek Zamanlı Coğrafi Bilgi Sistemi (OSM)</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  
+  <!-- Yekpare Single Page Uygulaması Mantığı -->
+  <script src="./app.js?v=SPA_1.0"></script>
+</body>
+</html>

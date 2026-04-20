@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+  <rect width="1200" height="700" fill="rgba(220,38,38,0.18)"/>
+  <g transform="translate(390 350)">
+    <circle r="170" fill="rgba(255,255,255,0.22)"/>
+    <circle cx="45" r="132" fill="rgba(220,38,38,0.18)"/>
+  </g>
+  <polygon
+    points="640,350 690,365 660,320 660,380 690,335"
+    fill="rgba(255,255,255,0.24)"
+    transform="scale(2.2) translate(-180 -130)"
+  />
+</svg>

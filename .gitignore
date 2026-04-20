@@ -1,0 +1,10 @@
+# large generated data
+dataset/
+places/
+images/places/
+*.bin
+*.cache
+__pycache__/
+*.pyc
+scripts/cache_wiki.json
+scripts/__pycache__/
