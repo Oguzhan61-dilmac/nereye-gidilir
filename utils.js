@@ -1,4 +1,4 @@
-const DATASET_PATH = "dataset/places_tr_merged.json";
+﻿const DATASET_PATH = "dataset/places_tr_merged.json";
 const PLACEHOLDER_IMAGE = "images/placeholder.svg";
 let placesCachePromise = null;
 
@@ -9,20 +9,19 @@ function toText(value) {
 function normalizeTr(value) {
   return toText(value)
     .toLocaleLowerCase("tr-TR")
-    .replace(/ı/g, "i")
-    .replace(/İ/g, "i")
-    .replace(/ş/g, "s")
-    .replace(/ğ/g, "g")
-    .replace(/ç/g, "c")
-    .replace(/ö/g, "o")
-    .replace(/ü/g, "u")
+    // Handle both proper Turkish chars and common mojibake forms.
+    .replace(/(?:\u0131|\u00C4\u00B1)/g, "i")
+    .replace(/(?:\u015F|\u00C5\u0178)/g, "s")
+    .replace(/(?:\u011F|\u00C4\u0178)/g, "g")
+    .replace(/(?:\u00E7|\u00C3\u00A7)/g, "c")
+    .replace(/(?:\u00F6|\u00C3\u00B6)/g, "o")
+    .replace(/(?:\u00FC|\u00C3\u00BC)/g, "u")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
-
 function normalizeText(value) {
   return normalizeTr(value);
 }
@@ -62,7 +61,7 @@ async function loadPlaces() {
   if (!placesCachePromise) {
     placesCachePromise = (async () => {
       const payload = await fetchJson(DATASET_PATH);
-      if (!Array.isArray(payload)) throw new Error(`${DATASET_PATH} geçersiz JSON formatı`);
+      if (!Array.isArray(payload)) throw new Error(`${DATASET_PATH} geÃ§ersiz JSON formatÄ±`);
       return payload;
     })();
   }
@@ -79,7 +78,7 @@ function getFilteredPlaces(places, filters = {}) {
   const kategori = toText(filters.kategori || "");
 
   return places.filter((item) => {
-    // Canlı Modda fotoğraflar asenkron yüklenir, valid check yapılamaz:
+    // CanlÄ± Modda fotoÄŸraflar asenkron yÃ¼klenir, valid check yapÄ±lamaz:
     if (il && toText(item.il) !== il) return false;
     if (kategori && toText(item.kategori) !== kategori) return false;
     if (q && !normalizeTr(item.ad).includes(q)) return false;
@@ -144,37 +143,37 @@ function detectTheme(tags, kategori) {
 function fallbackDescription(theme, city, name, detailMode) {
   if (theme === "museum") {
     return detailMode
-      ? `${name}, ${city} gezi planında kültürel derinlik kazandıran bir müze deneyimi sunar. Bölgenin hikayesini yerinde görmek için güçlü bir duraktır.`
-      : "Müze koleksiyonu ve yerel hikayesiyle rotana değer katar.";
+      ? `${name}, ${city} gezi planÄ±nda kÃ¼ltÃ¼rel derinlik kazandÄ±ran bir mÃ¼ze deneyimi sunar. BÃ¶lgenin hikayesini yerinde gÃ¶rmek iÃ§in gÃ¼Ã§lÃ¼ bir duraktÄ±r.`
+      : "MÃ¼ze koleksiyonu ve yerel hikayesiyle rotana deÄŸer katar.";
   }
   if (theme === "historic") {
     return detailMode
-      ? `${name}, tarihi dokusu ve mimari detaylarıyla öne çıkar. ${city} gezisinde geçmişe dokunmak için ziyaret edilebilir.`
-      : "Tarihi atmosferiyle yürüyüş ve fotoğraf için güçlü bir durak.";
+      ? `${name}, tarihi dokusu ve mimari detaylarÄ±yla Ã¶ne Ã§Ä±kar. ${city} gezisinde geÃ§miÅŸe dokunmak iÃ§in ziyaret edilebilir.`
+      : "Tarihi atmosferiyle yÃ¼rÃ¼yÃ¼ÅŸ ve fotoÄŸraf iÃ§in gÃ¼Ã§lÃ¼ bir durak.";
   }
   if (theme === "nature") {
     return detailMode
-      ? `${name}, doğa odaklı bir mola arayanlar için manzara ve açık hava deneyimi sunar. ${city} içinde sakin bir kaçış noktasıdır.`
-      : "Doğa ve manzara odaklı keyifli bir keşif noktası.";
+      ? `${name}, doÄŸa odaklÄ± bir mola arayanlar iÃ§in manzara ve aÃ§Ä±k hava deneyimi sunar. ${city} iÃ§inde sakin bir kaÃ§Ä±ÅŸ noktasÄ±dÄ±r.`
+      : "DoÄŸa ve manzara odaklÄ± keyifli bir keÅŸif noktasÄ±.";
   }
   if (theme === "viewpoint") {
     return detailMode
-      ? `${name}, şehir siluetini farklı açıdan izleyebileceğin etkileyici bir manzara noktasıdır. Gün batımı için idealdir.`
-      : "Şehri farklı açıdan görebileceğin etkileyici bir manzara noktası.";
+      ? `${name}, ÅŸehir siluetini farklÄ± aÃ§Ä±dan izleyebileceÄŸin etkileyici bir manzara noktasÄ±dÄ±r. GÃ¼n batÄ±mÄ± iÃ§in idealdir.`
+      : "Åehri farklÄ± aÃ§Ä±dan gÃ¶rebileceÄŸin etkileyici bir manzara noktasÄ±.";
   }
   if (theme === "worship") {
     return detailMode
-      ? `${name}, mimarisi ve atmosferiyle dikkat çeken bir ziyaret noktasıdır. Kültürel rota içinde sakin bir durak olarak öne çıkar.`
-      : "Mimari detayları ve sakin atmosferiyle görülmeye değer.";
+      ? `${name}, mimarisi ve atmosferiyle dikkat Ã§eken bir ziyaret noktasÄ±dÄ±r. KÃ¼ltÃ¼rel rota iÃ§inde sakin bir durak olarak Ã¶ne Ã§Ä±kar.`
+      : "Mimari detaylarÄ± ve sakin atmosferiyle gÃ¶rÃ¼lmeye deÄŸer.";
   }
   return detailMode
-    ? `${name}, ${city} gezi planında keşfetmeye değer bir noktadır. Konum çevresindeki detaylarla birlikte deneyimi zenginleştirebilirsin.`
-    : "Keşif rotana ekleyebileceğin güçlü bir gezi noktası.";
+    ? `${name}, ${city} gezi planÄ±nda keÅŸfetmeye deÄŸer bir noktadÄ±r. Konum Ã§evresindeki detaylarla birlikte deneyimi zenginleÅŸtirebilirsin.`
+    : "KeÅŸif rotana ekleyebileceÄŸin gÃ¼Ã§lÃ¼ bir gezi noktasÄ±.";
 }
 
 function generateDescription(item, detailMode = false) {
   const tags = item?.tags || {};
-  const city = toText(item?.il) || "bu şehir";
+  const city = toText(item?.il) || "bu ÅŸehir";
   const name = toText(item?.ad) || "Bu yer";
   const rawDesc = firstNonEmpty(tags, ["description:tr", "description"]);
   if (rawDesc) return truncateText(rawDesc, detailMode ? 260 : 140);
@@ -182,4 +181,5 @@ function generateDescription(item, detailMode = false) {
   const theme = detectTheme(tags, item?.kategori);
   return truncateText(fallbackDescription(theme, city, name, detailMode), detailMode ? 260 : 140);
 }
+
 
