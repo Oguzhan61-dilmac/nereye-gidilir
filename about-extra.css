@@ -1,0 +1,433 @@
+/* =========================================================================
+   GEZİ ATLASI (geziatlasi.com.tr) — HAKKINDA SAYFASI (#view-about)
+   Antik Parşömen Mektup, Seyahatname Önsözü ve Keşif Envanteri Stilleri
+========================================================================= */
+
+.atlas-epistle-wrapper {
+  max-width: 980px;
+  margin: 1rem auto 4rem auto;
+  padding: 0 0.5rem;
+}
+
+/* Ana Parşömen Mektup Kâğıdı */
+.atlas-parchment-letter {
+  position: relative;
+  background-color: #fbf4e4;
+  background-image:
+    radial-gradient(rgba(139, 90, 43, 0.08) 1px, transparent 0),
+    radial-gradient(ellipse at top left, rgba(216, 188, 138, 0.35), transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(168, 128, 78, 0.28), transparent 65%),
+    linear-gradient(180deg, #fcf6e8 0%, #f4e7cb 50%, #eedbb4 100%);
+  background-size: 22px 22px, 100% 100%, 100% 100%, 100% 100%;
+  border: 2px solid #8B5A2B;
+  outline: 1px dashed rgba(92, 64, 51, 0.45);
+  outline-offset: -12px;
+  border-radius: 6px;
+  padding: 3.5rem 4rem;
+  box-shadow:
+    0 18px 42px rgba(45, 28, 16, 0.22),
+    8px 10px 0 rgba(92, 64, 51, 0.24),
+    inset 0 0 65px rgba(139, 90, 43, 0.22);
+  color: #362214;
+}
+
+.theme-dark .atlas-parchment-letter {
+  background-color: #2f2117;
+  background-image:
+    radial-gradient(rgba(212, 178, 140, 0.06) 1px, transparent 0),
+    linear-gradient(180deg, #35261b 0%, #2b1e15 100%);
+  border-color: #8b6340;
+  outline-color: rgba(212, 178, 140, 0.25);
+  color: #f3e5cb;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.55),
+    inset 0 0 55px rgba(0, 0, 0, 0.45);
+}
+
+/* Köşe Süslemeleri (Antik Harita Çerçeve Köşebentleri) */
+.atlas-corner-ornament {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: #8b0000;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.atlas-corner-ornament.top-left {
+  top: 18px;
+  left: 18px;
+  border-top: 3px double #8b0000;
+  border-left: 3px double #8b0000;
+}
+
+.atlas-corner-ornament.top-right {
+  top: 18px;
+  right: 18px;
+  border-top: 3px double #8b0000;
+  border-right: 3px double #8b0000;
+}
+
+.atlas-corner-ornament.bottom-left {
+  bottom: 18px;
+  left: 18px;
+  border-bottom: 3px double #8b0000;
+  border-left: 3px double #8b0000;
+}
+
+.atlas-corner-ornament.bottom-right {
+  bottom: 18px;
+  right: 18px;
+  border-bottom: 3px double #8b0000;
+  border-right: 3px double #8b0000;
+}
+
+/* Üst Daktilo Kayıt Şeridi & Mum Mühür */
+.atlas-letter-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.atlas-typewriter-stamp {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: 'Special Elite', 'Courier New', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  color: #6e4e35;
+  border-bottom: 1px dashed rgba(139, 90, 43, 0.45);
+  padding-bottom: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.theme-dark .atlas-typewriter-stamp {
+  color: #cbb292;
+}
+
+.atlas-wax-emblem {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 1.15rem auto;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #b8291e 0%, #8b0000 68%, #540904 100%);
+  border: 2.5px solid #fbf2de;
+  outline: 2px dashed rgba(139, 0, 0, 0.55);
+  outline-offset: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  box-shadow: 0 6px 14px rgba(90, 12, 8, 0.42);
+}
+
+.atlas-main-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.1rem, 4.5vw, 3.15rem);
+  font-weight: 800;
+  color: #8b1e16;
+  letter-spacing: -0.3px;
+  margin-bottom: 0.65rem;
+  text-shadow: 1px 2px 0 rgba(139, 90, 43, 0.16);
+}
+
+.theme-dark .atlas-main-title {
+  color: #e05a4f;
+}
+
+.atlas-epigraph {
+  font-family: 'Caveat', cursive;
+  font-size: 1.65rem;
+  color: #6b482e;
+  max-width: 640px;
+  margin: 0 auto 1.25rem auto;
+}
+
+.theme-dark .atlas-epigraph {
+  color: #d6bc98;
+}
+
+.atlas-ink-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #8b1e16;
+  font-size: 1.1rem;
+}
+
+.atlas-ink-divider::before,
+.atlas-ink-divider::after {
+  content: "";
+  width: 110px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #8b5a2b, transparent);
+}
+
+/* Edebi Seyahatname Metin Bölümü */
+.atlas-prose-section {
+  margin-bottom: 3rem;
+}
+
+.atlas-section-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #8b1e16;
+  margin-bottom: 1.15rem;
+  letter-spacing: 0.2px;
+}
+
+.theme-dark .atlas-section-heading {
+  color: #e05a4f;
+}
+
+.atlas-prose-section p {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.9;
+  color: inherit;
+  margin-bottom: 1.25rem;
+  text-align: justify;
+}
+
+/* Klasik Seyahatname İlk Harf (Drop-Cap) Stili */
+.atlas-dropcap {
+  float: left;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3.7rem;
+  line-height: 0.84;
+  padding-top: 4px;
+  padding-right: 12px;
+  padding-bottom: 2px;
+  color: #8b1e16;
+  font-weight: 800;
+}
+
+.theme-dark .atlas-dropcap {
+  color: #e05a4f;
+}
+
+/* Rakamlarla Gezi Atlası (İnfografik Alanı) */
+.atlas-numbers-section {
+  margin: 2.75rem 0 3rem 0;
+  padding: 2.25rem 2rem;
+  background: rgba(236, 220, 187, 0.52);
+  border-top: 2px double #8B5A2B;
+  border-bottom: 2px double #8B5A2B;
+  border-radius: 4px;
+}
+
+.theme-dark .atlas-numbers-section {
+  background: rgba(38, 27, 19, 0.55);
+  border-color: #6b4e35;
+}
+
+.atlas-numbers-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.atlas-eyebrow-tag {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.76rem;
+  letter-spacing: 2px;
+  color: #8b1e16;
+  border: 1px solid #8b1e16;
+  padding: 3px 10px;
+  margin-bottom: 0.5rem;
+  background: rgba(139, 30, 22, 0.06);
+}
+
+.theme-dark .atlas-eyebrow-tag {
+  color: #e05a4f;
+  border-color: #e05a4f;
+}
+
+.atlas-infographic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.atlas-stat-card {
+  background: #fdf8ec;
+  border: 1.5px solid #bfa37c;
+  border-radius: 4px;
+  padding: 1.65rem 1.25rem;
+  text-align: center;
+  box-shadow: 4px 5px 0 rgba(92, 64, 51, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.theme-dark .atlas-stat-card {
+  background: #34251a;
+  border-color: #6b4e35;
+  box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.4);
+}
+
+.atlas-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 7px 0 rgba(92, 64, 51, 0.26);
+}
+
+.atlas-stat-icon {
+  font-size: 2.1rem;
+  margin-bottom: 0.6rem;
+}
+
+.atlas-stat-number {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.35rem;
+  font-weight: 800;
+  color: #8b1e16;
+  line-height: 1.15;
+  margin-bottom: 0.25rem;
+}
+
+.theme-dark .atlas-stat-number {
+  color: #e05a4f;
+}
+
+.atlas-stat-subtitle {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #5C4033;
+  margin-bottom: 0.35rem;
+}
+
+.theme-dark .atlas-stat-subtitle {
+  color: #e0c097;
+}
+
+.atlas-stat-label {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.88rem;
+  color: #694b35;
+  line-height: 1.55;
+}
+
+.theme-dark .atlas-stat-label {
+  color: #cbb292;
+}
+
+/* Bir Seyyahın Pusulası (3 Adım) */
+.atlas-pillars-section {
+  margin-bottom: 2.75rem;
+}
+
+.atlas-pillars-section .atlas-section-heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.atlas-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.atlas-pillar-item {
+  padding: 1.25rem;
+  border: 1px dashed #bfa37c;
+  border-radius: 4px;
+  background: rgba(253, 248, 236, 0.65);
+}
+
+.theme-dark .atlas-pillar-item {
+  background: rgba(52, 37, 26, 0.55);
+  border-color: #6b4e35;
+}
+
+.atlas-pillar-num {
+  display: inline-block;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #8b1e16;
+  margin-bottom: 0.35rem;
+}
+
+.theme-dark .atlas-pillar-num {
+  color: #e05a4f;
+}
+
+.atlas-pillar-item h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  color: #3b2618;
+  margin-bottom: 0.45rem;
+}
+
+.theme-dark .atlas-pillar-item h3 {
+  color: #f4e6cc;
+}
+
+.atlas-pillar-item p {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.92rem;
+  color: #694b35;
+  line-height: 1.65;
+}
+
+.theme-dark .atlas-pillar-item p {
+  color: #cbb292;
+}
+
+/* Mektup Altı İmza ve Keşfe Çağrı */
+.atlas-letter-footer {
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1.5px dashed rgba(139, 90, 43, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.atlas-handwritten-sign {
+  font-family: 'Caveat', cursive;
+  font-size: 1.75rem;
+  color: #5C4033;
+  margin-bottom: 0.2rem;
+}
+
+.theme-dark .atlas-handwritten-sign {
+  color: #e0c097;
+}
+
+.atlas-typewriter-meta {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1.2px;
+  color: #7c5c43;
+}
+
+.theme-dark .atlas-typewriter-meta {
+  color: #b89f80;
+}
+
+.atlas-explore-btn {
+  width: auto !important;
+  padding: 0.85rem 1.6rem !important;
+  text-decoration: none;
+}
+
+@media (max-width: 820px) {
+  .atlas-parchment-letter {
+    padding: 2.25rem 1.5rem;
+  }
+  .atlas-infographic-grid,
+  .atlas-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+  .atlas-letter-footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}

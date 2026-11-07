@@ -1,36 +1,52 @@
 /* =========================================
-   NEREYE GİDİLİR? - PREMIUM SPA CSS
-   Glassmorphism, Dark/Light Mode, Micro-animations
+   NEREYE GİDİLİR? - VINTAGE KAŞİF & KATLANMIŞ KÂĞIT HARİTA TEMASI
+   Parşömen Dokusu, Polaroid Kartlar, Kat İzi Efektli Harita, Seyahat Günlüğü
 ========================================= */
 
 :root {
-  /* Light Theme Tokens */
-  --bg-primary: #f0f2f5;
-  --bg-secondary: #ffffff;
-  --text-main: #1a1a1a;
-  --text-muted: #666666;
-  --accent-color: #ef4444;
-  --accent-hover: #dc2626;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
-  --border-radius: 16px;
-  --transition-speed: 0.3s;
+  /* Light Theme: Vintage Parşömen / Eski Kâğıt Paleti */
+  --bg-primary: #ecdcbb;
+  --bg-secondary: #f9f1df;
+  --bg-paper-dark: #dfd0b0;
+  --text-main: #3b2618;
+  --text-muted: #694b35;
+  --brown-deep: #5C4033;
+  --brown-warm: #8B5A2B;
+  --forest-green: #295238;
+  --forest-green-hover: #1d3c28;
+  --accent-color: #a83228;      /* Kiremit Kırmızısı / Mum Mühür */
+  --accent-hover: #87231b;
+  --glass-bg: #f6ebd4;
+  --glass-border: #bfa37c;
+  --map-land: #dec89f;
+  --map-land-places: #cfb17e;
+  --map-stroke: #734822;
+  --shadow-sm: 3px 4px 0px rgba(92, 64, 51, 0.22), 0 8px 18px rgba(59, 40, 30, 0.12);
+  --shadow-lg: 6px 8px 0px rgba(92, 64, 51, 0.30), 0 16px 32px rgba(59, 40, 30, 0.20);
+  --border-radius: 4px;
+  --transition-speed: 0.25s;
 }
 
 .theme-dark {
-  /* Dark Theme Tokens */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-color: #ef4444;
-  --accent-hover: #f87171;
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5);
+  /* Dark Theme: Antik Deri Ciltli Atlas & Fener Işığı */
+  --bg-primary: #261b13;
+  --bg-secondary: #34251a;
+  --bg-paper-dark: #433022;
+  --text-main: #f4e6cc;
+  --text-muted: #cbb292;
+  --brown-deep: #e0c097;
+  --brown-warm: #b88652;
+  --forest-green: #386f4c;
+  --forest-green-hover: #498960;
+  --accent-color: #c9463b;
+  --accent-hover: #df5b4f;
+  --glass-bg: #302218;
+  --glass-border: #6b4e35;
+  --map-land: #473425;
+  --map-land-places: #5c4330;
+  --map-stroke: #9c744f;
+  --shadow-sm: 3px 4px 0px rgba(0, 0, 0, 0.5), 0 6px 14px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 6px 8px 0px rgba(0, 0, 0, 0.65), 0 14px 28px rgba(0, 0, 0, 0.55);
 }
 
 /* ================= RESET ================= */
@@ -45,10 +61,15 @@ html {
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Lora', Georgia, serif;
   background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(rgba(139, 90, 43, 0.07) 1px, transparent 0),
+    radial-gradient(ellipse at top left, rgba(139, 90, 43, 0.12), transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(92, 64, 51, 0.12), transparent 60%);
+  background-size: 24px 24px, 100% 100%, 100% 100%;
   color: var(--text-main);
-  line-height: 1.6;
+  line-height: 1.65;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -58,9 +79,10 @@ body {
 
 /* ================= TYPOGRAPHY ================= */
 h1, h2, h3, h4 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-weight: 800;
   margin-bottom: 0.5rem;
+  color: var(--text-main);
 }
 
 a {
@@ -68,18 +90,19 @@ a {
   color: inherit;
 }
 
-/* ================= UTILITIES & GLASSMORPHISM ================= */
+/* ================= VINTAGE PAPER PANELS (formerly glass-panel) ================= */
 .hidden {
   display: none !important;
 }
 
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background-image:
+    linear-gradient(135deg, rgba(139, 90, 43, 0.04) 0%, transparent 50%, rgba(92, 64, 51, 0.05) 100%);
+  border: 1.5px solid var(--glass-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
+  position: relative;
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
 }
 
@@ -92,9 +115,14 @@ a {
   position: sticky;
   top: 0;
   z-index: 1000;
-  padding: 1rem 2rem;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  padding: 0.9rem 2rem;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px dashed var(--brown-warm);
+  border-radius: 0;
   margin-bottom: 2rem;
+  background: var(--bg-secondary);
 }
 
 .header-container {
@@ -103,35 +131,79 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .brand-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.5px;
+  font-family: 'Special Elite', 'Playfair Display', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--brown-deep);
+  letter-spacing: 0.5px;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .nav-link {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.98rem;
   font-weight: 600;
   color: var(--text-muted);
   transition: color 0.2s;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
 }
 
 .nav-link:hover, .nav-link.active {
   color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+}
+
+.btn-journal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--brown-deep);
+  color: #fdf8ee;
+  border: 1.5px solid var(--brown-warm);
+  border-radius: 4px;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.88rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.btn-journal-toggle:hover {
+  background: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.route-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: #fff;
+  font-family: 'Lora', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .theme-btn {
-  background: none;
-  border: none;
+  background: var(--bg-paper-dark);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
   color: var(--text-main);
   display: flex;
@@ -143,7 +215,8 @@ a {
 }
 
 .theme-btn:hover {
-  background: rgba(128, 128, 128, 0.1);
+  background: var(--brown-warm);
+  color: #fff;
 }
 
 /* ================= SPA VIEWS ================= */
@@ -174,19 +247,42 @@ a {
 /* ================= VIEW 1: EXPLORE ================= */
 .explore-hero {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem 1rem;
+  border-top: 2px double var(--brown-warm);
+  border-bottom: 2px double var(--brown-warm);
+  background: rgba(249, 241, 223, 0.55);
+}
+
+.theme-dark .explore-hero {
+  background: rgba(52, 37, 26, 0.65);
+}
+
+.explorer-stamp-banner {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  border: 1.5px solid var(--accent-color);
+  padding: 0.28rem 0.9rem;
+  margin-bottom: 0.65rem;
+  background: rgba(168, 50, 40, 0.08);
+  transform: rotate(-0.6deg);
 }
 
 .hero-title {
-  font-size: 3rem;
-  background: linear-gradient(135deg, var(--accent-color), #f59e0b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: 'Playfair Display', serif;
+  font-size: 3.1rem;
+  color: var(--brown-deep);
+  text-shadow: 1px 2px 0 rgba(139, 90, 43, 0.18);
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
-  color: var(--text-muted);
+  font-family: 'Caveat', cursive;
+  font-size: 1.75rem;
+  color: var(--brown-warm);
+  letter-spacing: 0.3px;
 }
 
 .dashboard-grid {
@@ -200,49 +296,296 @@ a {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-}
-
-.box-header {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text-main);
-}
-
-/* D3 Map */
-.d3-container {
-  flex: 1;
-  min-height: 400px;
   position: relative;
-  background: transparent;
-  border-radius: 8px;
+}
+
+/* Katlanmış Kâğıt Yol Haritası Kutusu */
+.interactive-map-box {
+  background-color: var(--bg-secondary);
+  border: 2.5px solid var(--brown-warm);
+  box-shadow:
+    inset 0 0 38px rgba(139, 90, 43, 0.25),
+    6px 8px 0px rgba(92, 64, 51, 0.28);
   overflow: hidden;
 }
 
-.country-path {
-  fill: #e2e8f0;
-  stroke: #cbd5e1;
-  stroke-width: 1px;
-  transition: fill 0.3s, stroke-width 0.2s;
+.map-fold-creases {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background-image:
+    /* 3 dikey kat izi */
+    linear-gradient(90deg,
+      transparent 24.6%, rgba(92, 64, 51, 0.16) 25%, rgba(255, 255, 255, 0.45) 25.3%, transparent 25.8%,
+      transparent 49.6%, rgba(92, 64, 51, 0.20) 50%, rgba(255, 255, 255, 0.45) 50.3%, transparent 50.8%,
+      transparent 74.6%, rgba(92, 64, 51, 0.16) 75%, rgba(255, 255, 255, 0.45) 75.3%, transparent 75.8%),
+    /* 1 yatay orta kat izi */
+    linear-gradient(180deg,
+      transparent 49.5%, rgba(92, 64, 51, 0.18) 50%, rgba(255, 255, 255, 0.40) 50.4%, transparent 51%);
+}
+
+.map-footer-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--brown-warm);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.box-header {
+  font-family: 'Special Elite', monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--brown-deep);
+  border-bottom: 1px dashed var(--glass-border);
+  padding-bottom: 0.6rem;
+}
+
+.map-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.btn-map-back {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Special Elite', monospace;
+  color: #fff;
+  background: var(--accent-color);
+  border: 1.5px solid var(--brown-deep);
+  border-radius: 4px;
   cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(92, 64, 51, 0.3);
+  transition: all 0.2s ease;
 }
 
-.theme-dark .country-path {
-  fill: #334155;
-  stroke: #475569;
+.btn-map-back:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
 }
 
-.country-path:hover {
-  fill: #cbd5e1;
-}
-.theme-dark .country-path:hover {
-  fill: #475569;
+/* D3 Map Container */
+.d3-container {
+  flex: 1;
+  min-height: 480px;
+  height: 500px;
+  position: relative;
+  background: transparent;
+  border: 1px dashed var(--glass-border);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.country-path.selected {
-  fill: var(--accent-color) !important;
-  stroke: #fff;
-  stroke-width: 2px;
+/* Pusula Filigranı (Harita Köşesi) */
+.d3-container::after {
+  content: "🧭 KUZEY";
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  color: var(--brown-warm);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* ================= VINTAGE D3 SVG HARİTASI (DOKU, KIYI ÇİZGİLERİ, MÜREKKEP SINIRLAR, 60 FPS GPU OPTİMİZASYONU) ================= */
+.vintage-d3-svg {
+  border-radius: 4px;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.vintage-map-root {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Pusula Rüzgâr Gülü & Enlem-Boylam Çizgileri */
+.nautical-rhumb-line {
+  stroke: rgba(92, 64, 51, 0.14);
+  stroke-width: 0.75px;
+  stroke-dasharray: 4 4;
+  pointer-events: none;
+}
+
+.nautical-grid-line {
+  stroke: rgba(92, 64, 51, 0.11);
+  stroke-width: 0.7px;
+  pointer-events: none;
+}
+
+/* Deniz / Kıyı Çizgileri (Bathymetry / Coastal Outlines) */
+.coast-ring {
+  fill: none;
+  pointer-events: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.coast-ring-outer {
+  stroke: rgba(110, 82, 54, 0.14);
+  stroke-width: 18px;
+}
+
+.coast-ring-mid {
+  stroke: rgba(92, 64, 51, 0.22);
+  stroke-width: 10px;
+  stroke-dasharray: 10 4;
+}
+
+.coast-ring-inner {
+  stroke: rgba(62, 39, 35, 0.42);
+  stroke-width: 4.5px;
+}
+
+.theme-dark .coast-ring-outer {
+  stroke: rgba(212, 178, 140, 0.08);
+}
+.theme-dark .coast-ring-mid {
+  stroke: rgba(212, 178, 140, 0.16);
+}
+.theme-dark .coast-ring-inner {
+  stroke: rgba(212, 178, 140, 0.30);
+}
+
+/* İller ve İlçeler: El Boyaması 4 Farklı Sepia/Bej/Kahve Tonu + Mürekkep Sınırlar (Ağır SVG drop-shadow kaldırıldı) */
+.country-path,
+.district-path,
+.province {
+  fill: #e3cfa8;
+  stroke: #3e2723;
+  stroke-width: 1.3px;
+  stroke-opacity: 0.78;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  cursor: pointer;
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill 0.16s ease,
+    stroke-width 0.16s ease;
+}
+
+/* 4 Farklı El Boyaması Sepia / Parşömen Varyasyonu */
+.province.vintage-tone-0 { fill: #e6d4b0; }
+.province.vintage-tone-1 { fill: #dbc398; }
+.province.vintage-tone-2 { fill: #cfb384; }
+.province.vintage-tone-3 { fill: #e0caa1; }
+
+.district-path.has-places {
+  stroke-width: 1.45px;
+}
+
+.theme-dark .province.vintage-tone-0 { fill: #4a3728; stroke: #23170f; }
+.theme-dark .province.vintage-tone-1 { fill: #56402e; stroke: #23170f; }
+.theme-dark .province.vintage-tone-2 { fill: #624935; stroke: #23170f; }
+.theme-dark .province.vintage-tone-3 { fill: #4f3b2b; stroke: #23170f; }
+
+/* Hover Etkileşimi: Repaint dostu hızlı renk ve mürekkep kontur vurgusu */
+.country-path:hover,
+.district-path:hover,
+.province:hover {
+  fill: #b8844f !important;
+  stroke: #27160e;
+  stroke-width: 2.1px;
+  stroke-opacity: 0.98;
+}
+
+/* Seçili İl veya İlçe: Parlak Kiremit / Mühür Mumu Kırmızısı */
+.country-path.selected,
+.district-path.selected,
+.province.selected {
+  fill: #a83228 !important;
+  stroke: #fdf5e6;
+  stroke-width: 2.3px;
+  stroke-opacity: 1;
+}
+
+/* Seçili İl Üzerindeki Mühür Mumu / "X" İşareti */
+.wax-seal-stamp {
+  pointer-events: none;
+}
+
+.wax-seal-circle {
+  fill: #8f1d14;
+  stroke: #f6e7c8;
+  stroke-width: 1.8px;
+}
+
+.wax-seal-x {
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  fill: #fdf5e6;
+}
+
+.district-label {
+  font-family: 'Special Elite', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(251, 246, 234, 0.9);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-dark .district-label {
+  fill: #f5ead6;
+  stroke: rgba(28, 22, 18, 0.9);
+}
+
+/* Harita Üzerindeki Mekan Pinleri (Mum Mühür / Raptiye İğnesi) */
+.province-place-pin {
+  fill: var(--accent-color);
+  stroke: #fbf6ea;
+  stroke-width: 1.8px;
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+
+.province-place-pin:hover {
+  fill: var(--forest-green);
+}
+
+.d3-map-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  border: 1.5px solid var(--brown-warm);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: 'Special Elite', monospace;
+  font-size: 12px;
+  box-shadow: 3px 3px 0 rgba(92, 64, 51, 0.25);
+  z-index: 20;
+  white-space: nowrap;
+  will-change: transform, opacity;
+  transform: translate3d(-999px, -999px, 0);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.d3-map-tooltip.visible {
+  opacity: 1;
 }
 
 /* Controls */
@@ -251,51 +594,57 @@ a {
   justify-content: space-between;
   margin-bottom: 1.5rem;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .badge, .highlight-badge, .stats-badge {
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
 .highlight-badge {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(168, 50, 40, 0.12);
   color: var(--accent-color);
+  border: 1px solid rgba(168, 50, 40, 0.35);
 }
 
 .stats-badge {
-  background: var(--bg-secondary);
-  color: var(--text-muted);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-paper-dark);
+  color: var(--brown-deep);
+  border: 1px dashed var(--brown-warm);
 }
 
 .input-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.1rem;
 }
 
-.premium-select, .search-input {
+.premium-select, .search-input, .filter-select {
   width: 100%;
-  padding: 1rem 1.2rem;
-  border: 2px solid transparent;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--glass-border);
   background: var(--bg-secondary);
   color: var(--text-main);
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: inherit;
+  border-radius: 4px;
+  font-size: 0.98rem;
+  font-family: 'Lora', serif;
   outline: none;
-  transition: all 0.3s;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.25s;
+  box-shadow: inset 1px 2px 4px rgba(92, 64, 51, 0.06);
 }
 
-.premium-select:focus, .search-input:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+.premium-select:focus, .search-input:focus, .filter-select:focus {
+  border-color: var(--brown-warm);
+  box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.18);
 }
 
 .action-buttons {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .btn-primary {
@@ -304,32 +653,63 @@ a {
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 1rem;
+  padding: 0.9rem 1rem;
   background: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  color: #fdf8ee;
+  border: 1.5px solid var(--brown-deep);
+  border-radius: 4px;
+  font-family: 'Special Elite', monospace;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s, background 0.3s, box-shadow 0.3s;
+  box-shadow: 3px 3px 0 rgba(92, 64, 51, 0.28);
+  transition: transform 0.15s, background 0.25s, box-shadow 0.2s;
 }
 
 .btn-primary:hover:not(.disabled) {
   background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(239, 68, 68, 0.3);
+  box-shadow: 4px 5px 0 rgba(92, 64, 51, 0.35);
 }
 
 .btn-primary.disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
+/* Pusula / Geolocation & Rota Ekle Butonu (Koyu Orman Yeşili) */
+.btn-compass {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--forest-green);
+  color: #fdf8ee;
+  border: 1.5px solid var(--brown-deep);
+  border-radius: 4px;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 rgba(92, 64, 51, 0.25);
+  transition: transform 0.15s, background 0.25s;
+}
+
+.btn-compass:hover {
+  background: var(--forest-green-hover);
+  transform: translateY(-2px);
+}
+
+.btn-compass.in-route {
+  background: var(--brown-warm);
+}
+
 /* Results Grid */
 .results-section {
-  margin-top: 4rem;
+  margin-top: 3rem;
   margin-bottom: 4rem;
 }
 
@@ -344,43 +724,78 @@ a {
 
 .filter-bar {
   display: flex;
-  gap: 1rem;
-  padding: 0.5rem;
+  gap: 0.8rem;
+  padding: 0.6rem;
 }
 
 .places-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 2.2rem;
 }
 
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: 3.5rem 2rem;
   color: var(--text-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
   background: var(--glass-bg);
+  border: 2px dashed var(--glass-border);
   border-radius: var(--border-radius);
 }
 
-/* Place Card */
+/* Polaroid / Yıpranmış Defter Yaprağı Mekan Kartı */
 .place-card {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
+  padding: 12px 12px 0 12px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 3px;
+  box-shadow:
+    4px 5px 0 rgba(92, 64, 51, 0.22),
+    0 10px 22px rgba(59, 40, 30, 0.10);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+/* Kart Üstü Sarımtırak Kaşif Bandı (Scotch Tape Efekti) */
+.place-card::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 76px;
+  height: 20px;
+  background: rgba(226, 198, 138, 0.72);
+  border: 1px dashed rgba(139, 90, 43, 0.45);
+  box-shadow: 0 2px 4px rgba(59, 40, 30, 0.12);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.place-card:nth-child(odd):hover {
+  transform: translateY(-5px) rotate(-0.8deg);
+}
+
+.place-card:nth-child(even):hover {
+  transform: translateY(-5px) rotate(0.8deg);
 }
 
 .card-image-wrapper {
-  height: 200px;
+  height: 205px;
   width: 100%;
   overflow: hidden;
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-paper-dark);
+  border: 1px solid var(--glass-border);
   position: relative;
 }
 
@@ -388,51 +803,101 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  filter: sepia(12%) contrast(1.03);
+  transition: transform 0.5s ease, filter 0.3s ease;
 }
 
 .place-card:hover .card-image {
   transform: scale(1.05);
+  filter: sepia(0%) contrast(1.05);
 }
 
 .card-content {
-  padding: 1.5rem;
+  padding: 1.15rem 0.65rem 1.15rem 0.65rem;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .card-category {
-  font-size: 0.8rem;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.76rem;
   color: var(--accent-color);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .card-title {
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
   font-family: 'Playfair Display', serif;
+  color: var(--text-main);
 }
 
 .card-location {
   color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+}
+
+.card-actions-row {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-route-btn {
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brown-deep);
+  background: var(--bg-paper-dark);
+  border: 1px solid var(--brown-warm);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-route-btn:hover {
+  background: var(--forest-green);
+  color: #fff;
+  border-color: var(--forest-green);
+}
+
+.card-route-btn.added {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
 }
 
 /* ================= VIEW 2: MAP (LEAFLET FULLSCREEN) ================= */
+/* BUG #3 FIX: Harita görünümü tam ekran dolduracak şekilde düzeltildi */
+#view-map {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 #view-map.active {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 90px);
+  min-height: 620px;
   padding: 0;
   max-width: 100%;
+  animation: none;
+  opacity: 1;
 }
 
 .map-toolbar {
@@ -466,13 +931,16 @@ a {
   font-weight: 800;
 }
 
+/* BUG #4 FIX: Tekrarlayan width kaldırıldı, margin sıfırlandı */
 .fullscreen-map {
   flex: 1;
-  width: 100%;
+  min-height: 520px;
+  height: 100%;
+  width: calc(100% - 4rem);
   border-radius: var(--border-radius);
+  border: 2px solid var(--brown-warm);
   z-index: 10;
-  margin: 0 2rem;
-  width: auto;
+  margin: 0 2rem 1rem 2rem;
   box-shadow: var(--shadow-lg);
 }
 
@@ -647,8 +1115,915 @@ a {
 }
 
 @media (max-width: 768px) {
-  .nav-links { gap: 1rem; }
+  .nav-links { gap: 0.75rem; }
   .hero-title { font-size: 2.2rem; }
   #detailTitle { font-size: 2.5rem; }
   .action-buttons-col { flex-direction: column; }
+  .about-grid { grid-template-columns: 1fr; }
+  .blog-grid { grid-template-columns: 1fr; }
+  .about-story { flex-direction: column; }
 }
+
+/* ================= STATIC PAGES (ABOUT & BLOG) ================= */
+.static-page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+.static-page-hero {
+  text-align: center;
+  padding: 3rem 1rem 2.5rem;
+}
+
+.static-page-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  margin: 0.75rem 0;
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--accent-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.static-page-hero p {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.static-page-tag {
+  display: inline-block;
+  background: var(--accent-color);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0.3rem 1rem;
+  border-radius: 100px;
+  margin-bottom: 1rem;
+}
+
+/* ---- ABOUT PAGE ---- */
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.about-card {
+  padding: 2rem;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.about-card:hover {
+  transform: translateY(-6px);
+}
+
+.about-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.about-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-main);
+}
+
+.about-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.about-story {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  padding: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-story-text {
+  flex: 1;
+}
+
+.about-story-text h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.about-story-text p {
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.tech-badge {
+  background: var(--accent-color);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 100px;
+}
+
+.about-story-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 160px;
+}
+
+.stat-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: 'Playfair Display', serif;
+  color: var(--accent-color);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.about-contact {
+  padding: 2.5rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.about-contact h2 { margin-bottom: 0.75rem; }
+.about-contact p { color: var(--text-muted); }
+
+/* ---- BLOG PAGE ---- */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.blog-card {
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.blog-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.blog-card-image {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-card-emoji {
+  font-size: 4rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.blog-card-content {
+  padding: 1.5rem;
+}
+
+.blog-tag {
+  display: inline-block;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-color);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  border-radius: 100px;
+  margin-bottom: 0.75rem;
+}
+
+.blog-card-content h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.blog-card-content p {
+  font-size: 0.87rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--glass-border);
+  padding-top: 0.75rem;
+}
+
+/* ================= KART FOTO SKELETON ================= */
+.card-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  opacity: 0;
+}
+
+.card-image.loaded, .card-image[src]:not([src=""]) {
+  opacity: 1;
+}
+
+/* Skeleton shimmer effect */
+.card-image-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    rgba(128,128,128,0.15) 50%,
+    var(--bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.card-image-wrapper.img-loaded::before {
+  opacity: 0;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Light Theme improvements */
+.theme-light .blog-card-image {
+  filter: brightness(0.95);
+}
+
+.theme-light .about-card {
+  background: rgba(255,255,255,0.85);
+}
+
+/* ================= THEME TOGGLE BUTTON ================= */
+.theme-btn svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.4s ease;
+}
+
+.theme-btn:hover svg {
+  transform: rotate(25deg);
+}
+
+/* ================= YAKINIMDAKİLERİ BUL (NEARBY SECTION) ================= */
+.nearby-section {
+  padding: 1.75rem;
+  margin-bottom: 3rem;
+  border: 2px solid var(--forest-green);
+  background-image:
+    radial-gradient(circle at top right, rgba(45, 90, 60, 0.08), transparent 60%);
+}
+
+.nearby-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1.5px dashed var(--glass-border);
+}
+
+.nearby-eyebrow {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.8rem;
+  color: var(--forest-green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.nearby-subtitle {
+  font-family: 'Caveat', cursive;
+  font-size: 1.35rem;
+  color: var(--text-muted);
+}
+
+.nearby-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.distance-stamp {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  background: var(--accent-color);
+  color: #fdf8ee;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 3px;
+  border: 1.5px solid #fdf8ee;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  transform: rotate(3deg);
+}
+
+/* ================= SEYAHAT GÜNLÜĞÜ (ROUTE JOURNAL SIDE PANEL) ================= */
+.journal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 22, 18, 0.55);
+  z-index: 1900;
+}
+
+.route-journal-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 390px;
+  max-width: 92vw;
+  height: 100vh;
+  background: var(--bg-secondary);
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 29px,
+      rgba(139, 90, 43, 0.12) 30px
+    );
+  border-left: 3px double var(--brown-warm);
+  box-shadow: -8px 0 30px rgba(28, 22, 18, 0.35);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  transform: translateX(105%);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.route-journal-panel.open {
+  transform: translateX(0);
+}
+
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px dashed var(--brown-warm);
+  margin-bottom: 0.75rem;
+}
+
+.journal-stamp {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  padding: 2px 6px;
+  margin-bottom: 4px;
+}
+
+.btn-journal-close {
+  background: var(--bg-paper-dark);
+  border: 1px solid var(--brown-warm);
+  color: var(--text-main);
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-journal-close:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.journal-desc {
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.journal-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 4px;
+}
+
+.journal-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+  border: 1.5px dashed var(--glass-border);
+  border-radius: 4px;
+  font-style: italic;
+}
+
+.journal-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-left: 4px solid var(--accent-color);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 rgba(92, 64, 51, 0.12);
+}
+
+.journal-step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--brown-deep);
+  color: #fdf8ee;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.journal-item-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.journal-item-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.journal-item-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.btn-journal-remove {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 4px 7px;
+  border-radius: 3px;
+}
+
+.btn-journal-remove:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.journal-footer {
+  padding-top: 1rem;
+  border-top: 2px dashed var(--brown-warm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-journal-clear {
+  background: none;
+  border: 1px dashed var(--brown-warm);
+  color: var(--text-muted);
+  padding: 0.5rem;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.82rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-journal-clear:hover {
+  background: var(--bg-paper-dark);
+  color: var(--accent-color);
+}
+
+.app-footer {
+  text-align: center;
+  padding: 1.5rem;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  border-top: 2px dashed var(--glass-border);
+  margin-top: 2rem;
+}
+
+/* =========================================================================
+   LEAFLET VINTAGE HARİTA FİLTRESİ, MÜHÜR KÜMELEME (CLUSTER) VE TEKİL İĞNELER
+   60 FPS GPU HIZLANDIRMALI & MIX-BLEND-MODE OVERLAY MİMARİSİ
+========================================================================= */
+
+/* 1. Basemap (Alt Harita) Parşömen Zemin ve GPU Katman Hızlandırması */
+#leafletMap.leaflet-container {
+  position: relative;
+  background-color: #e6d4b2 !important;
+  font-family: 'Lora', Georgia, serif;
+  transform: translateZ(0);
+  contain: layout paint;
+}
+
+/* Harita Katmanlarına Donanım Hızlandırma (GPU Compositing) */
+.leaflet-map-pane,
+.leaflet-tile-pane,
+.leaflet-overlay-pane,
+.leaflet-marker-pane {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Hareket eden .leaflet-tile-pane üzerine ağır filter() vermek yerine,
+   sabit ::before katmanına mix-blend-mode ile antika parşömen rengi vererek repaint yükünü sıfırlıyoruz */
+#leafletMap.leaflet-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 399;
+  background: radial-gradient(circle at center, rgba(232, 210, 166, 0.42) 0%, rgba(186, 146, 92, 0.58) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* Harita Üzerinde Sabit Eskitme Kenar Gölgesi (Vignette) */
+#leafletMap.leaflet-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  box-shadow: inset 0 0 36px rgba(62, 39, 35, 0.35);
+}
+
+/* 2. Kümeleme (MarkerCluster) İkonlarını Vintage Mühür / Deri Tonlarına Uydurma
+   ÖNEMLİ: Dış .marker-cluster elementi Leaflet tarafından inline transform: translate3d(x,y,0)
+   ile konumlandırılır. Bu yüzden dış elemente ASLA transform verilmez; scale(1.05) iç div'e uygulanır! */
+.marker-cluster,
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  border: 2px dashed rgba(62, 39, 35, 0.65) !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  box-shadow:
+    0 4px 10px rgba(43, 27, 18, 0.45),
+    inset 0 0 6px rgba(244, 236, 216, 0.25) !important;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Küçük Küme: Eski Deri Kahverengisi / Koyu Bej */
+.marker-cluster-small {
+  background-color: rgba(139, 90, 43, 0.42) !important;
+}
+.marker-cluster-small > div {
+  background-color: #6b4423 !important;
+}
+
+/* Orta Küme: Koyu Antika Deri Kahvesi */
+.marker-cluster-medium {
+  background-color: rgba(92, 64, 51, 0.48) !important;
+}
+.marker-cluster-medium > div {
+  background-color: #5c4033 !important;
+}
+
+/* Büyük Küme: Mühür Mumu Kırmızısı */
+.marker-cluster-large {
+  background-color: rgba(139, 0, 0, 0.42) !important;
+}
+.marker-cluster-large > div {
+  background-color: #8b0000 !important;
+}
+
+/* Küme İç Halkası: Sabit Boyut, Merkezden Büyüme ve Pointer-Events Koruması */
+.marker-cluster > div {
+  width: 32px !important;
+  height: 32px !important;
+  margin: 2px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 50% !important;
+  border: 2px solid #3e2723 !important;
+  color: #f4ecd8 !important;
+  font-family: 'Special Elite', 'Playfair Display', serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform-origin: center center !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
+  pointer-events: none !important;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 248, 231, 0.35),
+    0 2px 5px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Güvenli Hover: Boyutları değiştirmeden yalnızca iç mühür halkasını merkezden 1.05x büyüt */
+.marker-cluster:hover > div {
+  transform: scale(1.05) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(255, 248, 231, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.55) !important;
+}
+
+.marker-cluster span {
+  line-height: 1 !important;
+  color: #f4ecd8 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* 3. Tekil Konum İğneleri (Vintage Kırmızı Mühür / Raptiye İğnesi) */
+.vintage-map-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+.vintage-pin-seal {
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #b22222 0%, #8b0000 70%, #5a0000 100%);
+  border: 2px solid #f4ecd8;
+  outline: 1.5px solid #3e2723;
+  box-shadow:
+    0 3px 7px rgba(43, 27, 18, 0.55),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform-origin: center center;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vintage-map-pin:hover .vintage-pin-seal {
+  transform: scale(1.05);
+  box-shadow: 0 5px 10px rgba(43, 27, 18, 0.7);
+}
+
+.vintage-pin-core {
+  color: #f4ecd8;
+  font-size: 12px;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Leaflet Popup ve Zoom Butonlarını Seyahatname Temasına Uydurma */
+.leaflet-popup-content-wrapper {
+  background: #fbf6ea !important;
+  color: #3b2618 !important;
+  border: 2px solid #8B5A2B !important;
+  border-radius: 4px !important;
+  box-shadow: 4px 5px 0 rgba(62, 39, 35, 0.35) !important;
+}
+
+.leaflet-popup-tip {
+  background: #fbf6ea !important;
+  border: 1px solid #8B5A2B !important;
+}
+
+.leaflet-bar a {
+  background-color: #fbf6ea !important;
+  color: #3e2723 !important;
+  border-bottom: 1px solid #bfa37c !important;
+  font-family: 'Special Elite', monospace !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #8b0000 !important;
+  color: #f4ecd8 !important;
+}
+
+/* =========================================================================
+   VINTAGE REKLAM ALANLARI (.vintage-ad-slot) & HARİTA İZOLASYONU
+   Eski Gazete Küpürü, Polaroid Çerçeve ve Sararmış Bantlı Not Tasarımı
+========================================================================= */
+
+/* Harita Kapsayıcılarını Reklamlardan Kesin Olarak İzole Et */
+.interactive-map-box .adsbygoogle,
+.interactive-map-box .google-auto-placed,
+#d3MapContainer .adsbygoogle,
+#leafletMap .adsbygoogle,
+#view-map .adsbygoogle,
+#view-map .google-auto-placed {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ana Vintage Reklam Kapsayıcısı */
+.vintage-ad-slot {
+  position: relative;
+  background-color: var(--bg-secondary);
+  background-image:
+    radial-gradient(rgba(139, 90, 43, 0.08) 1px, transparent 0),
+    linear-gradient(135deg, rgba(244, 236, 216, 0.9) 0%, rgba(223, 208, 176, 0.85) 100%);
+  background-size: 16px 16px, 100% 100%;
+  border: 2px double var(--brown-warm);
+  border-radius: 4px;
+  padding: 0.85rem 0.95rem;
+  box-shadow:
+    3px 4px 0 rgba(92, 64, 51, 0.22),
+    inset 0 0 18px rgba(139, 90, 43, 0.14);
+  overflow: visible;
+  contain: layout style;
+}
+
+.theme-dark .vintage-ad-slot {
+  background-image:
+    radial-gradient(rgba(212, 178, 140, 0.06) 1px, transparent 0),
+    linear-gradient(135deg, rgba(52, 37, 26, 0.95) 0%, rgba(38, 27, 19, 0.95) 100%);
+  border-color: var(--glass-border);
+}
+
+/* Üst Kenarda Sararmış Kaşif Bandı (Scotch Tape Efekti) */
+.vintage-ad-slot::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1.5deg);
+  width: 78px;
+  height: 18px;
+  background: rgba(226, 198, 138, 0.76);
+  border: 1px dashed rgba(139, 90, 43, 0.48);
+  box-shadow: 0 2px 4px rgba(59, 40, 30, 0.14);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Gazete Küpürü Başlık Şeridi */
+.vintage-ad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px dashed var(--brown-warm);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.vintage-ad-badge {
+  padding: 1px 6px;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  border-radius: 2px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(168, 50, 40, 0.08);
+}
+
+.vintage-ad-body {
+  position: relative;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Reklam Yüklenene Kadar veya Test Modunda Gösterilen Seyahatname İlan Notu */
+.vintage-ad-placeholder {
+  padding: 0.5rem 0.4rem;
+  color: var(--text-main);
+}
+
+.vintage-ad-placeholder strong {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--brown-deep);
+  margin-bottom: 0.3rem;
+}
+
+.vintage-ad-placeholder p {
+  font-family: 'Lora', serif;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.vintage-ad-compass {
+  display: inline-block;
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+
+/* Yan Panel (Sidebar) Reklam Varyasyonu */
+.vintage-ad-sidebar {
+  margin-top: 1.15rem;
+}
+
+/* Mekan Kartları Arası (In-Feed Polaroid) Reklam Varyasyonu */
+.vintage-ad-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 310px;
+  padding: 14px;
+}
+
+.vintage-ad-card .vintage-ad-body {
+  flex: 1;
+  border: 1px dashed rgba(139, 90, 43, 0.38);
+  background: rgba(249, 241, 223, 0.45);
+  padding: 1rem;
+}
+
+.theme-dark .vintage-ad-card .vintage-ad-body {
+  background: rgba(38, 27, 19, 0.45);
+}
+
+/* Mekan Detay Sayfası Altı Yatay Gazete Küpürü Varyasyonu */
+.vintage-ad-banner {
+  margin-top: 2rem;
+  margin-bottom: 2.5rem;
+  padding: 1.1rem 1.4rem;
+}
+
+
+
+
