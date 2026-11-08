@@ -412,60 +412,6 @@ const CUISINE_TR = {
   cafe: "Kafe", sandwich: "Sandviç", chicken: "Tavuk", doner: "Döner", "döner": "Döner", ottoman: "Osmanlı mutfağı",
   mediterranean: "Akdeniz", middle_eastern: "Orta Doğu", sushi: "Suşi", asian: "Asya"
 };
-const REGIONAL_CUISINES = new Set(["regional", "local", "turkish", "kebab", "pide", "lahmacun", "fish", "seafood",
-  "meat", "grill", "barbecue", "kofte", "köfte", "homestyle", "home_cooking", "ottoman", "breakfast", "soup", "doner", "döner"]);
-const REGIONAL_NAME = /(lokanta|kebap|kebab|pide|balık|balik|ocakbaşı|köfte|kofte|sofra|konağı|konak|mantı|hamsi|kuymak|muhlama|kahvaltı|ev yemek|etli ekmek|tantuni|çorba|pilav)/i;
-
-function scoreOsmRestaurant(t) {
-  let score = 0;
-  if (t.wikidata || t.wikipedia) score += 8;
-  const cuisines = String(t.cuisine || "").toLowerCase().split(/[;,]/).map(c => c.trim()).filter(Boolean);
-  if (cuisines.some(c => REGIONAL_CUISINES.has(c))) score += 3;
-  if (REGIONAL_NAME.test(t.name || "")) score += 2;
-  if (t.opening_hours) score += 1;
-  if (t.website || t["contact:website"]) score += 1;
-  if (t.phone || t["contact:phone"]) score += 0.5;
-  if (t["addr:street"]) score += 0.5;
-  if (t.brand || t["brand:wikidata"]) score -= 3; // zincir mekanlar "yöre sofrası" değildir
-  return score;
-}
-
-async function fetchOsmRestaurants(bounds, feature) {
-  const bbox = `${bounds.south},${bounds.west},${bounds.north},${bounds.east}`;
-  const query = `[out:json][timeout:25];(node["amenity"="restaurant"](${bbox});way["amenity"="restaurant"](${bbox}););out center tags 600;`;
-  let lastErr = null;
-  for (const endpoint of STATE.endpoints) {
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 20000);
-      const res = await fetch(endpoint, {
-        method: "POST",
-        body: "data=" + encodeURIComponent(query),
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        signal: ctrl.signal
-      });
-      clearTimeout(timer);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
-      return (data.elements || [])
-        .map(el => ({ tags: el.tags || {}, lat: el.lat ?? (el.center && el.center.lat), lon: el.lon ?? (el.center && el.center.lon) }))
-        .filter(r => r.tags.name && Number.isFinite(r.lat) && Number.isFinite(r.lon))
-        .filter(r => !feature || d3.geoContains(feature, [r.lon, r.lat]));
-    } catch (err) {
-      lastErr = err;
-    }
-  }
-  throw lastErr || new Error("overpass");
-}
-
-function getFoodAreaFeature() {
-  if (STATE.selectedDistrict) {
-    const dg = DISTRICT_GEO_CACHE[STATE.selectedCity];
-    const f = dg && dg.features.find(x => x.properties && x.properties.name_tr === STATE.selectedDistrict);
-    if (f) return f;
-  }
-  return STATE.geoData ? STATE.geoData.features.find(f => f.properties.name_tr === STATE.selectedCity) : null;
-}
 
 function renderOsmFoodResults(items, area, total) {
   const wrap = document.createElement("div");
@@ -520,34 +466,36 @@ function renderOsmFoodResults(items, area, total) {
   DOM.foodList.replaceChildren(wrap);
 }
 
+// Restoranlar derleme anında OSM'den çıkarılmış statik dosyadan gelir (data/food/{il}.json,
+// scripts/build_osm_extras.py). Canlı Overpass sunucuları sık sık aşırı yüklü olduğu için kullanılmaz.
 async function loadFoodListOsm(area, cacheKey, token) {
   try {
-    const feature = getFoodAreaFeature();
-    const bounds = getFoodAreaBounds();
-    if (!bounds) throw new Error("bounds");
-    const all = await fetchOsmRestaurants(bounds, feature);
+    const slug = getCitySlug(STATE.selectedCity);
+    let data = null;
+    try {
+      data = await fetchCachedJSON(`./data/food/${slug}.json`);
+    } catch (e) {
+      data = { counts: {}, items: [] };
+    }
     if (token !== _foodRequestToken) return;
 
-    // İlçe seçili değilse her restorana ilçesini yaz (il genelinde liste)
-    const dg = DISTRICT_GEO_CACHE[STATE.selectedCity];
-    const seen = new Set();
-    const ranked = all
-      .filter(r => { const k = r.tags.name.toLocaleLowerCase("tr"); if (seen.has(k)) return false; seen.add(k); return true; })
-      .map(r => ({ ...r, score: scoreOsmRestaurant(r.tags) }))
-      .sort((a, b) => b.score - a.score || a.tags.name.localeCompare(b.tags.name, "tr"))
-      .slice(0, 15);
-    if (!STATE.selectedDistrict && dg) {
-      ranked.forEach(r => {
-        const f = dg.features.find(x => d3.geoContains(x, [r.lon, r.lat]));
-        if (f) r.ilce = f.properties.name_tr;
-      });
-    }
-    const payload = { mode: "osm", items: ranked, total: all.length };
+    const district = STATE.selectedDistrict || "";
+    const items = (data.items || [])
+      .filter(r => !district || r.i === district)
+      .slice(0, 15)
+      .map(r => ({
+        lat: r.lat, lon: r.lon, ilce: r.i,
+        tags: { name: r.n, cuisine: r.c || "", "addr:street": r.s || "", phone: r.p || "" }
+      }));
+    const counts = data.counts || {};
+    const total = district ? (counts[district] || 0) : Object.values(counts).reduce((a, b) => a + b, 0);
+
+    const payload = { mode: "osm", items, total };
     _foodCache.set(cacheKey, payload);
-    renderOsmFoodResults(ranked, area, all.length);
+    renderOsmFoodResults(items, area, total);
   } catch (err) {
     if (token !== _foodRequestToken) return;
-    console.warn("OSM restoran listesi alınamadı:", err);
+    console.warn("Restoran listesi alınamadı:", err);
     renderOsmFoodResults([], area, 0);
   }
 }
@@ -1449,6 +1397,7 @@ const CATEGORY_POPULARITY_WEIGHTS = {
   "Tarihi Kilise": 8,
   "Tarihi Kapı": 8,
   "Seyir Noktası": 8,
+  "Sahil / Kordon": 8,
   "Vadi": 8,
   "Türbe / Külliye": 7.5,
   "Medrese": 7.5,
