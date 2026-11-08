@@ -23,7 +23,22 @@ seyir terasi noktasi tepesi tepe golu gol koyu koy sahil kordon botanik orman or
 yeni tarihi harabeleri kalintilari hoyuk hoyugu kilisesi kilise manastiri turbesi turbe kervansarayi hani han
 hamami kemeri kapisi dinlenme tesisleri the turkey turkiye museum castle beach plateau merkez merkezi sehir
 belediye belediyesi cumhuriyet hukumet istasyon caddesi sokak meydani meydan""".split())
-BAD = re.compile(r"(map|harita|logo|flag|bayrak|locator|location|plan|coat|arma|icon|signature|imza|portrait|portre)", re.I)
+BAD = re.compile(r"(map|harita|logo|flag|bayrak|locator|location|plan|coat|arma|icon|signature|imza|portrait|portre|"
+                 r"hotel|otel|resort|holiday|club|apart|pansiyon|bungalow|shop|leather|worker|işçi|cemetery|mezarlık|"
+                 r"yangın|fire|accident|kaza|stadyum|stadium|station|istasyon|university|üniversite|faculty|fakülte|"
+                 r"enstitü|boulevard|bulvar|street|caddesi|mahallesi|panoramik görünümü|tbmm|konser|maquette|maket|"
+                 r"selfie|wedding|düğün|car |bus |train)", re.I)
+
+
+def admin_tokens():
+    """İl ve ilçe adları ayırt edici sayılmaz (ör. 'ADANA - panoramio' hiçbir yerin fotoğrafı değildir)."""
+    toks = set()
+    d = json.load(open(os.path.join(ROOT, "assets", "geo", "tr_districts_simplified.geojson"), encoding="utf-8"))
+    for f in d["features"]:
+        for k in ("name_tr", "province_tr"):
+            for t in fold(f["properties"].get(k, "")).split():
+                toks.add(t)
+    return toks
 
 
 def fold(s):
@@ -35,8 +50,15 @@ def fold(s):
 
 def main():
     rows = [l.rstrip("\n").split("\t") for l in open(sys.argv[1], encoding="utf-8") if l.count("\t") == 2]
+    admin = admin_tokens()
+    # Aynı fotoğraf 2'den fazla yere atanmışsa hiçbirinin özgün fotoğrafı değildir
+    usage = {}
+    for _, _, fn in rows:
+        usage[fn] = usage.get(fn, 0) + 1
     by_slug = {}
     for slug, pid, fn in rows:
+        if usage[fn] > 2:
+            continue
         by_slug.setdefault(slug, {})[pid] = fn
     applied = rejected = 0
     for slug, m in by_slug.items():
@@ -48,7 +70,7 @@ def main():
             fn = m.get(p["id"])
             if not fn or p.get("img"):
                 continue
-            toks = [t for t in fold(p["ad"]).split() if len(t) >= 4 and t not in STOP]
+            toks = [t for t in fold(p["ad"]).split() if len(t) >= 4 and t not in STOP and t not in admin]
             ft = fold(fn)
             if not toks or not any(t in ft for t in toks) or BAD.search(fn) \
                     or not re.search(r"\.(jpe?g|png|webp)$", fn, re.I):
