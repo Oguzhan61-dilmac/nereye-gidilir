@@ -8,3 +8,6 @@ __pycache__/
 *.pyc
 scripts/cache_wiki.json
 scripts/__pycache__/
+
+.vercel
+.env*

@@ -2024,6 +2024,193 @@ a {
   padding: 1.1rem 1.4rem;
 }
 
+/* =========================================================================
+   MOBİL UYUMLULUK, PUSULA YÜKLEYİCİ & DOKUNMATİK UX
+========================================================================= */
+
+/* Responsive D3 SVG: kapsayıcı genişliğine göre orantılı ölçeklenir */
+#d3MapContainer svg.vintage-d3-svg {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+/* Harita üzerinde pan/zoom yaparken sayfa kaymasını ve pull-to-refresh'i engelle */
+.map-container,
+#d3-map-wrapper,
+#d3MapContainer,
+#leafletMap {
+  touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Vintage Pusula Yükleniyor Animasyonu */
+.map-compass-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: rgba(249, 241, 223, 0.72);
+  pointer-events: none;
+}
+
+.theme-dark .map-compass-loader {
+  background: rgba(38, 27, 19, 0.72);
+}
+
+.map-compass-needle {
+  font-size: 2.6rem;
+  line-height: 1;
+  animation: compassSwing 1.4s ease-in-out infinite;
+  filter: drop-shadow(0 3px 4px rgba(62, 39, 35, 0.35));
+}
+
+.map-compass-text {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  color: var(--brown-deep);
+}
+
+@keyframes compassSwing {
+  0%   { transform: rotate(-35deg); }
+  50%  { transform: rotate(35deg); }
+  100% { transform: rotate(-35deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-compass-needle { animation: none; }
+}
+
+@media (max-width: 768px) {
+  /* Genel düzen */
+  .view-section { padding: 0 0.85rem; }
+  .app-header { padding: 0.7rem 0.9rem; margin-bottom: 1rem; }
+  .header-container { gap: 0.5rem; }
+  .brand-logo { font-size: 1.3rem; }
+  .nav-links { gap: 0.6rem; width: 100%; justify-content: space-between; }
+  .nav-link { font-size: 0.88rem; }
+
+  .hero-title { font-size: 2rem; }
+  .hero-subtitle { font-size: 1.3rem; }
+  .explore-hero { margin-bottom: 1.25rem; padding: 1rem 0.5rem; }
+
+  /* Harita + kontroller alt alta, harita tam genişlik */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .interactive-map-box,
+  .controls-box { padding: 0.85rem; }
+
+  /* D3 kapsayıcı: Türkiye'nin yatay oranına göre yükseklik (küçük görünme sorunu fix) */
+  .d3-container {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+  .map-footer-legend { font-size: 0.68rem; justify-content: center; text-align: center; }
+  .map-box-header { flex-wrap: wrap; }
+
+  /* "Yakınımdakileri Bul" ve filtreler alt alta */
+  .action-buttons,
+  .filter-bar,
+  .results-header,
+  .nearby-header,
+  .selection-info {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-bar { width: 100%; gap: 0.6rem; }
+  .places-grid,
+  .nearby-grid { grid-template-columns: 1fr; gap: 1.6rem; }
+
+  /* Dokunmatik hedefler en az 44px */
+  .btn-primary,
+  .btn-compass,
+  .btn-secondary,
+  .btn-map-back,
+  .btn-journal-toggle,
+  .btn-journal-close,
+  .btn-journal-remove,
+  .btn-journal-clear,
+  .card-route-btn,
+  .btn-back,
+  .btn-icon,
+  .theme-btn,
+  .nav-link,
+  .premium-select,
+  .search-input,
+  .filter-select {
+    min-height: 44px;
+  }
+  .nav-link { display: inline-flex; align-items: center; }
+  .theme-btn, .btn-icon, .btn-journal-close { min-width: 44px; }
+
+  /* Tam ekran Leaflet haritası */
+  #view-map.active { height: calc(100dvh - 120px); min-height: 420px; }
+  .map-toolbar {
+    margin: 0 0.6rem 0.6rem;
+    padding: 0.6rem 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .map-title { font-size: 1.1rem; }
+  .map-controls, .map-select { width: 100%; }
+  .fullscreen-map {
+    width: calc(100% - 1.2rem);
+    margin: 0 0.6rem 0.6rem;
+    min-height: 360px;
+  }
+
+  /* Seyahat Günlüğü: mobilde alttan açılan bottom-sheet */
+  .route-journal-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 82dvh;
+    border-left: none;
+    border-top: 3px double var(--brown-warm);
+    border-radius: 14px 14px 0 0;
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    transform: translateY(105%);
+    box-shadow: 0 -8px 30px rgba(28, 22, 18, 0.35);
+  }
+  .route-journal-panel.open { transform: translateY(0); }
+  .route-journal-panel::before {
+    content: "";
+    display: block;
+    width: 46px;
+    height: 5px;
+    margin: 0 auto 0.75rem;
+    border-radius: 3px;
+    background: var(--glass-border);
+  }
+  .journal-list { overscroll-behavior: contain; }
+
+  /* Hakkında sayfası parşömen mektup */
+  #view-about .atlas-parchment-letter {
+    padding: 1.5rem;
+    outline-offset: -7px;
+  }
+  #view-about .atlas-corner-ornament { width: 16px; height: 16px; }
+  #view-about .atlas-prose-section p { text-align: left; font-size: 1rem; }
+  #view-about .atlas-numbers-section { padding: 1.25rem 0.9rem; }
+
+  /* Mekan detay */
+  .vintage-ad-banner { padding: 0.9rem; }
+}
+
 
 
 

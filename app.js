@@ -232,9 +232,9 @@ function showView(viewId) {
   if (activeLink) activeLink.classList.add('active');
 
   if (viewId === 'map') {
-    [100, 300, 600].forEach(delay => {
-      setTimeout(() => { if (STATE.leafletMap) STATE.leafletMap.invalidateSize(); }, delay);
-    });
+    // display:none -> block geçişinden sonra Leaflet boyutunu yeniden hesaplasın (gri ekran fix)
+    setTimeout(() => { if (STATE.leafletMap) STATE.leafletMap.invalidateSize(); }, 200);
+    setTimeout(() => { if (STATE.leafletMap) STATE.leafletMap.invalidateSize(); }, 600);
   } else {
     // Harita dışı görünümlerde 1.6 sn gecikmeli (lazy) reklam yenilemesini planla
     scheduleRefreshAds(viewId);
@@ -249,6 +249,21 @@ function showLoader(msg = "Yükleniyor...") {
 
 function hideLoader() {
   DOM.loader.classList.add("hidden");
+}
+
+// Harita kapsayıcısı içinde küçük "Vintage Pusula / Yükleniyor..." animasyonu
+function showMapCompass(container, msg = "Harita çiziliyor...") {
+  if (!container || container.querySelector(".map-compass-loader")) return;
+  const el = document.createElement("div");
+  el.className = "map-compass-loader";
+  el.setAttribute("role", "status");
+  el.innerHTML = `<span class="map-compass-needle" aria-hidden="true">🧭</span><span class="map-compass-text">${msg}</span>`;
+  container.appendChild(el);
+}
+
+function hideMapCompass(container) {
+  const el = container && container.querySelector(".map-compass-loader");
+  if (el) el.remove();
 }
 
 // ================= PERFORMANCE UTILS (DEBOUNCE / THROTTLE / RAF) =================
@@ -309,18 +324,24 @@ function cleanupD3Map() {
 }
 
 // ================= D3 MAP INITIALIZATION =================
-async function initD3Map() {
-  try {
-    const res = await fetch("./assets/geo/tr_provinces_simplified.geojson");
-    if (!res.ok) throw new Error("GeoJSON fetching failed");
-    STATE.geoData = await res.json();
-    populateSelects();
-    // Container henüz 0x0 olabilir; gerçek boyut hazır olduğunda çiz
-    waitForContainerAndDraw();
-  } catch (error) {
-    console.error("Harita verisi yüklenemedi:", error);
-    DOM.d3Container.innerHTML = "<p style='color:red; padding:2rem;'>Harita dosyası (GeoJSON) yüklenemedi.</p>";
-  }
+function initD3Map() {
+  showMapCompass(DOM.d3Container, "Anadolu haritası açılıyor...");
+  return fetch("./assets/geo/tr_provinces_simplified.geojson")
+    .then(res => {
+      if (!res.ok) throw new Error("GeoJSON fetching failed");
+      return res.json();
+    })
+    .then(data => {
+      STATE.geoData = data;
+      populateSelects();
+      // Container henüz 0x0 olabilir; gerçek boyut hazır olduğunda çiz
+      waitForContainerAndDraw();
+    })
+    .catch(err => {
+      console.error("Harita verisi yüklenemedi:", err);
+      hideMapCompass(DOM.d3Container);
+      DOM.d3Container.innerHTML = "<p style='color:var(--accent-color); padding:2rem;'>Harita yüklenemedi. Lütfen bağlantınızı kontrol edip sayfayı yenileyin.</p>";
+    });
 }
 
 // BUG FIX: Container boyutu CSS layout tamamlanmadan 0 olabilir
@@ -418,10 +439,13 @@ function drawD3Map() {
       .append("div")
       .attr("class", "d3-map-tooltip");
 
+    hideMapCompass(container);
+    // Responsive SVG: sabit width/height yerine viewBox + preserveAspectRatio
     const svg = d3.select("#d3MapContainer").append("svg")
-      .attr("width", width)
-      .attr("height", height)
       .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .style("width", "100%")
+      .style("height", "auto")
       .attr("class", "vintage-d3-svg")
       .style("display", "block");
 
@@ -517,6 +541,7 @@ async function loadDistrictGeo(cityName) {
     DISTRICT_GEO_CACHE[cityName] = data;
     return data;
   } catch (e) {
+    console.error("Veri yüklenemedi:", e);
     return null;
   }
 }
@@ -551,10 +576,13 @@ function drawProvinceMap(cityName, districtGeo) {
       .append("div")
       .attr("class", "d3-map-tooltip");
 
+    hideMapCompass(container);
+    // Responsive SVG: sabit width/height yerine viewBox + preserveAspectRatio
     const svg = d3.select("#d3MapContainer").append("svg")
-      .attr("width", width)
-      .attr("height", height)
       .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .style("width", "100%")
+      .style("height", "auto")
       .attr("class", "vintage-d3-svg")
       .style("display", "block");
 
@@ -805,10 +833,15 @@ async function selectCity(cityName) {
   DOM.categoryFilter.disabled = false;
 
   // İlin mekan verisini ve ilçe sınırları haritasını paralel olarak anında yükle
+  showMapCompass(DOM.d3Container, `${cityName} haritası hazırlanıyor...`);
   const [, districtGeo] = await Promise.all([
     loadCityData(cityName),
     loadDistrictGeo(cityName)
-  ]);
+  ]).catch(err => {
+    console.error("İl verisi yüklenemedi:", err);
+    return [null, null];
+  });
+  hideMapCompass(DOM.d3Container);
 
   if (STATE.selectedCity === cityName) {
     drawProvinceMap(cityName, districtGeo);
@@ -867,6 +900,7 @@ async function loadStaticCityData(cityName) {
       tags: { wikipedia: p.wiki, wikidata: p.wikidata, image: p.image }
     }));
   } catch (e) {
+    console.error("Veri yüklenemedi:", e);
     return null;
   }
 }

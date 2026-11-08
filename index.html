@@ -1,31 +1,31 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gezi Atlası | Türkiye'nin İnteraktif Keşif ve Seyahat Rehberi</title>
-  <meta name="description" content="Türkiye'nin 81 ilindeki tarihi mekanları, antik kentleri, doğa harikalarını ve kamp alanlarını harita üzerinden keşfedin, kendi rotanızı planlayın.">
-  <meta name="keywords" content="gezi, seyahat, türkiye haritası, rotalar, antik kentler, doğa turizmi, gezi rehberi, gezi atlası">
-  <meta name="author" content="Gezi Atlası (geziatlasi.com.tr)">
+  <title>Gezi AtlasÄ± | TÃ¼rkiye'nin Ä°nteraktif KeÅŸif ve Seyahat Rehberi</title>
+  <meta name="description" content="TÃ¼rkiye'nin 81 ilindeki tarihi mekanlarÄ±, antik kentleri, doÄŸa harikalarÄ±nÄ± ve kamp alanlarÄ±nÄ± harita Ã¼zerinden keÅŸfedin, kendi rotanÄ±zÄ± planlayÄ±n.">
+  <meta name="keywords" content="gezi, seyahat, tÃ¼rkiye haritasÄ±, rotalar, antik kentler, doÄŸa turizmi, gezi rehberi, gezi atlasÄ±">
+  <meta name="author" content="Gezi AtlasÄ± (geziatlasi.com.tr)">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://geziatlasi.com.tr/">
 
-  <!-- Open Graph / Sosyal Medya Paylaşım Etiketleri -->
+  <!-- Open Graph / Sosyal Medya PaylaÅŸÄ±m Etiketleri -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Gezi Atlası">
+  <meta property="og:site_name" content="Gezi AtlasÄ±">
   <meta property="og:locale" content="tr_TR">
   <meta property="og:url" content="https://geziatlasi.com.tr/">
-  <meta property="og:title" content="Gezi Atlası | Türkiye'nin İnteraktif Keşif ve Seyahat Rehberi">
-  <meta property="og:description" content="Türkiye'nin 81 ilindeki tarihi mekanları, antik kentleri, doğa harikalarını ve kamp alanlarını harita üzerinden keşfedin, kendi rotanızı planlayın.">
+  <meta property="og:title" content="Gezi AtlasÄ± | TÃ¼rkiye'nin Ä°nteraktif KeÅŸif ve Seyahat Rehberi">
+  <meta property="og:description" content="TÃ¼rkiye'nin 81 ilindeki tarihi mekanlarÄ±, antik kentleri, doÄŸa harikalarÄ±nÄ± ve kamp alanlarÄ±nÄ± harita Ã¼zerinden keÅŸfedin, kendi rotanÄ±zÄ± planlayÄ±n.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1200&q=80&auto=format">
 
   <!-- Twitter Card Etiketleri -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gezi Atlası | Türkiye'nin İnteraktif Keşif ve Seyahat Rehberi">
-  <meta name="twitter:description" content="Türkiye'nin 81 ilindeki tarihi mekanları, antik kentleri, doğa harikalarını ve kamp alanlarını harita üzerinden keşfedin, kendi rotanızı planlayın.">
+  <meta name="twitter:title" content="Gezi AtlasÄ± | TÃ¼rkiye'nin Ä°nteraktif KeÅŸif ve Seyahat Rehberi">
+  <meta name="twitter:description" content="TÃ¼rkiye'nin 81 ilindeki tarihi mekanlarÄ±, antik kentleri, doÄŸa harikalarÄ±nÄ± ve kamp alanlarÄ±nÄ± harita Ã¼zerinden keÅŸfedin, kendi rotanÄ±zÄ± planlayÄ±n.">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1527838832700-5059252407fa?w=1200&q=80&auto=format">
   
-  <!-- Fonts: Vintage Kaşif & Daktilo & Serif -->
+  <!-- Fonts: Vintage KaÅŸif & Daktilo & Serif -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,700;0,800;1,600&family=Special+Elite&display=swap" rel="stylesheet">
@@ -36,14 +36,14 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
   
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=10.0-geziatlasi">
-  <link rel="stylesheet" href="./about-extra.css?v=10.0-geziatlasi">
+  <link rel="stylesheet" href="./style.css?v=11.0-mobile">
+  <link rel="stylesheet" href="./about-extra.css?v=11.0-mobile">
   <style>
-    /* Fotoğrafsız kartlar */
+    /* FotoÄŸrafsÄ±z kartlar */
     .place-card.no-photo .card-image-wrapper { display: none !important; }
     .place-card.no-photo { border-top: 3px solid var(--accent-color); }
     .place-card.no-photo .card-content { padding: 1.5rem 1.25rem; }
-    /* Blog görselleri */
+    /* Blog gÃ¶rselleri */
     .blog-card-image img { width:100%; height:100%; object-fit:cover; display:block; }
     .blog-card-image { overflow:hidden; }
   </style>
@@ -54,24 +54,24 @@
   <div id="loaderOverlay" class="loader-overlay hidden">
     <div class="loader-content">
       <div class="spinner"></div>
-      <p id="loaderMessage">Haritalar Hazırlanıyor...</p>
+      <p id="loaderMessage">Haritalar HazÄ±rlanÄ±yor...</p>
     </div>
   </div>
 
   <!-- HEADER -->
   <header class="app-header glass-panel">
     <div class="header-container">
-      <a href="#explore" class="brand-logo">🧭 Nereye Gidilir?</a>
+      <a href="#explore" class="brand-logo">ğŸ§­ Nereye Gidilir?</a>
       <nav class="nav-links">
-        <a href="#explore" class="nav-link active" data-target="explore">Keşfet</a>
+        <a href="#explore" class="nav-link active" data-target="explore">KeÅŸfet</a>
         <a href="#map" class="nav-link" data-target="map">Harita</a>
         <a href="#blog" class="nav-link" data-target="blog">Seyahatname</a>
-        <a href="#about" class="nav-link" data-target="about">Hakkında</a>
-        <button id="btnToggleJournal" type="button" class="btn-journal-toggle" aria-label="Seyahat Günlüğünü Aç">
-          <span>📜 Seyahat Günlüğü</span>
+        <a href="#about" class="nav-link" data-target="about">HakkÄ±nda</a>
+        <button id="btnToggleJournal" type="button" class="btn-journal-toggle" aria-label="Seyahat GÃ¼nlÃ¼ÄŸÃ¼nÃ¼ AÃ§">
+          <span>ğŸ“œ Seyahat GÃ¼nlÃ¼ÄŸÃ¼</span>
           <span id="routeCountBadge" class="route-count-badge">0</span>
         </button>
-        <button id="themeToggle" class="theme-btn" aria-label="Temayı Değiştir">
+        <button id="themeToggle" class="theme-btn" aria-label="TemayÄ± DeÄŸiÅŸtir">
           <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           <svg class="icon-sun hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
@@ -85,9 +85,9 @@
     <!-- VIEW 1: EXPLORE (HOME) -->
     <section id="view-explore" class="view-section active">
       <div class="explore-hero">
-        <div class="explorer-stamp-banner">🧭 ANADOLU SEYAHATNAMESİ • 81 İL KAŞİF HARİTASI</div>
-        <h1 class="hero-title">Türkiye'nin Güzelliklerini Keşfet</h1>
-        <p class="hero-subtitle">Katlanmış yol haritasından bir diyara dokun, pusulanı kur ve kendi seyahat günlüğünü oluştur.</p>
+        <div class="explorer-stamp-banner">ğŸ§­ ANADOLU SEYAHATNAMESÄ° â€¢ 81 Ä°L KAÅÄ°F HARÄ°TASI</div>
+        <h1 class="hero-title">TÃ¼rkiye'nin GÃ¼zelliklerini KeÅŸfet</h1>
+        <p class="hero-subtitle">KatlanmÄ±ÅŸ yol haritasÄ±ndan bir diyara dokun, pusulanÄ± kur ve kendi seyahat gÃ¼nlÃ¼ÄŸÃ¼nÃ¼ oluÅŸtur.</p>
       </div>
 
       <div class="dashboard-grid">
@@ -95,66 +95,66 @@
         <div class="interactive-map-box glass-panel">
           <div class="map-fold-creases" aria-hidden="true"></div>
           <div class="box-header map-box-header">
-            <span id="mapBoxTitle">🗺️ Katlanmış Anadolu Yol Haritası</span>
+            <span id="mapBoxTitle">ğŸ—ºï¸ KatlanmÄ±ÅŸ Anadolu Yol HaritasÄ±</span>
             <button id="btnBackToTurkeyMap" type="button" class="btn-map-back hidden">
-              ← Türkiye Haritasına Dön
+              â† TÃ¼rkiye HaritasÄ±na DÃ¶n
             </button>
           </div>
           <div id="d3MapContainer" class="d3-container"></div>
           <div class="map-footer-legend">
-            <span>🔴 Seçili Diyar / Mekan Mühürü</span>
-            <span>📜 İlçeye tıkla filtrele • İğneye tıkla detaya git</span>
-            <span>ÖLÇEK 1:2.500.000</span>
+            <span>ğŸ”´ SeÃ§ili Diyar / Mekan MÃ¼hÃ¼rÃ¼</span>
+            <span>ğŸ“œ Ä°lÃ§eye tÄ±kla filtrele â€¢ Ä°ÄŸneye tÄ±kla detaya git</span>
+            <span>Ã–LÃ‡EK 1:2.500.000</span>
           </div>
         </div>
 
         <!-- Controls Box -->
         <div class="controls-box glass-panel">
-          <div class="box-header">📌 Pusula &amp; Rotalar</div>
+          <div class="box-header">ğŸ“Œ Pusula &amp; Rotalar</div>
           <div class="selection-info">
-            <span id="globalCityLabel" class="highlight-badge">Tüm Türkiye</span>
+            <span id="globalCityLabel" class="highlight-badge">TÃ¼m TÃ¼rkiye</span>
             <span id="globalStatsLabel" class="stats-badge">Veri Yok</span>
           </div>
 
           <div class="input-group">
             <select id="provinceSelect" class="premium-select">
-              <option value="">İl Seçiniz...</option>
+              <option value="">Ä°l SeÃ§iniz...</option>
             </select>
           </div>
 
           <div class="input-group">
             <select id="districtSelect" class="premium-select" disabled>
-              <option value="">Önce İl Seçin</option>
+              <option value="">Ã–nce Ä°l SeÃ§in</option>
             </select>
           </div>
 
           <div class="action-buttons">
             <a href="#map" id="btnGoToMap" class="btn-primary disabled">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
-              Seçili İlin Haritasına Git
+              SeÃ§ili Ä°lin HaritasÄ±na Git
             </a>
             <button id="btnFindNearby" type="button" class="btn-compass">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
               </svg>
-              Yakınımdakileri Bul
+              YakÄ±nÄ±mdakileri Bul
             </button>
           </div>
 
-          <!-- Vintage Yan Panel İlan Köşesi (Haritadan İzole) -->
+          <!-- Vintage Yan Panel Ä°lan KÃ¶ÅŸesi (Haritadan Ä°zole) -->
           <div class="vintage-ad-slot vintage-ad-sidebar"
                data-ad-slot="1000000001"
                data-ad-format="auto"
-               aria-label="Sponsorlu Seyahatname İlanı">
+               aria-label="Sponsorlu Seyahatname Ä°lanÄ±">
             <div class="vintage-ad-header">
-              <span>📰 SEYAHATNAME İLAN KÖŞESİ</span>
+              <span>ğŸ“° SEYAHATNAME Ä°LAN KÃ–ÅESÄ°</span>
               <span class="vintage-ad-badge">SPONSORLU</span>
             </div>
             <div class="vintage-ad-body">
               <div class="vintage-ad-placeholder">
                 <strong>Anadolu Kervansaray &amp; Konaklama Rehberi</strong>
-                <p>Keşif rotanız üzerindeki tarihi konaklar, yerel lezzet durakları ve müze kart fırsatları.</p>
+                <p>KeÅŸif rotanÄ±z Ã¼zerindeki tarihi konaklar, yerel lezzet duraklarÄ± ve mÃ¼ze kart fÄ±rsatlarÄ±.</p>
               </div>
               <ins class="adsbygoogle"
                    style="display:block"
@@ -171,11 +171,11 @@
       <div id="nearbySection" class="nearby-section glass-panel hidden">
         <div class="nearby-header">
           <div>
-            <span class="nearby-eyebrow">🧭 Pusula Konum Tespiti</span>
-            <h2>Yakınınızdaki Keşif Noktaları</h2>
-            <p id="nearbySubtitle" class="nearby-subtitle">Konumunuza kuş uçuşu en yakın 10 tarihi ve doğal durak.</p>
+            <span class="nearby-eyebrow">ğŸ§­ Pusula Konum Tespiti</span>
+            <h2>YakÄ±nÄ±nÄ±zdaki KeÅŸif NoktalarÄ±</h2>
+            <p id="nearbySubtitle" class="nearby-subtitle">Konumunuza kuÅŸ uÃ§uÅŸu en yakÄ±n 10 tarihi ve doÄŸal durak.</p>
           </div>
-          <button id="btnCloseNearby" type="button" class="btn-map-back">✕ Kapat</button>
+          <button id="btnCloseNearby" type="button" class="btn-map-back">âœ• Kapat</button>
         </div>
         <div id="nearbyGrid" class="nearby-grid"></div>
       </div>
@@ -183,12 +183,12 @@
       <!-- Results List -->
       <div class="results-section">
         <div class="results-header">
-          <h2>Keşfet Listesi</h2>
+          <h2>KeÅŸfet Listesi</h2>
           <!-- Search & Filter Bar -->
           <div class="filter-bar glass-panel">
-            <input type="text" id="searchInput" class="search-input" placeholder="Mekan, müze, mağara ara..." disabled>
+            <input type="text" id="searchInput" class="search-input" placeholder="Mekan, mÃ¼ze, maÄŸara ara..." disabled>
             <select id="categoryFilter" class="filter-select" disabled>
-              <option value="">Tüm Kategoriler</option>
+              <option value="">TÃ¼m Kategoriler</option>
             </select>
           </div>
         </div>
@@ -196,7 +196,7 @@
         <div id="placesGrid" class="places-grid">
           <div class="empty-state">
             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <p>Lütfen önce arama yapmak için haritadan veya listeden bir il seçin.</p>
+            <p>LÃ¼tfen Ã¶nce arama yapmak iÃ§in haritadan veya listeden bir il seÃ§in.</p>
           </div>
         </div>
       </div>
@@ -205,13 +205,13 @@
     <!-- VIEW 2: MAP (LEAFLET FULLSCREEN) -->
     <section id="view-map" class="view-section">
       <div class="map-toolbar glass-panel">
-        <button id="btnBackFromMap" class="btn-icon" aria-label="Geri Dön">
+        <button id="btnBackFromMap" class="btn-icon" aria-label="Geri DÃ¶n">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
-        <div class="map-title" id="mapTitle">Şehir Haritası</div>
+        <div class="map-title" id="mapTitle">Åehir HaritasÄ±</div>
         <div class="map-controls">
           <select id="mapCategoryFilter" class="filter-select map-select">
-            <option value="">Tüm Kategoriler</option>
+            <option value="">TÃ¼m Kategoriler</option>
           </select>
         </div>
       </div>
@@ -222,26 +222,26 @@
     <section id="view-place" class="view-section">
       <button id="btnBackFromPlace" class="btn-back">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Geri Dön
+        Geri DÃ¶n
       </button>
 
       <div class="place-detail-container glass-panel">
         <div class="place-header">
           <div class="place-title-group">
             <span id="detailCategory" class="badge">Kategori</span>
-            <h1 id="detailTitle">Mekan İsmi</h1>
-            <p id="detailLocation" class="location-text">İl, İlçe</p>
+            <h1 id="detailTitle">Mekan Ä°smi</h1>
+            <p id="detailLocation" class="location-text">Ä°l, Ä°lÃ§e</p>
           </div>
         </div>
 
         <div class="place-content">
           <div class="place-image-col">
             <div id="detailImageWrapper" class="image-wrapper skeleton-loading">
-              <!-- Görüntü JS ile eklenecek -->
+              <!-- GÃ¶rÃ¼ntÃ¼ JS ile eklenecek -->
             </div>
             <div class="action-buttons-col">
               <button type="button" id="btnAddToRouteDetail" class="btn-compass full-width">
-                📜 Rotama Ekle
+                ğŸ“œ Rotama Ekle
               </button>
               <a href="#" id="btnDirections" target="_blank" class="btn-primary full-width">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
@@ -255,11 +255,11 @@
           </div>
           
           <div class="place-info-col">
-            <h3>Hakkında</h3>
-            <p id="detailDescription" class="description-text">Wikipedia'dan özet verisi çekiliyor...</p>
+            <h3>HakkÄ±nda</h3>
+            <p id="detailDescription" class="description-text">Wikipedia'dan Ã¶zet verisi Ã§ekiliyor...</p>
             
             <div class="tags-section">
-              <h3>Özellikler</h3>
+              <h3>Ã–zellikler</h3>
               <div id="detailTags" class="tags-container">
                 <!-- Tags JS ile eklenecek -->
               </div>
@@ -268,19 +268,19 @@
         </div>
       </div>
 
-      <!-- Mekan Detay Sayfası Altı Vintage Gazete Küpürü Reklam Alanı -->
+      <!-- Mekan Detay SayfasÄ± AltÄ± Vintage Gazete KÃ¼pÃ¼rÃ¼ Reklam AlanÄ± -->
       <div class="vintage-ad-slot vintage-ad-banner"
            data-ad-slot="1000000003"
            data-ad-format="horizontal"
-           aria-label="Sponsorlu Keşif Notu">
+           aria-label="Sponsorlu KeÅŸif Notu">
         <div class="vintage-ad-header">
-          <span>📜 SEYAHATNAME MECMUASI • DİYAR İLANI</span>
+          <span>ğŸ“œ SEYAHATNAME MECMUASI â€¢ DÄ°YAR Ä°LANI</span>
           <span class="vintage-ad-badge">SPONSORLU NOT</span>
         </div>
         <div class="vintage-ad-body">
           <div class="vintage-ad-placeholder">
-            <strong>Bu Diyarın Yerel Rehberi &amp; Gezi Notları</strong>
-            <p>Bölgedeki geleneksel zanaat atölyeleri, yöresel mutfak durakları ve kültür turları için ayrılmış ilan alanı.</p>
+            <strong>Bu DiyarÄ±n Yerel Rehberi &amp; Gezi NotlarÄ±</strong>
+            <p>BÃ¶lgedeki geleneksel zanaat atÃ¶lyeleri, yÃ¶resel mutfak duraklarÄ± ve kÃ¼ltÃ¼r turlarÄ± iÃ§in ayrÄ±lmÄ±ÅŸ ilan alanÄ±.</p>
           </div>
           <ins class="adsbygoogle"
                style="display:block"
@@ -292,107 +292,107 @@
       </div>
     </section>
 
-    <!-- VIEW 4: ABOUT (GEZİ ATLASI SEYAHATNAME ÖNSÖZÜ & MANİFESTOSU) -->
+    <!-- VIEW 4: ABOUT (GEZÄ° ATLASI SEYAHATNAME Ã–NSÃ–ZÃœ & MANÄ°FESTOSU) -->
     <section id="view-about" class="view-section">
       <div class="atlas-epistle-wrapper">
 
-        <!-- Parşömen Mektup / Seyahatname Önsözü Sayfası -->
+        <!-- ParÅŸÃ¶men Mektup / Seyahatname Ã–nsÃ¶zÃ¼ SayfasÄ± -->
         <article class="atlas-parchment-letter">
           <div class="atlas-corner-ornament top-left" aria-hidden="true"></div>
           <div class="atlas-corner-ornament top-right" aria-hidden="true"></div>
           <div class="atlas-corner-ornament bottom-left" aria-hidden="true"></div>
           <div class="atlas-corner-ornament bottom-right" aria-hidden="true"></div>
 
-          <!-- Üst Mühür ve Kayıt Damgası -->
+          <!-- Ãœst MÃ¼hÃ¼r ve KayÄ±t DamgasÄ± -->
           <header class="atlas-letter-header">
             <div class="atlas-typewriter-stamp">
-              <span>📜 SEYAHATNAME ÖNSÖZÜ • GEZİATLASI.COM.TR</span>
+              <span>ğŸ“œ SEYAHATNAME Ã–NSÃ–ZÃœ â€¢ GEZÄ°ATLASI.COM.TR</span>
               <span>KAYIT NO: TR-81/973</span>
             </div>
-            <div class="atlas-wax-emblem" aria-hidden="true">🧭</div>
-            <h1 class="atlas-main-title">Gezi Atlası'na Hoş Geldiniz</h1>
+            <div class="atlas-wax-emblem" aria-hidden="true">ğŸ§­</div>
+            <h1 class="atlas-main-title">Gezi AtlasÄ±'na HoÅŸ Geldiniz</h1>
             <p class="atlas-epigraph">
-              “Her harita bir davet, her patika unutulmuş bir hikayenin ilk satırıdır.”
+              â€œHer harita bir davet, her patika unutulmuÅŸ bir hikayenin ilk satÄ±rÄ±dÄ±r.â€
             </p>
             <div class="atlas-ink-divider" aria-hidden="true">
-              <span>✦</span>
+              <span>âœ¦</span>
             </div>
           </header>
 
-          <!-- Biz Kimiz / Amacımız (Edebi Seyahatname Metni) -->
+          <!-- Biz Kimiz / AmacÄ±mÄ±z (Edebi Seyahatname Metni) -->
           <section class="atlas-prose-section">
-            <h2 class="atlas-section-heading">Biz Kimiz ve Yola Çıkış Amacımız</h2>
+            <h2 class="atlas-section-heading">Biz Kimiz ve Yola Ã‡Ä±kÄ±ÅŸ AmacÄ±mÄ±z</h2>
             <p class="atlas-lead-paragraph">
-              <span class="atlas-dropcap">A</span>nadolu; binlerce yıllık taş sütunların gölgesinde dinlenen antik kentlerin, sarp kanyonlardan süzülen gümüş şelalelerin, asırlık kervansarayların ve rüzgârın fısıldadığı saklı koyların yurdudur. <strong>Gezi Atlası</strong>, Türkiye'nin 81 ilindeki antik çağlardan günümüze uzanan tarihi mirasları, müzeleri, tabiat anıtlarını ve keşfedilmeyi bekleyen durakları tek bir interaktif yol haritasında birleştiren bağımsız bir kültür ve keşif rehberidir.
+              <span class="atlas-dropcap">A</span>nadolu; binlerce yÄ±llÄ±k taÅŸ sÃ¼tunlarÄ±n gÃ¶lgesinde dinlenen antik kentlerin, sarp kanyonlardan sÃ¼zÃ¼len gÃ¼mÃ¼ÅŸ ÅŸelalelerin, asÄ±rlÄ±k kervansaraylarÄ±n ve rÃ¼zgÃ¢rÄ±n fÄ±sÄ±ldadÄ±ÄŸÄ± saklÄ± koylarÄ±n yurdudur. <strong>Gezi AtlasÄ±</strong>, TÃ¼rkiye'nin 81 ilindeki antik Ã§aÄŸlardan gÃ¼nÃ¼mÃ¼ze uzanan tarihi miraslarÄ±, mÃ¼zeleri, tabiat anÄ±tlarÄ±nÄ± ve keÅŸfedilmeyi bekleyen duraklarÄ± tek bir interaktif yol haritasÄ±nda birleÅŸtiren baÄŸÄ±msÄ±z bir kÃ¼ltÃ¼r ve keÅŸif rehberidir.
             </p>
             <p>
-              Yolculuğun yalnızca bir noktadan diğerine varmak değil, geçilen toprakların hafızasına dokunmak olduğuna inanıyoruz. Bu yüzden <em>Gezi Atlası</em>'nı soğuk ve karmaşık listeler yerine; elinize aldığınızda sizi yola çıkmaya çağıran, kat izleri arasında Anadolu'nun ruhunu taşıyan yaşayan bir seyahatname olarak tasarladık.
+              YolculuÄŸun yalnÄ±zca bir noktadan diÄŸerine varmak deÄŸil, geÃ§ilen topraklarÄ±n hafÄ±zasÄ±na dokunmak olduÄŸuna inanÄ±yoruz. Bu yÃ¼zden <em>Gezi AtlasÄ±</em>'nÄ± soÄŸuk ve karmaÅŸÄ±k listeler yerine; elinize aldÄ±ÄŸÄ±nÄ±zda sizi yola Ã§Ä±kmaya Ã§aÄŸÄ±ran, kat izleri arasÄ±nda Anadolu'nun ruhunu taÅŸÄ±yan yaÅŸayan bir seyahatname olarak tasarladÄ±k.
             </p>
             <p>
-              İster hafta sonu sığınacağınız sessiz bir yayla patikası arayın, ister medeniyetlerin izini süreceğiniz uzun bir kültür rotası çizin; pusulanızı kurmanız ve kendi seyahat günlüğünüzü yazmanız için tüm Anadolu burada, parmaklarınızın ucunda.
+              Ä°ster hafta sonu sÄ±ÄŸÄ±nacaÄŸÄ±nÄ±z sessiz bir yayla patikasÄ± arayÄ±n, ister medeniyetlerin izini sÃ¼receÄŸiniz uzun bir kÃ¼ltÃ¼r rotasÄ± Ã§izin; pusulanÄ±zÄ± kurmanÄ±z ve kendi seyahat gÃ¼nlÃ¼ÄŸÃ¼nÃ¼zÃ¼ yazmanÄ±z iÃ§in tÃ¼m Anadolu burada, parmaklarÄ±nÄ±zÄ±n ucunda.
             </p>
           </section>
 
-          <!-- Rakamlarla Gezi Atlası (İnfografik Alanı) -->
-          <section class="atlas-numbers-section" aria-label="Rakamlarla Gezi Atlası">
+          <!-- Rakamlarla Gezi AtlasÄ± (Ä°nfografik AlanÄ±) -->
+          <section class="atlas-numbers-section" aria-label="Rakamlarla Gezi AtlasÄ±">
             <div class="atlas-numbers-header">
-              <span class="atlas-eyebrow-tag">KEŞİF ENVANTERİ</span>
-              <h2 class="atlas-section-heading">Rakamlarla Gezi Atlası</h2>
+              <span class="atlas-eyebrow-tag">KEÅÄ°F ENVANTERÄ°</span>
+              <h2 class="atlas-section-heading">Rakamlarla Gezi AtlasÄ±</h2>
             </div>
 
             <div class="atlas-infographic-grid">
               <div class="atlas-stat-card">
-                <div class="atlas-stat-icon" aria-hidden="true">🗺️</div>
-                <div class="atlas-stat-number">81 İl</div>
-                <div class="atlas-stat-label">Trakya'dan Mezopotamya'ya, Karadeniz'den Akdeniz'e uzanan eksiksiz kültür haritası</div>
+                <div class="atlas-stat-icon" aria-hidden="true">ğŸ—ºï¸</div>
+                <div class="atlas-stat-number">81 Ä°l</div>
+                <div class="atlas-stat-label">Trakya'dan Mezopotamya'ya, Karadeniz'den Akdeniz'e uzanan eksiksiz kÃ¼ltÃ¼r haritasÄ±</div>
               </div>
 
               <div class="atlas-stat-card">
-                <div class="atlas-stat-icon" aria-hidden="true">🧭</div>
-                <div class="atlas-stat-number">973 İlçe</div>
-                <div class="atlas-stat-label">Her diyara özel sınırlarıyla adım adım işlenmiş yerel keşif ve rota rehberi</div>
+                <div class="atlas-stat-icon" aria-hidden="true">ğŸ§­</div>
+                <div class="atlas-stat-number">973 Ä°lÃ§e</div>
+                <div class="atlas-stat-label">Her diyara Ã¶zel sÄ±nÄ±rlarÄ±yla adÄ±m adÄ±m iÅŸlenmiÅŸ yerel keÅŸif ve rota rehberi</div>
               </div>
 
               <div class="atlas-stat-card">
-                <div class="atlas-stat-icon" aria-hidden="true">🏛️</div>
+                <div class="atlas-stat-icon" aria-hidden="true">ğŸ›ï¸</div>
                 <div class="atlas-stat-number">7.868</div>
-                <div class="atlas-stat-subtitle">Doğrulanmış Keşif Noktası</div>
-                <div class="atlas-stat-label">Antik kentler, kaleler, müzeler, mağaralar, şelaleler ve tarihi yapılar</div>
+                <div class="atlas-stat-subtitle">DoÄŸrulanmÄ±ÅŸ KeÅŸif NoktasÄ±</div>
+                <div class="atlas-stat-label">Antik kentler, kaleler, mÃ¼zeler, maÄŸaralar, ÅŸelaleler ve tarihi yapÄ±lar</div>
               </div>
             </div>
           </section>
 
-          <!-- Seyyahın Pusulası: 3 Adımda Keşif Felsefemiz -->
+          <!-- SeyyahÄ±n PusulasÄ±: 3 AdÄ±mda KeÅŸif Felsefemiz -->
           <section class="atlas-pillars-section">
-            <h2 class="atlas-section-heading">Bir Seyyahın Pusulası</h2>
+            <h2 class="atlas-section-heading">Bir SeyyahÄ±n PusulasÄ±</h2>
             <div class="atlas-pillars-grid">
               <div class="atlas-pillar-item">
                 <span class="atlas-pillar-num">I.</span>
-                <h3>Diyarı Seçin</h3>
-                <p>Katlanmış Anadolu haritası üzerinde gönlünüzün düştüğü ile ve ilçeye dokunarak o toprağın saklı mirasını gün yüzüne çıkarın.</p>
+                <h3>DiyarÄ± SeÃ§in</h3>
+                <p>KatlanmÄ±ÅŸ Anadolu haritasÄ± Ã¼zerinde gÃ¶nlÃ¼nÃ¼zÃ¼n dÃ¼ÅŸtÃ¼ÄŸÃ¼ ile ve ilÃ§eye dokunarak o topraÄŸÄ±n saklÄ± mirasÄ±nÄ± gÃ¼n yÃ¼zÃ¼ne Ã§Ä±karÄ±n.</p>
               </div>
               <div class="atlas-pillar-item">
                 <span class="atlas-pillar-num">II.</span>
-                <h3>Hikâyesini Okuyun</h3>
-                <p>Her durağın geçmişini, fotoğraflarını ve coğrafi konumunu inceleyerek gideceğiniz yeri daha yola çıkmadan tanıyın.</p>
+                <h3>HikÃ¢yesini Okuyun</h3>
+                <p>Her duraÄŸÄ±n geÃ§miÅŸini, fotoÄŸraflarÄ±nÄ± ve coÄŸrafi konumunu inceleyerek gideceÄŸiniz yeri daha yola Ã§Ä±kmadan tanÄ±yÄ±n.</p>
               </div>
               <div class="atlas-pillar-item">
                 <span class="atlas-pillar-num">III.</span>
-                <h3>Seyahat Günlüğünüzü Kurun</h3>
-                <p>Beğendiğiniz durakları kendi seyahat günlüğünüze ekleyin ve tek dokunuşla size özel yol rotanızı başlatın.</p>
+                <h3>Seyahat GÃ¼nlÃ¼ÄŸÃ¼nÃ¼zÃ¼ Kurun</h3>
+                <p>BeÄŸendiÄŸiniz duraklarÄ± kendi seyahat gÃ¼nlÃ¼ÄŸÃ¼nÃ¼ze ekleyin ve tek dokunuÅŸla size Ã¶zel yol rotanÄ±zÄ± baÅŸlatÄ±n.</p>
               </div>
             </div>
           </section>
 
-          <!-- Mektup Altı İmza, Mühür ve Keşfe Çağrı -->
+          <!-- Mektup AltÄ± Ä°mza, MÃ¼hÃ¼r ve KeÅŸfe Ã‡aÄŸrÄ± -->
           <footer class="atlas-letter-footer">
             <div class="atlas-signature-block">
-              <p class="atlas-handwritten-sign">Yolunuz açık, pusulanız daima doğru olsun...</p>
-              <span class="atlas-typewriter-meta">GEZİ ATLASI YAYIN KURULU • ANADOLU KEŞİF REHBERİ</span>
+              <p class="atlas-handwritten-sign">Yolunuz aÃ§Ä±k, pusulanÄ±z daima doÄŸru olsun...</p>
+              <span class="atlas-typewriter-meta">GEZÄ° ATLASI YAYIN KURULU â€¢ ANADOLU KEÅÄ°F REHBERÄ°</span>
             </div>
             <div class="atlas-cta-action">
               <a href="#explore" class="btn-primary atlas-explore-btn">
-                🧭 Haritayı Aç ve Keşfe Başla
+                ğŸ§­ HaritayÄ± AÃ§ ve KeÅŸfe BaÅŸla
               </a>
             </div>
           </footer>
@@ -407,8 +407,8 @@
       <div class="static-page-container">
         <div class="static-page-hero">
           <span class="static-page-tag">Seyahat Rehberi</span>
-          <h1>Türkiye'yi Keşfeden Yazılar</h1>
-          <p>Gizli koylar, yüzyıllık kentler ve doğanın harikalarına dair rehber yazıları.</p>
+          <h1>TÃ¼rkiye'yi KeÅŸfeden YazÄ±lar</h1>
+          <p>Gizli koylar, yÃ¼zyÄ±llÄ±k kentler ve doÄŸanÄ±n harikalarÄ±na dair rehber yazÄ±larÄ±.</p>
         </div>
 
         <div class="blog-grid">
@@ -417,87 +417,87 @@
               <img src="https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?w=700&q=80&auto=format" alt="Efes Antik Kenti" loading="lazy">
             </div>
             <div class="blog-card-content">
-              <span class="blog-tag">Tarih &amp; Kültür</span>
-              <h3>Türkiye'nin En Büyük 10 Antik Kenti</h3>
-              <p>Efes'ten Perge'ye, Aspendos'tan Hierapolis'e uzanan yolculukta Anadolu'nun binlerce yıllık mirasını keşfedin. Bu kentlerin her biri, Türkiye'nin katmanlı tarihini gözler önüne serer.</p>
+              <span class="blog-tag">Tarih &amp; KÃ¼ltÃ¼r</span>
+              <h3>TÃ¼rkiye'nin En BÃ¼yÃ¼k 10 Antik Kenti</h3>
+              <p>Efes'ten Perge'ye, Aspendos'tan Hierapolis'e uzanan yolculukta Anadolu'nun binlerce yÄ±llÄ±k mirasÄ±nÄ± keÅŸfedin. Bu kentlerin her biri, TÃ¼rkiye'nin katmanlÄ± tarihini gÃ¶zler Ã¶nÃ¼ne serer.</p>
               <div class="blog-meta">
-                <span>📅 Mayıs 2026</span>
-                <span>⏱️ 8 dk okuma</span>
+                <span>ğŸ“… MayÄ±s 2026</span>
+                <span>â±ï¸ 8 dk okuma</span>
               </div>
             </div>
           </article>
 
           <article class="blog-card glass-panel" id="blog-2">
             <div class="blog-card-image">
-              <img src="https://images.unsplash.com/photo-1503435824048-a799a3a84bf7?w=700&q=80&auto=format" alt="Karadeniz Şelale" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1503435824048-a799a3a84bf7?w=700&q=80&auto=format" alt="Karadeniz Åelale" loading="lazy">
             </div>
             <div class="blog-card-content">
-              <span class="blog-tag">Doğa &amp; Macera</span>
-              <h3>Karadeniz'in Saklı Şelaleleri</h3>
-              <p>Trabzon'dan Artvin'e uzanan Karadeniz hattında, kalabalıktan uzak, sizi büyüleyecek 7 şelaleyi derledik. Her biri doğa yürüyüşçüleri için ayrı bir cennet.</p>
+              <span class="blog-tag">DoÄŸa &amp; Macera</span>
+              <h3>Karadeniz'in SaklÄ± Åelaleleri</h3>
+              <p>Trabzon'dan Artvin'e uzanan Karadeniz hattÄ±nda, kalabalÄ±ktan uzak, sizi bÃ¼yÃ¼leyecek 7 ÅŸelaleyi derledik. Her biri doÄŸa yÃ¼rÃ¼yÃ¼ÅŸÃ§Ã¼leri iÃ§in ayrÄ± bir cennet.</p>
               <div class="blog-meta">
-                <span>📅 Nisan 2026</span>
-                <span>⏱️ 6 dk okuma</span>
+                <span>ğŸ“… Nisan 2026</span>
+                <span>â±ï¸ 6 dk okuma</span>
               </div>
             </div>
           </article>
 
           <article class="blog-card glass-panel" id="blog-3">
             <div class="blog-card-image">
-              <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=700&q=80&auto=format" alt="Topkapı Sarayı" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=700&q=80&auto=format" alt="TopkapÄ± SarayÄ±" loading="lazy">
             </div>
             <div class="blog-card-content">
-              <span class="blog-tag">Müzeler</span>
-              <h3>İstanbul'dan Ankara'ya Mutlaka Görülmesi Gereken Müzeler</h3>
-              <p>Topkapı Sarayı'ndan Anadolu Medeniyetleri Müzesi'ne, Türkiye'nin en çarpıcı müze deneyimlerini sıraladık. Hangi şehre gideceksiniz?</p>
+              <span class="blog-tag">MÃ¼zeler</span>
+              <h3>Ä°stanbul'dan Ankara'ya Mutlaka GÃ¶rÃ¼lmesi Gereken MÃ¼zeler</h3>
+              <p>TopkapÄ± SarayÄ±'ndan Anadolu Medeniyetleri MÃ¼zesi'ne, TÃ¼rkiye'nin en Ã§arpÄ±cÄ± mÃ¼ze deneyimlerini sÄ±raladÄ±k. Hangi ÅŸehre gideceksiniz?</p>
               <div class="blog-meta">
-                <span>📅 Mart 2026</span>
-                <span>⏱️ 10 dk okuma</span>
+                <span>ğŸ“… Mart 2026</span>
+                <span>â±ï¸ 10 dk okuma</span>
               </div>
             </div>
           </article>
 
           <article class="blog-card glass-panel" id="blog-4">
             <div class="blog-card-image">
-              <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=700&q=80&auto=format" alt="Doğu Anadolu Dağları" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=700&q=80&auto=format" alt="DoÄŸu Anadolu DaÄŸlarÄ±" loading="lazy">
             </div>
             <div class="blog-card-content">
-              <span class="blog-tag">Dağ &amp; Yayla</span>
-              <h3>Doğu Anadolu'nun Yaylaları: Bir Çoban Yolu</h3>
-              <p>Erzurum'dan Van Gölü kıyısına, Hakkari zirvelerinden Ardahan ovalarına uzanan bu güzergah, Türkiye'nin vahşi güzelliğini en saf haliyle yaşatır.</p>
+              <span class="blog-tag">DaÄŸ &amp; Yayla</span>
+              <h3>DoÄŸu Anadolu'nun YaylalarÄ±: Bir Ã‡oban Yolu</h3>
+              <p>Erzurum'dan Van GÃ¶lÃ¼ kÄ±yÄ±sÄ±na, Hakkari zirvelerinden Ardahan ovalarÄ±na uzanan bu gÃ¼zergah, TÃ¼rkiye'nin vahÅŸi gÃ¼zelliÄŸini en saf haliyle yaÅŸatÄ±r.</p>
               <div class="blog-meta">
-                <span>📅 Şubat 2026</span>
-                <span>⏱️ 7 dk okuma</span>
+                <span>ğŸ“… Åubat 2026</span>
+                <span>â±ï¸ 7 dk okuma</span>
               </div>
             </div>
           </article>
 
           <article class="blog-card glass-panel" id="blog-5">
             <div class="blog-card-image">
-              <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=700&q=80&auto=format" alt="Osmanlı Mimarisi" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=700&q=80&auto=format" alt="OsmanlÄ± Mimarisi" loading="lazy">
             </div>
             <div class="blog-card-content">
               <span class="blog-tag">Mimari</span>
-              <h3>Selçuklu'dan Osmanlı'ya: Anadolu'nun Taş Eserleri</h3>
-              <p>Konya Mevlana'dan Edirne Selimiye'ye, Osmanlı ve Selçuklu mimarisinin zirvelerini içeren bu rehber, tarih tutkunları için vazgeçilmezdir.</p>
+              <h3>SelÃ§uklu'dan OsmanlÄ±'ya: Anadolu'nun TaÅŸ Eserleri</h3>
+              <p>Konya Mevlana'dan Edirne Selimiye'ye, OsmanlÄ± ve SelÃ§uklu mimarisinin zirvelerini iÃ§eren bu rehber, tarih tutkunlarÄ± iÃ§in vazgeÃ§ilmezdir.</p>
               <div class="blog-meta">
-                <span>📅 Ocak 2026</span>
-                <span>⏱️ 9 dk okuma</span>
+                <span>ğŸ“… Ocak 2026</span>
+                <span>â±ï¸ 9 dk okuma</span>
               </div>
             </div>
           </article>
 
           <article class="blog-card glass-panel" id="blog-6">
             <div class="blog-card-image">
-              <img src="https://images.unsplash.com/photo-1527838832700-5059252407fa?w=700&q=80&auto=format" alt="Kapadokya Peri Bacaları" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1527838832700-5059252407fa?w=700&q=80&auto=format" alt="Kapadokya Peri BacalarÄ±" loading="lazy">
             </div>
             <div class="blog-card-content">
               <span class="blog-tag">Jeoloji</span>
-              <h3>Kapadokya'nın Peri Bacaları: Oluşum Sırları</h3>
-              <p>Milyonlarca yıllık volkanik ve erozyon süreci nasıl bu eşsiz manzarayı yarattı? Kapadokya'nın jeolojik hikayesi ve en iyi izleme noktaları.</p>
+              <h3>Kapadokya'nÄ±n Peri BacalarÄ±: OluÅŸum SÄ±rlarÄ±</h3>
+              <p>Milyonlarca yÄ±llÄ±k volkanik ve erozyon sÃ¼reci nasÄ±l bu eÅŸsiz manzarayÄ± yarattÄ±? Kapadokya'nÄ±n jeolojik hikayesi ve en iyi izleme noktalarÄ±.</p>
               <div class="blog-meta">
-                <span>📅 Aralık 2025</span>
-                <span>⏱️ 5 dk okuma</span>
+                <span>ğŸ“… AralÄ±k 2025</span>
+                <span>â±ï¸ 5 dk okuma</span>
               </div>
             </div>
           </article>
@@ -507,32 +507,32 @@
 
   </main>
 
-  <!-- SEYAHAT GÜNLÜĞÜ (ROUTE JOURNAL) YAN PANELİ -->
+  <!-- SEYAHAT GÃœNLÃœÄÃœ (ROUTE JOURNAL) YAN PANELÄ° -->
   <div id="routeJournalBackdrop" class="journal-backdrop hidden"></div>
-  <aside id="routeJournalPanel" class="route-journal-panel" aria-label="Seyahat Günlüğü">
+  <aside id="routeJournalPanel" class="route-journal-panel" aria-label="Seyahat GÃ¼nlÃ¼ÄŸÃ¼">
     <div class="journal-header">
       <div>
-        <span class="journal-stamp">KAŞİF DEFTERİ</span>
-        <h3>📜 Seyahat Günlüğü</h3>
+        <span class="journal-stamp">KAÅÄ°F DEFTERÄ°</span>
+        <h3>ğŸ“œ Seyahat GÃ¼nlÃ¼ÄŸÃ¼</h3>
       </div>
-      <button id="btnCloseJournal" type="button" class="btn-journal-close" aria-label="Kapat">✕</button>
+      <button id="btnCloseJournal" type="button" class="btn-journal-close" aria-label="Kapat">âœ•</button>
     </div>
-    <p class="journal-desc">Gezmek istediğiniz durakları sıraya ekleyin ve tek tıkla çok duraklı keşif rotanızı başlatın.</p>
+    <p class="journal-desc">Gezmek istediÄŸiniz duraklarÄ± sÄ±raya ekleyin ve tek tÄ±kla Ã§ok duraklÄ± keÅŸif rotanÄ±zÄ± baÅŸlatÄ±n.</p>
     <div id="routeJournalList" class="journal-list">
       <!-- JS ile doldurulur -->
     </div>
     <div class="journal-footer">
       <button id="btnStartRoute" type="button" class="btn-primary full-width disabled">
-        🧭 Rotayı Başlat (Google Maps)
+        ğŸ§­ RotayÄ± BaÅŸlat (Google Maps)
       </button>
       <button id="btnClearRoute" type="button" class="btn-journal-clear hidden">
-        Günlüğü Temizle
+        GÃ¼nlÃ¼ÄŸÃ¼ Temizle
       </button>
     </div>
   </aside>
 
   <footer class="app-footer">
-    <p>&copy; 2026 Gezi Atlası (geziatlasi.com.tr) • Türkiye'nin İnteraktif Keşif ve Seyahat Rehberi</p>
+    <p>&copy; 2026 Gezi AtlasÄ± (geziatlasi.com.tr) â€¢ TÃ¼rkiye'nin Ä°nteraktif KeÅŸif ve Seyahat Rehberi</p>
   </footer>
 
   <!-- Scripts -->
@@ -540,7 +540,7 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   
-  <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=10.0-geziatlasi"></script>
+  <!-- Yekpare Single Page UygulamasÄ± MantÄ±ÄŸÄ± -->
+  <script src="./app.js?v=11.0-mobile"></script>
 </body>
 </html>
