@@ -109,7 +109,13 @@ const DOM = {
   nearbySection: document.getElementById("nearbySection"),
   nearbyGrid: document.getElementById("nearbyGrid"),
   nearbySubtitle: document.getElementById("nearbySubtitle"),
-  btnCloseNearby: document.getElementById("btnCloseNearby")
+  btnCloseNearby: document.getElementById("btnCloseNearby"),
+  // Yöre Sofrası (restoranlar)
+  foodSection: document.getElementById("foodSection"),
+  foodTitle: document.getElementById("foodTitle"),
+  foodSubtitle: document.getElementById("foodSubtitle"),
+  foodList: document.getElementById("foodList"),
+  btnShowFood: document.getElementById("btnShowFood")
 };
 
 
@@ -267,6 +273,194 @@ function sizedImageUrl(url, width) {
       : `${url}${url.includes("?") ? "&" : "?"}width=${width}`;
   }
   return url;
+}
+
+// ================= YÖRE SOFRASI: GOOGLE YORUMLU RESTORANLAR =================
+// Google Maps Platform şartları gereği puan/yorum verisi JSON'a KAYDEDİLMEZ; kullanıcı
+// "Restoranları Göster" düğmesine bastığında canlı çekilir (ilk ekranda hiç istek atılmaz).
+// Anahtar: Google Cloud → "Maps JavaScript API" + "Places API (New)" etkin, HTTP referrer
+// kısıtlaması: https://geziatlasi.com.tr/*  (anahtar boşsa bölüm hiç görünmez)
+const GOOGLE_PLACES_CONFIG = {
+  apiKey: "",
+  minRating: 4.0,      // bu puanın altındaki yerler listelenmez
+  minReviews: 20,      // çok az yorumlu (güvenilmez) yerleri ele
+  maxShown: 10
+};
+
+const _foodCache = new Map(); // yalnızca bu sayfa oturumu boyunca (bellekte) tutulur
+let _gmLoadPromise = null;
+let _foodAreaKey = "";
+let _foodRequestToken = 0;
+
+function foodFeatureEnabled() {
+  return Boolean(GOOGLE_PLACES_CONFIG.apiKey);
+}
+
+function loadGoogleMapsApi() {
+  if (window.google && window.google.maps && typeof window.google.maps.importLibrary === "function") {
+    return Promise.resolve();
+  }
+  if (_gmLoadPromise) return _gmLoadPromise;
+  _gmLoadPromise = new Promise((resolve, reject) => {
+    const cbName = "__geziAtlasiGmReady";
+    window[cbName] = () => resolve();
+    window.gm_authFailure = () => reject(new Error("auth"));
+    const script = document.createElement("script");
+    script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GOOGLE_PLACES_CONFIG.apiKey)
+      + "&v=weekly&loading=async&language=tr&region=TR&callback=" + cbName;
+    script.async = true;
+    script.onerror = () => { _gmLoadPromise = null; reject(new Error("load")); };
+    document.head.appendChild(script);
+  });
+  return _gmLoadPromise;
+}
+
+// Seçili ilçenin (yoksa ilin) sınır kutusu → arama yalnızca bu alanla sınırlanır
+function getFoodAreaBounds() {
+  let feature = null;
+  if (STATE.selectedDistrict) {
+    const dg = DISTRICT_GEO_CACHE[STATE.selectedCity];
+    feature = dg && dg.features.find(f => f.properties && f.properties.name_tr === STATE.selectedDistrict);
+  }
+  if (!feature && STATE.geoData) {
+    feature = STATE.geoData.features.find(f => f.properties.name_tr === STATE.selectedCity);
+  }
+  if (!feature) return null;
+  const [[west, south], [east, north]] = d3.geoBounds(feature);
+  return { west, south, east, north };
+}
+
+function updateFoodSection() {
+  if (!DOM.foodSection) return;
+  if (!foodFeatureEnabled() || !STATE.selectedCity) {
+    DOM.foodSection.classList.add("hidden");
+    _foodAreaKey = "";
+    return;
+  }
+  DOM.foodSection.classList.remove("hidden");
+  const area = STATE.selectedDistrict ? `${STATE.selectedDistrict}, ${STATE.selectedCity}` : STATE.selectedCity;
+  const key = `${STATE.selectedCity}|${STATE.selectedDistrict || ""}`;
+  if (key === _foodAreaKey) return;
+  _foodAreaKey = key;
+  _foodRequestToken++;
+  DOM.foodTitle.textContent = `${area}: Nerede Yenir?`;
+  DOM.foodSubtitle.textContent = `Google yorumlarında yüksek puan almış, ${area} bölgesinde en çok tercih edilen lokantalar.`;
+  DOM.foodList.hidden = true;
+  DOM.foodList.replaceChildren();
+  DOM.btnShowFood.textContent = "🍲 Restoranları Göster";
+  DOM.btnShowFood.setAttribute("aria-expanded", "false");
+}
+
+const PRICE_LABELS = { FREE: "Ücretsiz", INEXPENSIVE: "₺", MODERATE: "₺₺", EXPENSIVE: "₺₺₺", VERY_EXPENSIVE: "₺₺₺₺" };
+
+function renderFoodStatus(text) {
+  const div = document.createElement("div");
+  div.className = "food-status";
+  div.textContent = text;
+  DOM.foodList.replaceChildren(div);
+}
+
+function renderFoodResults(items, area) {
+  if (!items.length) {
+    renderFoodStatus(`${area} için yeterince yorum almış, ${GOOGLE_PLACES_CONFIG.minRating.toFixed(1)}+ puanlı restoran bulunamadı.`);
+    return;
+  }
+  const ol = document.createElement("ol");
+  ol.className = "food-items";
+  items.forEach((r, i) => {
+    const li = document.createElement("li");
+    li.className = "food-item";
+    const price = PRICE_LABELS[String(r.priceLevel || "").toUpperCase()] || "";
+    li.innerHTML = `
+      <span class="food-rank">${i + 1}</span>
+      <div class="food-info">
+        <div class="food-name">${escapeHtml(r.name)}</div>
+        <div class="food-meta">
+          <span class="food-stars">★ ${escapeHtml(r.rating.toFixed(1))}</span>
+          · ${escapeHtml(r.count.toLocaleString("tr-TR"))} yorum${r.type ? ` · ${escapeHtml(r.type)}` : ""}${price ? ` · ${escapeHtml(price)}` : ""}
+        </div>
+        ${r.address ? `<div class="food-address" title="${escapeHtml(r.address)}">📍 ${escapeHtml(r.address)}</div>` : ""}
+        ${safeUrl(r.url) ? `<a class="food-link" href="${safeUrl(r.url)}" target="_blank" rel="noopener">Google Haritalar'da yorumları oku →</a>` : ""}
+      </div>`;
+    ol.appendChild(li);
+  });
+  const attr = document.createElement("p");
+  attr.className = "food-attribution";
+  attr.innerHTML = `Puanlar ve yorum sayıları: <span class="gm-text">Google Maps</span>`;
+  DOM.foodList.replaceChildren(ol, attr);
+}
+
+async function loadFoodList() {
+  const city = STATE.selectedCity;
+  if (!city || !foodFeatureEnabled()) return;
+  const district = STATE.selectedDistrict || "";
+  const area = district ? `${district}, ${city}` : city;
+  const cacheKey = `${city}|${district}`;
+  const token = ++_foodRequestToken;
+
+  DOM.foodList.hidden = false;
+  DOM.btnShowFood.textContent = "▲ Listeyi Gizle";
+  DOM.btnShowFood.setAttribute("aria-expanded", "true");
+
+  if (_foodCache.has(cacheKey)) {
+    renderFoodResults(_foodCache.get(cacheKey), area);
+    return;
+  }
+  renderFoodStatus("🧭 Yöre sofrası defteri açılıyor...");
+
+  try {
+    await loadGoogleMapsApi();
+    const { Place } = await google.maps.importLibrary("places");
+    const request = {
+      textQuery: `${area} restoran`,
+      fields: ["displayName", "rating", "userRatingCount", "formattedAddress", "googleMapsURI", "priceLevel", "primaryTypeDisplayName"],
+      includedType: "restaurant",
+      maxResultCount: 20,
+      minRating: GOOGLE_PLACES_CONFIG.minRating,
+      language: "tr",
+      region: "tr"
+    };
+    const bounds = getFoodAreaBounds();
+    if (bounds) request.locationRestriction = bounds;
+
+    const { places } = await Place.searchByText(request);
+    if (token !== _foodRequestToken) return;
+
+    // Bayes ortalaması: 4,9 puan/12 yorum, 4,6 puan/2.000 yorumun önüne geçmesin
+    const C = 4.2, M = 150;
+    const items = (places || [])
+      .map(p => ({
+        name: p.displayName || "",
+        rating: Number(p.rating) || 0,
+        count: Number(p.userRatingCount) || 0,
+        address: p.formattedAddress || "",
+        url: p.googleMapsURI || "",
+        priceLevel: p.priceLevel || "",
+        type: p.primaryTypeDisplayName || ""
+      }))
+      .filter(r => r.name && r.rating >= GOOGLE_PLACES_CONFIG.minRating && r.count >= GOOGLE_PLACES_CONFIG.minReviews)
+      .map(r => ({ ...r, score: (r.count / (r.count + M)) * r.rating + (M / (r.count + M)) * C }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, GOOGLE_PLACES_CONFIG.maxShown);
+
+    _foodCache.set(cacheKey, items);
+    renderFoodResults(items, area);
+  } catch (err) {
+    if (token !== _foodRequestToken) return;
+    console.warn("Restoran listesi alınamadı:", err);
+    renderFoodStatus("Restoran listesi şu an alınamadı. Lütfen biraz sonra tekrar deneyin.");
+  }
+}
+
+function toggleFoodList() {
+  if (!DOM.foodList) return;
+  if (!DOM.foodList.hidden) {
+    DOM.foodList.hidden = true;
+    DOM.btnShowFood.textContent = "🍲 Restoranları Göster";
+    DOM.btnShowFood.setAttribute("aria-expanded", "false");
+    return;
+  }
+  loadFoodList();
 }
 
 // ================= CORE ROUTER =================
@@ -971,6 +1165,7 @@ function resetToTurkeyMap() {
       <p>Lütfen önce arama yapmak için haritadan veya listeden bir il seçin.</p>
     </div>`;
 
+  updateFoodSection();
   drawD3Map();
 }
 
@@ -1068,21 +1263,34 @@ const CATEGORY_POPULARITY_WEIGHTS = {
   "Antik Kent": 10,
   "Tarihi / Antik Kent": 10,
   "Müze": 10,
-  "Doğa Parkı": 10,
   "Milli Park": 10,
+  "Doğa Parkı": 9.5,
+  "Plaj / Koy": 9.5,
+  "Şelale": 9.5,
+  "Kanyon": 9.5,
   "Kale / Hisar": 9,
-  "Şelale": 9,
-  "Plaj / Koy": 9,
+  "Saray / Köşk": 9,
+  "Yayla": 9,
+  "Göl / Nehir": 8.5,
   "Mağara": 8.5,
   "Kaplıca": 8.5,
+  "Ada": 8.5,
+  "Kervansaray / Han": 8,
   "Tarihi Camii": 8,
   "Tarihi Kilise": 8,
   "Tarihi Kapı": 8,
   "Seyir Noktası": 8,
+  "Vadi": 8,
+  "Türbe / Külliye": 7.5,
+  "Medrese": 7.5,
+  "Tarihi Köprü": 7.5,
+  "Tarihi Konak": 7.5,
   "Turistik Alan": 7,
-  "Anıt": 7,
+  "Anıt": 6.5,
+  "Tarihi Hamam": 6.5,
+  "Saat Kulesi": 6,
+  "Deniz Feneri": 6,
   "Dağ Zirvesi": 6,
-  "Göl / Nehir": 6,
   "Park": 5,
   "Sanat Eseri": 5,
   "Eğlence Parkı": 5,
@@ -1090,52 +1298,41 @@ const CATEGORY_POPULARITY_WEIGHTS = {
 };
 
 /**
- * Bir mekanın popülerlik / önem puanını hesaplar:
- * 1) Kategori ağırlığı (Antik Kent / Müze / Doğa Parkı = 10, Diğer = 1)
- * 2) Zengin içerik bonusları (Doğrulanmış görsel, Türkçe Wikipedia maddesi, Wikidata Q-ID bilinirliği)
+ * Bir mekanın popülerlik / ünlülük puanı:
+ * 1) Türkçe Wikipedia maddesinin son 12 aylık görüntülenmesi (pop) — en güçlü sinyal.
+ *    log ölçeği: 1.000 görüntülenme ≈ +9, 100.000 ≈ +15, 1.000.000 ≈ +18
+ * 2) Kaç dilde Wikipedia maddesi olduğu (sl) — uluslararası bilinirlik
+ * 3) Kategori ağırlığı (Antik Kent / Müze / Milli Park = 10, Diğer = 1)
+ * 4) Doğrulanmış fotoğraf
  */
 function getPlacePopularityScore(place) {
   if (!place) return 0;
+  if (typeof place._score === "number") return place._score;
+
   let score = CATEGORY_POPULARITY_WEIGHTS[place.kategori] || 2;
+  // Ünlülük: Wikipedia görüntülenmesi (pop) veya kaç dilde maddesi olduğu (sl) — hangisi güçlüyse
+  // sl: 1 dil ≈ +2, 10 dil ≈ +7.6, 50 dil ≈ +12.5, 100 dil ≈ +14.7
+  const pop = Number(place.pop) || 0;
+  const sl = Number(place.sl) || 0;
+  score += Math.max(pop > 0 ? Math.log10(pop + 1) * 3 : 0, sl > 0 ? Math.log2(sl + 1) * 2.2 : 0);
 
-  // Doğrulanmış yüksek çözünürlüklü görseli olan mekanlara öncelik ver
-  if (place.img && place.img.trim() !== "") score += 3;
+  if (place.img && String(place.img).trim() !== "") score += 2;
 
-  // Türkçe Wikipedia maddesi olan önemli mekanlara ek ağırlık
   const wpRef = String(place.wp || place.wiki || (place.tags && place.tags.wikipedia) || "");
-  if (wpRef.startsWith("tr:")) score += 2.5;
-  else if (wpRef.length > 0) score += 1.2;
+  if (!pop && wpRef.startsWith("tr:")) score += 2;
 
-  // Wikidata Q-numarası ne kadar küçükse, madde o kadar erken açılmış / dünyaca ünlü bir mirastır (örn. Q81593 Alanya Kalesi, Q233121 Patara)
-  const qid = String(place.wikidata || (place.tags && place.tags.wikidata) || "");
-  const qMatch = qid.match(/^Q(\d+)$/);
-  if (qMatch) {
-    const qNum = parseInt(qMatch[1], 10);
-    if (qNum > 0 && qNum < 500000) score += 2.0;
-    else if (qNum < 5000000) score += 1.2;
-    else score += 0.5;
-  }
-
+  place._score = score;
   return score;
 }
 
 /**
- * Mekan listesini A-Z yerine popülerliğe göre sıralar:
- * - Varsa sayısal rating / puan ve reviewCount / reviews değerlerini baz alır.
- * - Yoksa veya eşitse getPlacePopularityScore() ağırlık puanına göre sıralar.
+ * Mekan listesini A-Z yerine popülerliğe göre sıralar (en meşhur yerler en üstte).
  */
 function sortPlacesByPopularity(places) {
   if (!Array.isArray(places)) return [];
   return places.sort((a, b) => {
-    const ratingDiff = (Number(b.rating || b.puan) || 0) - (Number(a.rating || a.puan) || 0);
-    if (ratingDiff !== 0) return ratingDiff;
-
-    const reviewDiff = (Number(b.reviewCount || b.reviews) || 0) - (Number(a.reviewCount || a.reviews) || 0);
-    if (reviewDiff !== 0) return reviewDiff;
-
     const scoreDiff = getPlacePopularityScore(b) - getPlacePopularityScore(a);
     if (scoreDiff !== 0) return scoreDiff;
-
     return String(a.ad || "").localeCompare(String(b.ad || ""), "tr");
   });
 }
@@ -1164,13 +1361,14 @@ async function loadStaticCityData(cityName) {
   try {
     const list = await fetchCachedJSON(`./data/places/${slug}.json`);
     if (!Array.isArray(list)) return null;
-    // Sadece o mekana ait olduğu doğrulanmış gerçek fotoğrafı olan mekanları göster
-    const verified = list.filter(p => p.img && p.img.trim() !== '');
+    // Fotoğrafı olmayan (ama Wikidata/Wikipedia ile doğrulanmış) yerler de listelenir;
+    // böylece plaj, yayla, göl gibi eksik kalan yerler görünür. Fotoğraflılar sıralamada öne geçer.
+    const verified = list.filter(p => p && p.ad && Number.isFinite(p.lat) && Number.isFinite(p.lon));
     // Eski kodla uyum için tags alanını düz alanlardan oluştur
     const mapped = verified.map(p => ({
       ...p,
       ilce: p.ilce || '',
-      fromStatic: 'img' in p, // build_images.py ile işlendi mi?
+      fromStatic: true, // statik veri: stok fotoğraf yerine fotoğrafsız kart
       wiki: p.wiki || p.wikidata || null,
       tags: { wikipedia: p.wiki, wikidata: p.wikidata, image: p.image }
     }));
@@ -1562,6 +1760,7 @@ function filterPlaces() {
 
     updateExploreUI();
     syncProvinceMapSelection();
+    updateFoodSection();
 }
 
 /**
@@ -2622,6 +2821,8 @@ function setupEventListeners() {
             if (STATE.currentDetailPlace) toggleRoutePlace(STATE.currentDetailPlace);
         });
     }
+
+    if (DOM.btnShowFood) DOM.btnShowFood.addEventListener("click", toggleFoodList);
 
     // Yakınımdakileri Bul (Geolocation & Haversine) bindings
     if (DOM.btnFindNearby) DOM.btnFindNearby.addEventListener("click", findNearbyPlaces);

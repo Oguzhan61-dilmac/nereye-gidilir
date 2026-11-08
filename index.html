@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" media="print" onload="this.media='all'">
   
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=15.0">
-  <link rel="stylesheet" href="./about-extra.css?v=15.0">
+  <link rel="stylesheet" href="./style.css?v=16.0">
+  <link rel="stylesheet" href="./about-extra.css?v=16.0">
   <style>
     /* Fotoğrafsız kartlar */
     .place-card.no-photo .card-image-wrapper { display: none !important; }
@@ -199,6 +199,21 @@
           </div>
         </div>
       </div>
+
+      <!-- YÖRE SOFRASI: Google yorumlarına göre en beğenilen restoranlar (tıklayınca yüklenir) -->
+      <section id="foodSection" class="food-section hidden" aria-labelledby="foodTitle">
+        <div class="food-header">
+          <div>
+            <span class="food-eyebrow">🍽️ YÖRE SOFRASI • KAŞİFİN MOLA DEFTERİ</span>
+            <h2 id="foodTitle">Nerede Yenir?</h2>
+            <p id="foodSubtitle" class="food-subtitle">Google yorumlarında yüksek puan almış, bölgede en çok tercih edilen lokantalar.</p>
+          </div>
+          <button id="btnShowFood" type="button" class="btn-compass food-toggle" aria-expanded="false" aria-controls="foodList">
+            🍲 Restoranları Göster
+          </button>
+        </div>
+        <div id="foodList" class="food-list" hidden></div>
+      </section>
     </section>
 
     <!-- VIEW 2: MAP (LEAFLET FULLSCREEN) -->
@@ -348,7 +363,7 @@
 
               <div class="atlas-stat-card">
                 <div class="atlas-stat-icon" aria-hidden="true">🏛️</div>
-                <div class="atlas-stat-number">7.868</div>
+                <div class="atlas-stat-number">9.900+</div>
                 <div class="atlas-stat-subtitle">Doğrulanmış Keşif Noktası</div>
                 <div class="atlas-stat-label">Antik kentler, kaleler, müzeler, mağaralar, şelaleler ve tarihi yapılar</div>
               </div>
@@ -537,6 +552,6 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
 
   <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=15.0" defer></script>
+  <script src="./app.js?v=16.0" defer></script>
 </body>
 </html>
