@@ -1,407 +1,407 @@
 {
  "Adana": {
   "slug": "adana",
-  "count": 120,
-  "with_img": 105
+  "count": 203,
+  "with_img": 107
  },
  "Adıyaman": {
   "slug": "adiyaman",
-  "count": 39,
-  "with_img": 20
+  "count": 56,
+  "with_img": 21
  },
  "Afyonkarahisar": {
   "slug": "afyonkarahisar",
-  "count": 78,
-  "with_img": 50
+  "count": 130,
+  "with_img": 51
  },
  "Ağrı": {
   "slug": "agri",
-  "count": 24,
-  "with_img": 19
+  "count": 40,
+  "with_img": 20
  },
  "Aksaray": {
   "slug": "aksaray",
-  "count": 56,
-  "with_img": 34
+  "count": 259,
+  "with_img": 35
  },
  "Amasya": {
   "slug": "amasya",
-  "count": 68,
+  "count": 93,
   "with_img": 57
  },
  "Ankara": {
   "slug": "ankara",
-  "count": 321,
-  "with_img": 240
+  "count": 507,
+  "with_img": 245
  },
  "Antalya": {
   "slug": "antalya",
-  "count": 536,
-  "with_img": 244
+  "count": 1095,
+  "with_img": 253
  },
  "Ardahan": {
   "slug": "ardahan",
-  "count": 82,
+  "count": 131,
   "with_img": 20
  },
  "Artvin": {
   "slug": "artvin",
-  "count": 167,
-  "with_img": 66
+  "count": 252,
+  "with_img": 67
  },
  "Aydın": {
   "slug": "aydin",
-  "count": 164,
-  "with_img": 106
+  "count": 253,
+  "with_img": 114
  },
  "Balıkesir": {
   "slug": "balikesir",
-  "count": 158,
+  "count": 240,
   "with_img": 72
  },
  "Bartın": {
   "slug": "bartin",
-  "count": 44,
+  "count": 65,
   "with_img": 22
  },
  "Batman": {
   "slug": "batman",
-  "count": 18,
+  "count": 58,
   "with_img": 8
  },
  "Bayburt": {
   "slug": "bayburt",
-  "count": 22,
+  "count": 43,
   "with_img": 19
  },
  "Bilecik": {
   "slug": "bilecik",
-  "count": 24,
-  "with_img": 9
+  "count": 36,
+  "with_img": 10
  },
  "Bingöl": {
   "slug": "bingol",
-  "count": 6,
+  "count": 38,
   "with_img": 6
  },
  "Bitlis": {
   "slug": "bitlis",
-  "count": 66,
-  "with_img": 46
+  "count": 79,
+  "with_img": 47
  },
  "Bolu": {
   "slug": "bolu",
-  "count": 45,
-  "with_img": 31
+  "count": 166,
+  "with_img": 32
  },
  "Burdur": {
   "slug": "burdur",
-  "count": 44,
-  "with_img": 21
+  "count": 79,
+  "with_img": 22
  },
  "Bursa": {
   "slug": "bursa",
-  "count": 388,
-  "with_img": 314
+  "count": 433,
+  "with_img": 320
  },
  "Çanakkale": {
   "slug": "canakkale",
-  "count": 234,
-  "with_img": 129
+  "count": 320,
+  "with_img": 131
  },
  "Çankırı": {
   "slug": "cankiri",
-  "count": 19,
+  "count": 68,
   "with_img": 9
  },
  "Çorum": {
   "slug": "corum",
-  "count": 59,
-  "with_img": 39
+  "count": 112,
+  "with_img": 45
  },
  "Denizli": {
   "slug": "denizli",
-  "count": 82,
-  "with_img": 57
+  "count": 153,
+  "with_img": 59
  },
  "Diyarbakır": {
   "slug": "diyarbakir",
-  "count": 124,
-  "with_img": 75
+  "count": 168,
+  "with_img": 77
  },
  "Düzce": {
   "slug": "duzce",
-  "count": 40,
+  "count": 68,
   "with_img": 15
  },
  "Edirne": {
   "slug": "edirne",
-  "count": 307,
-  "with_img": 190
+  "count": 494,
+  "with_img": 191
  },
  "Elazığ": {
   "slug": "elazig",
-  "count": 29,
+  "count": 38,
   "with_img": 17
  },
  "Erzincan": {
   "slug": "erzincan",
-  "count": 16,
-  "with_img": 11
+  "count": 32,
+  "with_img": 12
  },
  "Erzurum": {
   "slug": "erzurum",
-  "count": 157,
-  "with_img": 82
+  "count": 251,
+  "with_img": 86
  },
  "Eskişehir": {
   "slug": "eskisehir",
-  "count": 73,
+  "count": 183,
   "with_img": 55
  },
  "Gaziantep": {
   "slug": "gaziantep",
-  "count": 73,
-  "with_img": 60
+  "count": 146,
+  "with_img": 61
  },
  "Giresun": {
   "slug": "giresun",
-  "count": 52,
+  "count": 116,
   "with_img": 27
  },
  "Gümüşhane": {
   "slug": "gumushane",
-  "count": 21,
+  "count": 65,
   "with_img": 8
  },
  "Hakkâri": {
   "slug": "hakkari",
-  "count": 14,
-  "with_img": 5
+  "count": 34,
+  "with_img": 6
  },
  "Hatay": {
   "slug": "hatay",
-  "count": 73,
-  "with_img": 54
+  "count": 141,
+  "with_img": 55
  },
  "Iğdır": {
   "slug": "igdir",
-  "count": 10,
+  "count": 16,
   "with_img": 10
  },
  "Isparta": {
   "slug": "isparta",
-  "count": 67,
+  "count": 107,
   "with_img": 41
  },
  "İstanbul": {
   "slug": "istanbul",
-  "count": 3419,
-  "with_img": 3123
+  "count": 3731,
+  "with_img": 3138
  },
  "İzmir": {
   "slug": "izmir",
-  "count": 700,
-  "with_img": 548
+  "count": 896,
+  "with_img": 551
  },
  "Kahramanmaraş": {
   "slug": "kahramanmaras",
-  "count": 39,
+  "count": 111,
   "with_img": 18
  },
  "Karabük": {
   "slug": "karabuk",
-  "count": 83,
+  "count": 98,
   "with_img": 77
  },
  "Karaman": {
   "slug": "karaman",
-  "count": 38,
+  "count": 62,
   "with_img": 19
  },
  "Kars": {
   "slug": "kars",
-  "count": 63,
+  "count": 129,
   "with_img": 56
  },
  "Kastamonu": {
   "slug": "kastamonu",
-  "count": 48,
+  "count": 97,
   "with_img": 29
  },
  "Kayseri": {
   "slug": "kayseri",
-  "count": 94,
-  "with_img": 57
+  "count": 466,
+  "with_img": 58
  },
  "Kilis": {
   "slug": "kilis",
-  "count": 5,
+  "count": 18,
   "with_img": 2
  },
  "Kırıkkale": {
   "slug": "kirikkale",
-  "count": 10,
+  "count": 21,
   "with_img": 4
  },
  "Kırklareli": {
   "slug": "kirklareli",
-  "count": 168,
+  "count": 728,
   "with_img": 107
  },
  "Kırşehir": {
   "slug": "kirsehir",
-  "count": 14,
+  "count": 111,
   "with_img": 8
  },
  "Kocaeli": {
   "slug": "kocaeli",
-  "count": 131,
-  "with_img": 77
+  "count": 172,
+  "with_img": 79
  },
  "Konya": {
   "slug": "konya",
-  "count": 199,
+  "count": 527,
   "with_img": 134
  },
  "Kütahya": {
   "slug": "kutahya",
-  "count": 68,
-  "with_img": 44
+  "count": 109,
+  "with_img": 45
  },
  "Malatya": {
   "slug": "malatya",
-  "count": 30,
-  "with_img": 19
+  "count": 59,
+  "with_img": 20
  },
  "Manisa": {
   "slug": "manisa",
-  "count": 174,
-  "with_img": 120
+  "count": 218,
+  "with_img": 121
  },
  "Mardin": {
   "slug": "mardin",
-  "count": 72,
+  "count": 114,
   "with_img": 50
  },
  "Mersin": {
   "slug": "mersin",
-  "count": 309,
+  "count": 440,
   "with_img": 247
  },
  "Muğla": {
   "slug": "mugla",
-  "count": 347,
-  "with_img": 142
+  "count": 521,
+  "with_img": 144
  },
  "Muş": {
   "slug": "mus",
-  "count": 21,
-  "with_img": 10
+  "count": 31,
+  "with_img": 12
  },
  "Nevşehir": {
   "slug": "nevsehir",
-  "count": 111,
-  "with_img": 65
+  "count": 209,
+  "with_img": 69
  },
  "Niğde": {
   "slug": "nigde",
-  "count": 51,
+  "count": 100,
   "with_img": 32
  },
  "Ordu": {
   "slug": "ordu",
-  "count": 47,
+  "count": 78,
   "with_img": 21
  },
  "Osmaniye": {
   "slug": "osmaniye",
-  "count": 20,
+  "count": 71,
   "with_img": 11
  },
  "Rize": {
   "slug": "rize",
-  "count": 186,
+  "count": 262,
   "with_img": 37
  },
  "Sakarya": {
   "slug": "sakarya",
-  "count": 40,
+  "count": 74,
   "with_img": 26
  },
  "Samsun": {
   "slug": "samsun",
-  "count": 87,
-  "with_img": 41
+  "count": 123,
+  "with_img": 42
  },
  "Şanlıurfa": {
   "slug": "sanliurfa",
-  "count": 80,
-  "with_img": 53
+  "count": 151,
+  "with_img": 54
  },
  "Siirt": {
   "slug": "siirt",
-  "count": 19,
+  "count": 32,
   "with_img": 10
  },
  "Sinop": {
   "slug": "sinop",
-  "count": 32,
+  "count": 73,
   "with_img": 19
  },
  "Şırnak": {
   "slug": "sirnak",
-  "count": 18,
+  "count": 34,
   "with_img": 14
  },
  "Sivas": {
   "slug": "sivas",
-  "count": 52,
-  "with_img": 37
+  "count": 168,
+  "with_img": 38
  },
  "Tekirdağ": {
   "slug": "tekirdag",
-  "count": 73,
+  "count": 134,
   "with_img": 20
  },
  "Tokat": {
   "slug": "tokat",
-  "count": 69,
-  "with_img": 39
+  "count": 124,
+  "with_img": 41
  },
  "Trabzon": {
   "slug": "trabzon",
-  "count": 119,
+  "count": 196,
   "with_img": 82
  },
  "Tunceli": {
   "slug": "tunceli",
-  "count": 14,
+  "count": 22,
   "with_img": 7
  },
  "Uşak": {
   "slug": "usak",
-  "count": 35,
+  "count": 50,
   "with_img": 13
  },
  "Van": {
   "slug": "van",
-  "count": 64,
-  "with_img": 39
+  "count": 99,
+  "with_img": 40
  },
  "Yalova": {
   "slug": "yalova",
-  "count": 32,
+  "count": 45,
   "with_img": 10
  },
  "Yozgat": {
   "slug": "yozgat",
-  "count": 23,
-  "with_img": 11
+  "count": 118,
+  "with_img": 12
  },
  "Zonguldak": {
   "slug": "zonguldak",
-  "count": 38,
+  "count": 52,
   "with_img": 8
  }
 }

@@ -33,14 +33,14 @@
   <!-- Leaflet CSS -->
   <!-- Leaflet CSS: yalnızca tam ekran haritada gerekir, ilk çizimi bloklamasın -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson?v=20261108b" as="fetch" type="application/geo+json" crossorigin>
+  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson?v=20261108c" as="fetch" type="application/geo+json" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" media="print" onload="this.media='all'">
   
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=19.1">
-  <link rel="stylesheet" href="./about-extra.css?v=19.1">
+  <link rel="stylesheet" href="./style.css?v=20.0">
+  <link rel="stylesheet" href="./about-extra.css?v=20.0">
   <style>
     /* Fotoğrafsız kartlar */
     .place-card.no-photo .card-image-wrapper { display: none !important; }
@@ -190,7 +190,7 @@
               <option value="">Tüm Kategoriler</option>
             </select>
             <button id="btnShowFood" type="button" class="filter-food-btn" aria-expanded="false" aria-controls="foodSection" hidden>
-              🍲 Restoranlar
+              🍲 Ne Yenir?
             </button>
           </div>
         </div>
@@ -200,7 +200,7 @@
           <div class="food-header">
             <div>
               <span class="food-eyebrow">🍽️ YÖRE SOFRASI • KAŞİFİN MOLA DEFTERİ</span>
-              <h2 id="foodTitle">Nerede Yenir?</h2>
+              <h2 id="foodTitle">Tavsiye Edilen Restoranlar</h2>
               <p id="foodSubtitle" class="food-subtitle">Bölgedeki lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.</p>
             </div>
             <button id="btnCloseFood" type="button" class="btn-map-back food-close" aria-label="Restoran listesini kapat">✕ Kapat</button>
@@ -365,7 +365,7 @@
 
               <div class="atlas-stat-card">
                 <div class="atlas-stat-icon" aria-hidden="true">🏛️</div>
-                <div class="atlas-stat-number">11.000+</div>
+                <div class="atlas-stat-number">17.000+</div>
                 <div class="atlas-stat-subtitle">Doğrulanmış Keşif Noktası</div>
                 <div class="atlas-stat-label">Antik kentler, kaleler, müzeler, mağaralar, şelaleler ve tarihi yapılar</div>
               </div>
@@ -554,6 +554,6 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
 
   <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=19.1" defer></script>
+  <script src="./app.js?v=20.0" defer></script>
 </body>
 </html>

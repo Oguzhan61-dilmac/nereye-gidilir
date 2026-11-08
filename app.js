@@ -15,7 +15,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261108b";
+const DATA_VERSION = "20261108c";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
@@ -343,6 +343,16 @@ function getFoodAreaBounds() {
   return { west, south, east, north };
 }
 
+// Türkçe bulunma eki: "Of'ta", "Trabzon'da", "İzmir'de", "Rize'de"
+function withLocative(name) {
+  const n = String(name || "").trim();
+  const vowels = n.toLocaleLowerCase("tr").match(/[aıoueiöü]/g) || [];
+  const last = vowels.length ? vowels[vowels.length - 1] : "a";
+  const back = "aıou".includes(last);
+  const hard = /[fstkçşhp]$/i.test(n);
+  return `${n}'${hard ? "t" : "d"}${back ? "a" : "e"}`;
+}
+
 function setFoodPanelOpen(open) {
   DOM.foodSection.hidden = !open;
   DOM.btnShowFood.classList.toggle("active", open);
@@ -363,10 +373,12 @@ function updateFoodSection() {
   if (key === _foodAreaKey) return;
   _foodAreaKey = key;
   _foodRequestToken++;
-  DOM.foodTitle.textContent = `${area}: Nerede Yenir?`;
+  const place = STATE.selectedDistrict || STATE.selectedCity;
+  DOM.foodTitle.textContent = `${withLocative(place)} Tavsiye Edilen Restoranlar`;
   DOM.foodSubtitle.textContent = googleModeEnabled()
     ? `Google yorumlarında yüksek puan almış, ${area} bölgesinde en çok tercih edilen lokantalar.`
-    : `${area} bölgesindeki lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.`;
+    : `${area} için seçtiğimiz yöresel lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.`;
+  DOM.btnShowFood.textContent = `🍲 ${withLocative(place)} Ne Yenir?`;
   DOM.foodList.replaceChildren();
   // Panel açıksa yeni bölgenin listesini getir, kapalıysa kapalı kalsın
   if (!DOM.foodSection.hidden) loadFoodList();
@@ -1405,6 +1417,12 @@ const CATEGORY_POPULARITY_WEIGHTS = {
   "Tarihi Kapı": 8,
   "Seyir Noktası": 8,
   "Sahil / Kordon": 8,
+  "Millet Bahçesi": 8,
+  "Mesire Alanı": 8,
+  "Botanik Bahçesi": 8,
+  "Su Kemeri": 7.5,
+  "Tarihi Kalıntı": 7,
+  "Kamp Alanı": 6,
   "Vadi": 8,
   "Türbe / Külliye": 7.5,
   "Medrese": 7.5,
