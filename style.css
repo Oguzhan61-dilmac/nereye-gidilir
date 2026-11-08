@@ -2403,3 +2403,19 @@ a {
   .food-toggle { width: 100%; }
   .food-items { grid-template-columns: 1fr; }
 }
+.food-google-cta {
+  display: block;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.92rem;
+  color: #fdf8ee;
+  background: var(--forest-green);
+  border: 1.5px solid var(--brown-deep);
+  border-radius: 3px;
+  box-shadow: 3px 3px 0 rgba(92, 64, 51, 0.35);
+}
+.food-google-cta:hover { filter: brightness(1.08); color: #fff; }
+.food-phone { margin-left: 0.8rem; }
+.food-attribution a { color: var(--accent-color); border-bottom: 1px dashed currentColor; }

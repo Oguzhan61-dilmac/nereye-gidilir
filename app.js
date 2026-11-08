@@ -293,7 +293,16 @@ let _foodAreaKey = "";
 let _foodRequestToken = 0;
 
 function foodFeatureEnabled() {
+  return true; // Anahtar yoksa OpenStreetMap modu çalışır (kurulum gerektirmez)
+}
+
+function googleModeEnabled() {
   return Boolean(GOOGLE_PLACES_CONFIG.apiKey);
+}
+
+// Google Haritalar arama linki (Maps URLs — anahtar/ücret gerektirmez, resmi yöntem)
+function googleMapsSearchUrl(query) {
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
 }
 
 function loadGoogleMapsApi() {
@@ -344,7 +353,9 @@ function updateFoodSection() {
   _foodAreaKey = key;
   _foodRequestToken++;
   DOM.foodTitle.textContent = `${area}: Nerede Yenir?`;
-  DOM.foodSubtitle.textContent = `Google yorumlarında yüksek puan almış, ${area} bölgesinde en çok tercih edilen lokantalar.`;
+  DOM.foodSubtitle.textContent = googleModeEnabled()
+    ? `Google yorumlarında yüksek puan almış, ${area} bölgesinde en çok tercih edilen lokantalar.`
+    : `${area} bölgesindeki lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.`;
   DOM.foodList.hidden = true;
   DOM.foodList.replaceChildren();
   DOM.btnShowFood.textContent = "🍲 Restoranları Göster";
@@ -390,6 +401,157 @@ function renderFoodResults(items, area) {
   DOM.foodList.replaceChildren(ol, attr);
 }
 
+// ---------- OpenStreetMap modu (anahtarsız) ----------
+const CUISINE_TR = {
+  regional: "Yöresel", local: "Yöresel", turkish: "Türk mutfağı", kebab: "Kebap", pide: "Pide",
+  lahmacun: "Lahmacun", fish: "Balık", seafood: "Deniz ürünleri", meat: "Et", steak_house: "Et",
+  grill: "Izgara", barbecue: "Mangal", kofte: "Köfte", "köfte": "Köfte", soup: "Çorba",
+  breakfast: "Kahvaltı", homestyle: "Ev yemekleri", home_cooking: "Ev yemekleri",
+  pizza: "Pizza", burger: "Burger", italian: "İtalyan", chinese: "Çin", international: "Dünya mutfağı",
+  vegetarian: "Vejetaryen", vegan: "Vegan", dessert: "Tatlı", coffee_shop: "Kahve", tea: "Çay bahçesi",
+  cafe: "Kafe", sandwich: "Sandviç", chicken: "Tavuk", doner: "Döner", "döner": "Döner", ottoman: "Osmanlı mutfağı",
+  mediterranean: "Akdeniz", middle_eastern: "Orta Doğu", sushi: "Suşi", asian: "Asya"
+};
+const REGIONAL_CUISINES = new Set(["regional", "local", "turkish", "kebab", "pide", "lahmacun", "fish", "seafood",
+  "meat", "grill", "barbecue", "kofte", "köfte", "homestyle", "home_cooking", "ottoman", "breakfast", "soup", "doner", "döner"]);
+const REGIONAL_NAME = /(lokanta|kebap|kebab|pide|balık|balik|ocakbaşı|köfte|kofte|sofra|konağı|konak|mantı|hamsi|kuymak|muhlama|kahvaltı|ev yemek|etli ekmek|tantuni|çorba|pilav)/i;
+
+function scoreOsmRestaurant(t) {
+  let score = 0;
+  if (t.wikidata || t.wikipedia) score += 8;
+  const cuisines = String(t.cuisine || "").toLowerCase().split(/[;,]/).map(c => c.trim()).filter(Boolean);
+  if (cuisines.some(c => REGIONAL_CUISINES.has(c))) score += 3;
+  if (REGIONAL_NAME.test(t.name || "")) score += 2;
+  if (t.opening_hours) score += 1;
+  if (t.website || t["contact:website"]) score += 1;
+  if (t.phone || t["contact:phone"]) score += 0.5;
+  if (t["addr:street"]) score += 0.5;
+  if (t.brand || t["brand:wikidata"]) score -= 3; // zincir mekanlar "yöre sofrası" değildir
+  return score;
+}
+
+async function fetchOsmRestaurants(bounds, feature) {
+  const bbox = `${bounds.south},${bounds.west},${bounds.north},${bounds.east}`;
+  const query = `[out:json][timeout:25];(node["amenity"="restaurant"](${bbox});way["amenity"="restaurant"](${bbox}););out center tags 600;`;
+  let lastErr = null;
+  for (const endpoint of STATE.endpoints) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 20000);
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: "data=" + encodeURIComponent(query),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      return (data.elements || [])
+        .map(el => ({ tags: el.tags || {}, lat: el.lat ?? (el.center && el.center.lat), lon: el.lon ?? (el.center && el.center.lon) }))
+        .filter(r => r.tags.name && Number.isFinite(r.lat) && Number.isFinite(r.lon))
+        .filter(r => !feature || d3.geoContains(feature, [r.lon, r.lat]));
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error("overpass");
+}
+
+function getFoodAreaFeature() {
+  if (STATE.selectedDistrict) {
+    const dg = DISTRICT_GEO_CACHE[STATE.selectedCity];
+    const f = dg && dg.features.find(x => x.properties && x.properties.name_tr === STATE.selectedDistrict);
+    if (f) return f;
+  }
+  return STATE.geoData ? STATE.geoData.features.find(f => f.properties.name_tr === STATE.selectedCity) : null;
+}
+
+function renderOsmFoodResults(items, area, total) {
+  const wrap = document.createElement("div");
+
+  const top = document.createElement("a");
+  top.className = "food-google-cta";
+  top.href = googleMapsSearchUrl(`${area} en iyi restoranlar`);
+  top.target = "_blank";
+  top.rel = "noopener";
+  top.textContent = `⭐ ${area} için en yüksek puanlı restoranları Google Haritalar'da aç →`;
+  wrap.appendChild(top);
+
+  if (!items.length) {
+    const div = document.createElement("div");
+    div.className = "food-status";
+    div.textContent = `${area} için haritada kayıtlı restoran bulunamadı. Yukarıdaki bağlantıdan Google'daki listeye bakabilirsiniz.`;
+    wrap.appendChild(div);
+    DOM.foodList.replaceChildren(wrap);
+    return;
+  }
+
+  const ol = document.createElement("ol");
+  ol.className = "food-items";
+  items.forEach((r, i) => {
+    const t = r.tags;
+    const cuisines = String(t.cuisine || "").toLowerCase().split(/[;,]/).map(c => c.trim()).filter(Boolean)
+      .map(c => CUISINE_TR[c] || "").filter(Boolean);
+    const uniqueCuisines = [...new Set(cuisines)].slice(0, 2).join(", ");
+    const street = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
+    const district = r.ilce || STATE.selectedDistrict || "";
+    const searchQ = `${t.name} ${district} ${STATE.selectedCity}`.replace(/\s+/g, " ").trim();
+    const phone = t.phone || t["contact:phone"] || "";
+    const li = document.createElement("li");
+    li.className = "food-item";
+    li.innerHTML = `
+      <span class="food-rank">${i + 1}</span>
+      <div class="food-info">
+        <div class="food-name">${escapeHtml(t.name)}</div>
+        <div class="food-meta">${escapeHtml(uniqueCuisines || "Restoran")}${district ? ` · ${escapeHtml(district)}` : ""}</div>
+        ${street ? `<div class="food-address" title="${escapeHtml(street)}">📍 ${escapeHtml(street)}</div>` : ""}
+        <a class="food-link" href="${escapeHtml(googleMapsSearchUrl(searchQ))}" target="_blank" rel="noopener">⭐ Google puanı ve yorumları →</a>
+        ${phone ? `<a class="food-link food-phone" href="tel:${escapeHtml(phone.replace(/[^+\d]/g, ""))}">📞 Ara</a>` : ""}
+      </div>`;
+    ol.appendChild(li);
+  });
+  wrap.appendChild(ol);
+
+  const attr = document.createElement("p");
+  attr.className = "food-attribution";
+  attr.innerHTML = `Liste: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıcıları (${escapeHtml(String(total))} kayıtlı restoran içinden öne çıkanlar). Puanlar Google Haritalar'da açılır.`;
+  wrap.appendChild(attr);
+  DOM.foodList.replaceChildren(wrap);
+}
+
+async function loadFoodListOsm(area, cacheKey, token) {
+  try {
+    const feature = getFoodAreaFeature();
+    const bounds = getFoodAreaBounds();
+    if (!bounds) throw new Error("bounds");
+    const all = await fetchOsmRestaurants(bounds, feature);
+    if (token !== _foodRequestToken) return;
+
+    // İlçe seçili değilse her restorana ilçesini yaz (il genelinde liste)
+    const dg = DISTRICT_GEO_CACHE[STATE.selectedCity];
+    const seen = new Set();
+    const ranked = all
+      .filter(r => { const k = r.tags.name.toLocaleLowerCase("tr"); if (seen.has(k)) return false; seen.add(k); return true; })
+      .map(r => ({ ...r, score: scoreOsmRestaurant(r.tags) }))
+      .sort((a, b) => b.score - a.score || a.tags.name.localeCompare(b.tags.name, "tr"))
+      .slice(0, 15);
+    if (!STATE.selectedDistrict && dg) {
+      ranked.forEach(r => {
+        const f = dg.features.find(x => d3.geoContains(x, [r.lon, r.lat]));
+        if (f) r.ilce = f.properties.name_tr;
+      });
+    }
+    const payload = { mode: "osm", items: ranked, total: all.length };
+    _foodCache.set(cacheKey, payload);
+    renderOsmFoodResults(ranked, area, all.length);
+  } catch (err) {
+    if (token !== _foodRequestToken) return;
+    console.warn("OSM restoran listesi alınamadı:", err);
+    renderOsmFoodResults([], area, 0);
+  }
+}
+
 async function loadFoodList() {
   const city = STATE.selectedCity;
   if (!city || !foodFeatureEnabled()) return;
@@ -403,10 +565,17 @@ async function loadFoodList() {
   DOM.btnShowFood.setAttribute("aria-expanded", "true");
 
   if (_foodCache.has(cacheKey)) {
-    renderFoodResults(_foodCache.get(cacheKey), area);
+    const cached = _foodCache.get(cacheKey);
+    if (cached && cached.mode === "osm") renderOsmFoodResults(cached.items, area, cached.total);
+    else renderFoodResults(cached, area);
     return;
   }
   renderFoodStatus("🧭 Yöre sofrası defteri açılıyor...");
+
+  if (!googleModeEnabled()) {
+    await loadFoodListOsm(area, cacheKey, token);
+    return;
+  }
 
   try {
     await loadGoogleMapsApi();
