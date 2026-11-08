@@ -2028,17 +2028,47 @@ a {
    MOBİL UYUMLULUK, PUSULA YÜKLEYİCİ & DOKUNMATİK UX
 ========================================================================= */
 
-/* Responsive D3 SVG: kapsayıcı genişliğine göre orantılı ölçeklenir */
+/* Responsive D3 SVG: kapsayıcının tamamını (%100) doldurur */
 #d3MapContainer svg.vintage-d3-svg {
   width: 100%;
-  height: auto;
-  max-height: 100%;
+  height: 100%;
+  display: block;
 }
 
-/* Harita üzerinde pan/zoom yaparken sayfa kaymasını ve pull-to-refresh'i engelle */
+/* Harita ve etkileşimli SVG katmanlarında tıklama/dokunma her zaman aktif */
+.d3-container,
+.d3-container svg,
+.d3-container svg path.country-path,
+.d3-container svg path.district-path,
+.d3-container svg path.province,
+.d3-container svg circle.province-place-pin {
+  pointer-events: auto !important;
+}
+
+/* Dekoratif katmanlar (deniz, kıyı konturları, kat izleri, etiketler) tıklamaları engellemesin */
+.d3-container svg .vintage-sea-bg,
+.d3-container svg .vintage-sea-bg *,
+.d3-container svg .bathymetry-layer,
+.d3-container svg .bathymetry-layer *,
+.d3-container svg .wax-seal-layer,
+.d3-container svg .wax-seal-layer *,
+.d3-container svg text.district-label,
+.map-fold-creases,
+.d3-container::after {
+  pointer-events: none !important;
+}
+
+/* D3 haritasında dokunmatik tıklamaları (tap) serbest bırak, Leaflet'te tam kontrol */
 .map-container,
 #d3-map-wrapper,
-#d3MapContainer,
+#d3MapContainer {
+  touch-action: manipulation;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 #leafletMap {
   touch-action: none;
   overscroll-behavior: contain;
@@ -2057,7 +2087,16 @@ a {
   justify-content: center;
   gap: 0.6rem;
   background: rgba(249, 241, 223, 0.72);
-  pointer-events: none;
+  pointer-events: none !important;
+}
+
+/* Yükleme bittiğinde veya gizlendiğinde DOM'dan tamamen devre dışı bırak */
+.map-compass-loader.hidden,
+.loader-overlay.hidden,
+.d3-map-tooltip:not(.visible) {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 .theme-dark .map-compass-loader {
@@ -2090,7 +2129,7 @@ a {
 
 @media (max-width: 768px) {
   /* Genel düzen */
-  .view-section { padding: 0 0.85rem; }
+  .view-section { padding: 0 0.6rem; }
   .app-header { padding: 0.7rem 0.9rem; margin-bottom: 1rem; }
   .header-container { gap: 0.5rem; }
   .brand-logo { font-size: 1.3rem; }
@@ -2108,13 +2147,13 @@ a {
     margin-bottom: 1.5rem;
   }
   .interactive-map-box,
-  .controls-box { padding: 0.85rem; }
+  .controls-box { padding: 0.65rem; }
 
-  /* D3 kapsayıcı: Türkiye'nin yatay oranına göre yükseklik (küçük görünme sorunu fix) */
+  /* D3 kapsayıcı: kısıtlayıcı aspect-ratio kaldırıldı, mobilde min-height: 50vh */
   .d3-container {
-    height: auto;
-    min-height: 0;
-    aspect-ratio: 16 / 10;
+    width: 100%;
+    min-height: 50vh;
+    height: 50vh;
   }
   .map-footer-legend { font-size: 0.68rem; justify-content: center; text-align: center; }
   .map-box-header { flex-wrap: wrap; }

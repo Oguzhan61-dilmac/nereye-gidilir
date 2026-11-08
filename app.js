@@ -4,6 +4,42 @@
 // Tüm yapı Vanilla JS ile "Tek Sayfa Uygulaması"nda (SPA) birleşti.
 // ==========================================
 
+// ================= GLOBAL IN-MEMORY DATA CACHE =================
+const dataCache = new Map();
+const inFlightRequests = new Map();
+
+/**
+ * JSON dosyalarını RAM önbelleği (dataCache) üzerinden getiren hızlı yükleyici.
+ * Eğer veri dataCache içinde varsa ağa çıkmadan anında (Promise.resolve) döner,
+ * yoksa fetch ile çekip dataCache.set(key, data) ile hafızaya kaydeder.
+ */
+async function fetchCachedJSON(url) {
+  if (dataCache.has(url)) {
+    return Promise.resolve(dataCache.get(url));
+  }
+  if (inFlightRequests.has(url)) {
+    return inFlightRequests.get(url);
+  }
+
+  const reqPromise = fetch(url)
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status} (${url})`);
+      return res.json();
+    })
+    .then((data) => {
+      dataCache.set(url, data);
+      inFlightRequests.delete(url);
+      return data;
+    })
+    .catch((err) => {
+      inFlightRequests.delete(url);
+      throw err;
+    });
+
+  inFlightRequests.set(url, reqPromise);
+  return reqPromise;
+}
+
 const STATE = {
   view: 'explore', // 'explore', 'map', 'place'
   geoData: null,   // D3 and BBox calculation from GeoJSON
@@ -243,27 +279,85 @@ function showView(viewId) {
 
 // ================= LOADER UTILS =================
 function showLoader(msg = "Yükleniyor...") {
-  DOM.loaderMsg.textContent = msg;
-  DOM.loader.classList.remove("hidden");
+  if (DOM.loaderMsg) DOM.loaderMsg.textContent = msg;
+  if (DOM.loader) {
+    DOM.loader.classList.remove("hidden");
+    DOM.loader.style.display = "flex";
+  }
 }
 
 function hideLoader() {
-  DOM.loader.classList.add("hidden");
+  if (DOM.loader) {
+    DOM.loader.classList.add("hidden");
+    DOM.loader.style.display = "none";
+  }
 }
 
 // Harita kapsayıcısı içinde küçük "Vintage Pusula / Yükleniyor..." animasyonu
 function showMapCompass(container, msg = "Harita çiziliyor...") {
-  if (!container || container.querySelector(".map-compass-loader")) return;
-  const el = document.createElement("div");
-  el.className = "map-compass-loader";
-  el.setAttribute("role", "status");
+  if (!container) return;
+  let el = container.querySelector(".map-compass-loader");
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "map-compass-loader";
+    el.setAttribute("role", "status");
+    container.appendChild(el);
+  }
+  el.classList.remove("hidden");
+  el.style.display = "flex";
   el.innerHTML = `<span class="map-compass-needle" aria-hidden="true">🧭</span><span class="map-compass-text">${msg}</span>`;
-  container.appendChild(el);
 }
 
 function hideMapCompass(container) {
-  const el = container && container.querySelector(".map-compass-loader");
-  if (el) el.remove();
+  const scope = container || document;
+  const loaders = scope.querySelectorAll(".map-compass-loader");
+  loaders.forEach((el) => {
+    el.classList.add("hidden");
+    el.style.display = "none";
+    el.remove();
+  });
+}
+
+// ================= MOBİL DOKUNMATİK (TOUCH + CLICK) YARDIMCISI =================
+let _lastTouchActionTime = 0;
+
+/**
+ * D3 elementlerine hem masaüstü "click" hem de mobil "touchstart/touchend" (tap)
+ * olayı bağlar. d3.zoom()'un mobilde sentetik click olayını yutmasını engeller,
+ * pan/pinch-zoom hareketlerini (12px üstü sürükleme) ise bozmaz.
+ */
+function bindD3TapAndClick(selection, callback) {
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchStartTime = 0;
+
+  selection
+    .on("touchstart", function(event, d) {
+      if (event.touches && event.touches.length === 1) {
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        touchStartTime = Date.now();
+      }
+    }, { passive: true })
+    .on("touchend", function(event, d) {
+      if (!event.changedTouches || event.changedTouches.length !== 1) return;
+      const dx = Math.abs(event.changedTouches[0].clientX - touchStartX);
+      const dy = Math.abs(event.changedTouches[0].clientY - touchStartY);
+      const dt = Date.now() - touchStartTime;
+      // Parmak sürüklenmediyse (gerçek bir dokunuş/tap ise) anında seçimi tetikle
+      if (dx < 14 && dy < 14 && dt < 650) {
+        if (event.cancelable) event.preventDefault();
+        event.stopPropagation();
+        _lastTouchActionTime = Date.now();
+        callback.call(this, event, d);
+      }
+    })
+    .on("click", function(event, d) {
+      // touchend az önce tetiklendiyse çift çalışmayı önle
+      if (Date.now() - _lastTouchActionTime < 450) return;
+      event.stopPropagation();
+      callback.call(this, event, d);
+    });
 }
 
 // ================= PERFORMANCE UTILS (DEBOUNCE / THROTTLE / RAF) =================
@@ -319,23 +413,21 @@ function cleanupD3Map() {
   }
   const containerSel = d3.select("#d3MapContainer");
   containerSel.selectAll("svg").on(".zoom", null).on("click", null);
-  containerSel.selectAll("path, circle").on("mouseenter mousemove mouseleave click", null);
+  containerSel.selectAll("path, circle").on("mouseenter mousemove mouseleave click touchstart touchend", null);
   containerSel.selectAll("svg, .d3-map-tooltip").remove();
 }
 
 // ================= D3 MAP INITIALIZATION =================
 function initD3Map() {
   showMapCompass(DOM.d3Container, "Anadolu haritası açılıyor...");
-  return fetch("./assets/geo/tr_provinces_simplified.geojson")
-    .then(res => {
-      if (!res.ok) throw new Error("GeoJSON fetching failed");
-      return res.json();
-    })
+  return fetchCachedJSON("./assets/geo/tr_provinces_simplified.geojson")
     .then(data => {
       STATE.geoData = data;
       populateSelects();
       // Container henüz 0x0 olabilir; gerçek boyut hazır olduğunda çiz
       waitForContainerAndDraw();
+      // Harita çizilir çizilmez arka planda popüler illeri ve index.json'u sessizce önbelleğe al
+      scheduleBackgroundPrefetch();
     })
     .catch(err => {
       console.error("Harita verisi yüklenemedi:", err);
@@ -425,6 +517,8 @@ function drawD3Map() {
   _d3DrawRafId = requestAnimationFrame(() => {
     _d3DrawRafId = null;
     const container = DOM.d3Container;
+    hideMapCompass(container);
+
     let width = container.clientWidth || container.offsetWidth 
       || container.getBoundingClientRect().width 
       || (container.parentElement && container.parentElement.clientWidth)
@@ -439,13 +533,12 @@ function drawD3Map() {
       .append("div")
       .attr("class", "d3-map-tooltip");
 
-    hideMapCompass(container);
-    // Responsive SVG: sabit width/height yerine viewBox + preserveAspectRatio
+    // Responsive SVG: kapsayıcının tamamını (%100 genişlik ve yükseklik) doldurur
     const svg = d3.select("#d3MapContainer").append("svg")
       .attr("viewBox", `0 0 ${width} ${height}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
       .style("width", "100%")
-      .style("height", "auto")
+      .style("height", "100%")
       .attr("class", "vintage-d3-svg")
       .style("display", "block");
 
@@ -460,10 +553,10 @@ function drawD3Map() {
       .attr("fill", "url(#vintageSeaGrad)");
     drawNauticalGridLines(bgGroup, width, height);
 
-    // GeoJSON koordinatları lon/lat (WGS84)
+    // Tight Bounding Box: Türkiye GeoJSON verisini sıfır boşlukla (fitSize / [[0,0],[width,height]]) SVG'ye tam yay
     const projection = d3.geoIdentity()
       .reflectY(true)
-      .fitExtent([[26, 26], [width - 26, height - 26]], STATE.geoData);
+      .fitSize([width, height], STATE.geoData);
 
     const path = d3.geoPath().projection(projection);
 
@@ -486,7 +579,7 @@ function drawD3Map() {
     const landGroup = g.append("g")
       .attr("class", "land-layer");
 
-    landGroup.selectAll("path.country-path")
+    const provincePaths = landGroup.selectAll("path.country-path")
       .data(STATE.geoData.features)
       .enter()
       .append("path")
@@ -506,15 +599,17 @@ function drawD3Map() {
       })
       .on("mouseleave", function() {
         tooltip.classed("visible", false);
-      })
-      .on("click", function(event, d) {
-        event.stopPropagation();
-        selectCity(d.properties.name_tr);
       });
+
+    // Hem masaüstü click hem mobil touchstart/touchend (tap) desteği
+    bindD3TapAndClick(provincePaths, function(event, d) {
+      selectCity(d.properties.name_tr);
+    });
 
     // Zoom Davranışı — requestAnimationFrame ile 60 FPS akıcı pan/zoom
     const zoom = d3.zoom()
-      .clickDistance(8)
+      .clickDistance(10)
+      .tapDistance(14)
       .scaleExtent([1, 8])
       .on("zoom", (event) => {
         const t = event.transform;
@@ -534,11 +629,10 @@ async function loadDistrictGeo(cityName) {
   if (DISTRICT_GEO_CACHE[cityName]) return DISTRICT_GEO_CACHE[cityName];
   const slug = getCitySlug(cityName);
   if (!slug) return null;
+  const cacheKey = `./assets/geo/districts/${slug}.geojson`;
   try {
-    const res = await fetch(`./assets/geo/districts/${slug}.geojson`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    DISTRICT_GEO_CACHE[cityName] = data;
+    const data = await fetchCachedJSON(cacheKey);
+    if (data) DISTRICT_GEO_CACHE[cityName] = data;
     return data;
   } catch (e) {
     console.error("Veri yüklenemedi:", e);
@@ -562,6 +656,8 @@ function drawProvinceMap(cityName, districtGeo) {
   _d3DrawRafId = requestAnimationFrame(() => {
     _d3DrawRafId = null;
     const container = DOM.d3Container;
+    hideMapCompass(container);
+
     let width = container.clientWidth || container.offsetWidth
       || container.getBoundingClientRect().width
       || (container.parentElement && container.parentElement.clientWidth)
@@ -576,13 +672,12 @@ function drawProvinceMap(cityName, districtGeo) {
       .append("div")
       .attr("class", "d3-map-tooltip");
 
-    hideMapCompass(container);
-    // Responsive SVG: sabit width/height yerine viewBox + preserveAspectRatio
+    // Responsive SVG: kapsayıcının tamamını doldurur
     const svg = d3.select("#d3MapContainer").append("svg")
       .attr("viewBox", `0 0 ${width} ${height}`)
       .attr("preserveAspectRatio", "xMidYMid meet")
       .style("width", "100%")
-      .style("height", "auto")
+      .style("height", "100%")
       .attr("class", "vintage-d3-svg")
       .style("display", "block");
 
@@ -595,9 +690,10 @@ function drawProvinceMap(cityName, districtGeo) {
       .attr("fill", "url(#vintageSeaGrad)");
     drawNauticalGridLines(bgGroup, width, height);
 
+    // Tight Bounding Box: İl/İlçe sınırlarını sıfır boşlukla (fitSize) SVG'nin tamamına yay
     const projection = d3.geoIdentity()
       .reflectY(true)
-      .fitExtent([[28, 28], [width - 28, height - 28]], geoToRender);
+      .fitSize([width, height], geoToRender);
 
     const path = d3.geoPath().projection(projection);
     const g = svg.append("g").attr("class", "vintage-map-root");
@@ -618,7 +714,7 @@ function drawProvinceMap(cityName, districtGeo) {
     });
 
     // İlçe poligonları
-    landGroup.selectAll("path.district-path")
+    const districtPaths = landGroup.selectAll("path.district-path")
       .data(geoToRender.features)
       .enter()
       .append("path")
@@ -643,19 +739,19 @@ function drawProvinceMap(cityName, districtGeo) {
       })
       .on("mouseleave", function() {
         tooltip.classed("visible", false);
-      })
-      .on("click", function(event, d) {
-        event.stopPropagation();
-        const clickedDistrict = d.properties.name_tr || "";
-        if (!clickedDistrict) return;
-        STATE.selectedDistrict = (STATE.selectedDistrict === clickedDistrict) ? "" : clickedDistrict;
-        if (DOM.districtSelect && !DOM.districtSelect.disabled) {
-          const hasOption = Array.from(DOM.districtSelect.options).some(o => o.value === STATE.selectedDistrict);
-          DOM.districtSelect.value = hasOption ? STATE.selectedDistrict : "";
-        }
-        filterPlaces();
-        syncProvinceMapSelection();
       });
+
+    bindD3TapAndClick(districtPaths, function(event, d) {
+      const clickedDistrict = d.properties.name_tr || "";
+      if (!clickedDistrict) return;
+      STATE.selectedDistrict = (STATE.selectedDistrict === clickedDistrict) ? "" : clickedDistrict;
+      if (DOM.districtSelect && !DOM.districtSelect.disabled) {
+        const hasOption = Array.from(DOM.districtSelect.options).some(o => o.value === STATE.selectedDistrict);
+        DOM.districtSelect.value = hasOption ? STATE.selectedDistrict : "";
+      }
+      filterPlaces();
+      syncProvinceMapSelection();
+    });
 
     // İlçe isim etiketleri
     g.selectAll("text.district-label")
@@ -702,9 +798,9 @@ function drawProvinceMap(cityName, districtGeo) {
         const pins = pinsLayer.selectAll("circle.province-place-pin")
           .data(activePlaces, d => d.id);
 
-        pins.exit().on("mouseenter mousemove mouseleave click", null).remove();
+        pins.exit().on("mouseenter mousemove mouseleave click touchstart touchend", null).remove();
 
-        pins.enter()
+        const mergedPins = pins.enter()
           .append("circle")
           .attr("class", "province-place-pin")
           .attr("r", 4.5)
@@ -728,11 +824,11 @@ function drawProvinceMap(cityName, districtGeo) {
           })
           .on("mouseleave", function() {
             tooltip.classed("visible", false);
-          })
-          .on("click", function(event, d) {
-            event.stopPropagation();
-            window.location.hash = `#place/${d.id}`;
           });
+
+        bindD3TapAndClick(mergedPins, function(event, d) {
+          window.location.hash = `#place/${d.id}`;
+        });
       });
     }
 
@@ -741,6 +837,7 @@ function drawProvinceMap(cityName, districtGeo) {
 
     // Boş alana tıklanınca ilçe seçimini sıfırla
     svg.on("click", () => {
+      if (Date.now() - _lastTouchActionTime < 450) return;
       if (STATE.selectedDistrict) {
         STATE.selectedDistrict = "";
         if (DOM.districtSelect) DOM.districtSelect.value = "";
@@ -751,7 +848,8 @@ function drawProvinceMap(cityName, districtGeo) {
 
     // Zoom & Pan — requestAnimationFrame ile 60 FPS akıcı pan/zoom
     const zoom = d3.zoom()
-      .clickDistance(8)
+      .clickDistance(10)
+      .tapDistance(14)
       .scaleExtent([1, 10])
       .on("zoom", (event) => {
         const t = event.transform;
@@ -832,8 +930,16 @@ async function selectCity(cityName) {
   DOM.searchInput.disabled = false;
   DOM.categoryFilter.disabled = false;
 
-  // İlin mekan verisini ve ilçe sınırları haritasını paralel olarak anında yükle
-  showMapCompass(DOM.d3Container, `${cityName} haritası hazırlanıyor...`);
+  // Eğer hem il verisi hem ilçe sınırları RAM'de (dataCache) hazırsa pusula göstermeden anında çiz!
+  const slug = getCitySlug(cityName);
+  const isCached = Boolean(
+    CITY_CACHE[cityName] &&
+    (DISTRICT_GEO_CACHE[cityName] || (slug && dataCache.has(`./assets/geo/districts/${slug}.geojson`)))
+  );
+  if (!isCached) {
+    showMapCompass(DOM.d3Container, `${cityName} haritası hazırlanıyor...`);
+  }
+
   const [, districtGeo] = await Promise.all([
     loadCityData(cityName),
     loadDistrictGeo(cityName)
@@ -872,8 +978,8 @@ function calculateCityBBox(cityName) {
     return `[bbox:${minLat},${minLon},${maxLat},${maxLon}]`;
 }
 
-// ================= HAZIR VERİ (data/places/*.json) =================
-// Veriler scripts/build_places.py ile önceden üretilir; site anında açılır.
+// ================= HAZIR VERİ (data/places/*.json) & RAM CACHE =================
+// Veriler scripts/build_places.py ile önceden üretilir; dataCache ile RAM'de tutulur.
 const CITY_CACHE = {};
 
 function getCitySlug(cityName) {
@@ -882,27 +988,102 @@ function getCitySlug(cityName) {
 }
 
 async function loadStaticCityData(cityName) {
+  if (CITY_CACHE[cityName]) {
+    return CITY_CACHE[cityName];
+  }
   const slug = getCitySlug(cityName);
   if (!slug) return null;
+  const parsedCacheKey = `places_parsed:${slug}`;
+  if (dataCache.has(parsedCacheKey)) {
+    const cached = dataCache.get(parsedCacheKey);
+    CITY_CACHE[cityName] = cached;
+    return cached;
+  }
   try {
-    const res = await fetch(`./data/places/${slug}.json`);
-    if (!res.ok) return null;
-    const list = await res.json();
+    const list = await fetchCachedJSON(`./data/places/${slug}.json`);
     if (!Array.isArray(list)) return null;
     // Sadece o mekana ait olduğu doğrulanmış gerçek fotoğrafı olan mekanları göster
     const verified = list.filter(p => p.img && p.img.trim() !== '');
     // Eski kodla uyum için tags alanını düz alanlardan oluştur
-    return verified.map(p => ({
+    const mapped = verified.map(p => ({
       ...p,
       ilce: p.ilce || '',
       fromStatic: 'img' in p, // build_images.py ile işlendi mi?
       wiki: p.wiki || p.wikidata || null,
       tags: { wikipedia: p.wiki, wikidata: p.wikidata, image: p.image }
     }));
+    dataCache.set(parsedCacheKey, mapped);
+    CITY_CACHE[cityName] = mapped;
+    return mapped;
   } catch (e) {
     console.error("Veri yüklenemedi:", e);
     return null;
   }
+}
+
+/**
+ * Arka Plan Ön Yükleme (Background Prefetch):
+ * Harita ilk çizildiğinde tarayıcı boşta iken (requestIdleCallback / setTimeout)
+ * önce index.json ve en popüler illeri, ardından diğer illeri sessizce RAM'e (dataCache) alır.
+ */
+let _prefetchStarted = false;
+function scheduleBackgroundPrefetch() {
+  if (_prefetchStarted) return;
+  _prefetchStarted = true;
+
+  const runIdle = (fn, delay = 250) => {
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(fn, { timeout: 2000 });
+    } else {
+      setTimeout(fn, delay);
+    }
+  };
+
+  const priorityCities = [
+    "İstanbul", "Antalya", "İzmir", "Ankara", "Muğla", "Bursa",
+    "Nevşehir", "Çanakkale", "Trabzon", "Gaziantep", "Hatay",
+    "Mardin", "Aydın", "Balıkesir", "Konya", "Adana", "Şanlıurfa", "Kars"
+  ];
+
+  runIdle(async () => {
+    // 1) index.json'u önbelleğe al
+    try {
+      await fetchCachedJSON("./data/places/index.json");
+    } catch (_) {}
+
+    // 2) Öncelikli popüler illerin mekan + ilçe GeoJSON verilerini küçük paketler halinde RAM'e çek
+    const allCities = STATE.geoData
+      ? STATE.geoData.features.map(f => f.properties.name_tr)
+      : priorityCities;
+
+    const orderedQueue = [
+      ...priorityCities,
+      ...allCities.filter(c => !priorityCities.includes(c))
+    ];
+
+    let idx = 0;
+    const prefetchNextBatch = () => {
+      // Kullanıcı aktif olarak harita/il yüklemesi yapıyorsa sıradaki paketi hafif geciktir
+      const batch = orderedQueue.slice(idx, idx + 3);
+      idx += 3;
+      if (batch.length === 0) return;
+
+      Promise.allSettled(
+        batch.map(cityName =>
+          Promise.all([
+            loadStaticCityData(cityName),
+            loadDistrictGeo(cityName)
+          ])
+        )
+      ).finally(() => {
+        if (idx < orderedQueue.length) {
+          runIdle(prefetchNextBatch, 350);
+        }
+      });
+    };
+
+    prefetchNextBatch();
+  }, 400);
 }
 
 function applyCityPlaces(cityName, places) {
@@ -917,12 +1098,12 @@ function applyCityPlaces(cityName, places) {
 }
 
 async function loadCityData(cityName) {
-  // 1) Bellek önbelleği — aynı il tekrar seçilince anında
+  // 1) Bellek önbelleği (dataCache / CITY_CACHE) — aynı il veya prefetch edilmiş il seçilince 0ms
   if (CITY_CACHE[cityName]) {
     applyCityPlaces(cityName, CITY_CACHE[cityName]);
     return;
   }
-  // 2) Hazır dosya — genelde 100 ms altında
+  // 2) Hazır statik JSON (dataCache üzerinden)
   const staticPlaces = await loadStaticCityData(cityName);
   if (staticPlaces) {
     CITY_CACHE[cityName] = staticPlaces;
