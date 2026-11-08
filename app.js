@@ -322,38 +322,47 @@ function hideMapCompass(container) {
 let _lastTouchActionTime = 0;
 
 /**
- * D3 elementlerine hem masaüstü "click" hem de mobil "touchstart/touchend" (tap)
- * olayı bağlar. d3.zoom()'un mobilde sentetik click olayını yutmasını engeller,
- * pan/pinch-zoom hareketlerini (12px üstü sürükleme) ise bozmaz.
+ * D3 elementlerine hem masaüstü "click" hem de mobil "touchstart.tap/touchend.tap"
+ * olayı bağlar.
+ * - stopPropagation() touch olaylarında çağrılmaz; böylece üstteki <svg> üzerindeki
+ *   d3.zoom() 2 parmakla pinch-to-zoom ve pan hareketlerini kesintisiz takip eder.
+ * - Çoklu dokunuş (2 parmak pinch) algılandığında il/ilçe seçimi tetiklenmez.
  */
 function bindD3TapAndClick(selection, callback) {
   let touchStartX = 0;
   let touchStartY = 0;
   let touchStartTime = 0;
+  let isMultiTouch = false;
 
   selection
-    .on("touchstart", function(event, d) {
-      if (event.touches && event.touches.length === 1) {
-        touchStartX = event.touches[0].clientX;
-        touchStartY = event.touches[0].clientY;
-        touchStartTime = Date.now();
+    .on("touchstart.tap", function(event) {
+      if (!event.touches) return;
+      if (event.touches.length > 1) {
+        isMultiTouch = true;
+        return;
       }
+      isMultiTouch = false;
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
+      touchStartTime = Date.now();
     }, { passive: true })
-    .on("touchend", function(event, d) {
+    .on("touchend.tap", function(event, d) {
+      if (isMultiTouch) {
+        if (!event.touches || event.touches.length === 0) isMultiTouch = false;
+        return;
+      }
       if (!event.changedTouches || event.changedTouches.length !== 1) return;
       const dx = Math.abs(event.changedTouches[0].clientX - touchStartX);
       const dy = Math.abs(event.changedTouches[0].clientY - touchStartY);
       const dt = Date.now() - touchStartTime;
-      // Parmak sürüklenmediyse (gerçek bir dokunuş/tap ise) anında seçimi tetikle
-      if (dx < 14 && dy < 14 && dt < 650) {
-        if (event.cancelable) event.preventDefault();
-        event.stopPropagation();
+      // Parmak sürüklenmediyse (gerçek tek parmak dokunuş/tap ise) seçimi tetikle
+      if (dx < 12 && dy < 12 && dt < 550) {
         _lastTouchActionTime = Date.now();
         callback.call(this, event, d);
       }
     })
     .on("click", function(event, d) {
-      // touchend az önce tetiklendiyse çift çalışmayı önle
+      // touchend.tap az önce tetiklendiyse çift çalışmayı önle
       if (Date.now() - _lastTouchActionTime < 450) return;
       event.stopPropagation();
       callback.call(this, event, d);
@@ -560,8 +569,8 @@ function drawD3Map() {
 
     const path = d3.geoPath().projection(projection);
 
-    // Ana Zoom Katmanı (GPU katmanı olarak hızlandırıldı)
-    const g = svg.append("g").attr("class", "vintage-map-root");
+    // Ana Zoom Katmanı (<g class="map-zoom-group">) — Tüm path ve kıyı elementleri bu gruba eklenir
+    const g = svg.append("g").attr("class", "map-zoom-group vintage-map-root");
 
     // 3) Deniz / Kıyı Çizgileri (Bathymetry)
     const coastGroup = g.append("g").attr("class", "bathymetry-layer");
@@ -606,20 +615,18 @@ function drawD3Map() {
       selectCity(d.properties.name_tr);
     });
 
-    // Zoom Davranışı — requestAnimationFrame ile 60 FPS akıcı pan/zoom
+    // Zoom Davranışı (Pinch & Mouse Wheel) — .map-zoom-group üzerinde GPU hızlandırmalı
     const zoom = d3.zoom()
-      .clickDistance(10)
-      .tapDistance(14)
       .scaleExtent([1, 8])
       .on("zoom", (event) => {
         const t = event.transform;
         if (_d3ZoomRafId) cancelAnimationFrame(_d3ZoomRafId);
         _d3ZoomRafId = requestAnimationFrame(() => {
           _d3ZoomRafId = null;
-          g.attr("transform", t);
+          d3.select("#d3MapContainer .map-zoom-group").attr("transform", t);
         });
       });
-    svg.call(zoom);
+    svg.call(zoom).on("dblclick.zoom", null);
   });
 }
 
@@ -696,7 +703,7 @@ function drawProvinceMap(cityName, districtGeo) {
       .fitSize([width, height], geoToRender);
 
     const path = d3.geoPath().projection(projection);
-    const g = svg.append("g").attr("class", "vintage-map-root");
+    const g = svg.append("g").attr("class", "map-zoom-group vintage-map-root");
 
     // İl dış sınırı etrafında kıyı / sınır konturu (Bathymetry)
     const coastGroup = g.append("g").attr("class", "bathymetry-layer");
@@ -846,20 +853,18 @@ function drawProvinceMap(cityName, districtGeo) {
       }
     });
 
-    // Zoom & Pan — requestAnimationFrame ile 60 FPS akıcı pan/zoom
+    // Zoom & Pan (Pinch & Mouse Wheel) — .map-zoom-group üzerinde 60 FPS akıcı pan/zoom
     const zoom = d3.zoom()
-      .clickDistance(10)
-      .tapDistance(14)
-      .scaleExtent([1, 10])
+      .scaleExtent([1, 8])
       .on("zoom", (event) => {
         const t = event.transform;
         if (_d3ZoomRafId) cancelAnimationFrame(_d3ZoomRafId);
         _d3ZoomRafId = requestAnimationFrame(() => {
           _d3ZoomRafId = null;
-          g.attr("transform", t);
+          d3.select("#d3MapContainer .map-zoom-group").attr("transform", t);
         });
       });
-    svg.call(zoom);
+    svg.call(zoom).on("dblclick.zoom", null);
   });
 }
 
@@ -901,13 +906,24 @@ function resetToTurkeyMap() {
 }
 
 function populateSelects() {
-  if (!STATE.geoData) return;
+  if (!STATE.geoData || !DOM.citySelect) return;
   const cities = STATE.geoData.features.map(f => f.properties.name_tr).sort((a,b) => a.localeCompare(b, 'tr'));
-  
-  DOM.citySelect.innerHTML = '<option value="">Türkiye Geneli (Tümü)</option>';
+
+  const frag = document.createDocumentFragment();
+  const defaultOpt = document.createElement("option");
+  defaultOpt.value = "";
+  defaultOpt.textContent = "Türkiye Geneli (Tümü)";
+  frag.appendChild(defaultOpt);
+
   cities.forEach(city => {
-    DOM.citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+    const opt = document.createElement("option");
+    opt.value = city;
+    opt.textContent = city;
+    frag.appendChild(opt);
   });
+
+  DOM.citySelect.innerHTML = "";
+  DOM.citySelect.appendChild(frag);
 }
 
 // ================= CITY SELECTION & OVERPASS =================
@@ -978,6 +994,83 @@ function calculateCityBBox(cityName) {
     return `[bbox:${minLat},${minLon},${maxLat},${maxLon}]`;
 }
 
+// ================= POPÜLERLİK PUANLAMA & SIRALAMA SİSTEMİ =================
+const CATEGORY_POPULARITY_WEIGHTS = {
+  "Antik Kent": 10,
+  "Tarihi / Antik Kent": 10,
+  "Müze": 10,
+  "Doğa Parkı": 10,
+  "Milli Park": 10,
+  "Kale / Hisar": 9,
+  "Şelale": 9,
+  "Plaj / Koy": 9,
+  "Mağara": 8.5,
+  "Kaplıca": 8.5,
+  "Tarihi Camii": 8,
+  "Tarihi Kilise": 8,
+  "Tarihi Kapı": 8,
+  "Seyir Noktası": 8,
+  "Turistik Alan": 7,
+  "Anıt": 7,
+  "Dağ Zirvesi": 6,
+  "Göl / Nehir": 6,
+  "Park": 5,
+  "Sanat Eseri": 5,
+  "Eğlence Parkı": 5,
+  "Diğer": 1
+};
+
+/**
+ * Bir mekanın popülerlik / önem puanını hesaplar:
+ * 1) Kategori ağırlığı (Antik Kent / Müze / Doğa Parkı = 10, Diğer = 1)
+ * 2) Zengin içerik bonusları (Doğrulanmış görsel, Türkçe Wikipedia maddesi, Wikidata Q-ID bilinirliği)
+ */
+function getPlacePopularityScore(place) {
+  if (!place) return 0;
+  let score = CATEGORY_POPULARITY_WEIGHTS[place.kategori] || 2;
+
+  // Doğrulanmış yüksek çözünürlüklü görseli olan mekanlara öncelik ver
+  if (place.img && place.img.trim() !== "") score += 3;
+
+  // Türkçe Wikipedia maddesi olan önemli mekanlara ek ağırlık
+  const wpRef = String(place.wp || place.wiki || (place.tags && place.tags.wikipedia) || "");
+  if (wpRef.startsWith("tr:")) score += 2.5;
+  else if (wpRef.length > 0) score += 1.2;
+
+  // Wikidata Q-numarası ne kadar küçükse, madde o kadar erken açılmış / dünyaca ünlü bir mirastır (örn. Q81593 Alanya Kalesi, Q233121 Patara)
+  const qid = String(place.wikidata || (place.tags && place.tags.wikidata) || "");
+  const qMatch = qid.match(/^Q(\d+)$/);
+  if (qMatch) {
+    const qNum = parseInt(qMatch[1], 10);
+    if (qNum > 0 && qNum < 500000) score += 2.0;
+    else if (qNum < 5000000) score += 1.2;
+    else score += 0.5;
+  }
+
+  return score;
+}
+
+/**
+ * Mekan listesini A-Z yerine popülerliğe göre sıralar:
+ * - Varsa sayısal rating / puan ve reviewCount / reviews değerlerini baz alır.
+ * - Yoksa veya eşitse getPlacePopularityScore() ağırlık puanına göre sıralar.
+ */
+function sortPlacesByPopularity(places) {
+  if (!Array.isArray(places)) return [];
+  return places.sort((a, b) => {
+    const ratingDiff = (Number(b.rating || b.puan) || 0) - (Number(a.rating || a.puan) || 0);
+    if (ratingDiff !== 0) return ratingDiff;
+
+    const reviewDiff = (Number(b.reviewCount || b.reviews) || 0) - (Number(a.reviewCount || a.reviews) || 0);
+    if (reviewDiff !== 0) return reviewDiff;
+
+    const scoreDiff = getPlacePopularityScore(b) - getPlacePopularityScore(a);
+    if (scoreDiff !== 0) return scoreDiff;
+
+    return String(a.ad || "").localeCompare(String(b.ad || ""), "tr");
+  });
+}
+
 // ================= HAZIR VERİ (data/places/*.json) & RAM CACHE =================
 // Veriler scripts/build_places.py ile önceden üretilir; dataCache ile RAM'de tutulur.
 const CITY_CACHE = {};
@@ -1012,6 +1105,8 @@ async function loadStaticCityData(cityName) {
       wiki: p.wiki || p.wikidata || null,
       tags: { wikipedia: p.wiki, wikidata: p.wikidata, image: p.image }
     }));
+    // Alfabetik yerine popülerlik puanına göre sırala
+    sortPlacesByPopularity(mapped);
     dataCache.set(parsedCacheKey, mapped);
     CITY_CACHE[cityName] = mapped;
     return mapped;
@@ -1271,6 +1366,7 @@ async function loadCityDataFromOverpass(cityName) {
      if (!seens.has(lower)) { seens.add(lower); uniq.push(p); }
   });
   
+  sortPlacesByPopularity(uniq);
   CITY_CACHE[cityName] = uniq;
   applyCityPlaces(cityName, uniq);
   
@@ -1314,15 +1410,45 @@ async function enrichDistrictsFromNominatim() {
 
 
 
-// ================= UI RENDER (EXPLORE LIST) =================
+// ================= UI RENDER (EXPLORE LIST — DOCUMENT FRAGMENT & LAZY RENDERING) =================
+const LAZY_RENDER_BATCH_SIZE = 24;
+let _placesRenderedCount = 0;
+let _placesIntersectionObserver = null;
+
+function disconnectPlacesObserver() {
+  if (_placesIntersectionObserver) {
+    _placesIntersectionObserver.disconnect();
+    _placesIntersectionObserver = null;
+  }
+}
+
 function updateCategoryFilters() {
-    const cats = new Set(STATE.places.map(p => p.kategori));
-    let opts = '<option value="">Tüm Kategoriler</option>';
-    Array.from(cats).sort().forEach(c => {
-        opts += `<option value="${c}">${c}</option>`;
-    });
-    DOM.categoryFilter.innerHTML = opts;
-    DOM.mapCategoryFilter.innerHTML = opts;
+    const cats = Array.from(new Set(STATE.places.map(p => p.kategori))).sort((a, b) => a.localeCompare(b, 'tr'));
+
+    const buildOptionsFragment = () => {
+        const frag = document.createDocumentFragment();
+        const defOpt = document.createElement("option");
+        defOpt.value = "";
+        defOpt.textContent = "Tüm Kategoriler";
+        frag.appendChild(defOpt);
+
+        cats.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c;
+            opt.textContent = c;
+            frag.appendChild(opt);
+        });
+        return frag;
+    };
+
+    if (DOM.categoryFilter) {
+        DOM.categoryFilter.innerHTML = "";
+        DOM.categoryFilter.appendChild(buildOptionsFragment());
+    }
+    if (DOM.mapCategoryFilter) {
+        DOM.mapCategoryFilter.innerHTML = "";
+        DOM.mapCategoryFilter.appendChild(buildOptionsFragment());
+    }
 }
 
 function updateDistrictFilter() {
@@ -1331,7 +1457,9 @@ function updateDistrictFilter() {
         STATE.places
             .map(p => p.ilce)
             .filter(d => d && d.trim() !== '')
-    )].sort();
+    )].sort((a, b) => a.localeCompare(b, 'tr'));
+
+    if (!DOM.districtSelect) return;
 
     if (districts.length === 0) {
         DOM.districtSelect.innerHTML = '<option value="">Tüm İlçeler</option>';
@@ -1339,109 +1467,213 @@ function updateDistrictFilter() {
         return;
     }
 
-    let opts = '<option value="">Tüm İlçeler</option>';
+    const frag = document.createDocumentFragment();
+    const defOpt = document.createElement("option");
+    defOpt.value = "";
+    defOpt.textContent = "Tüm İlçeler";
+    frag.appendChild(defOpt);
+
     districts.forEach(d => {
-        opts += `<option value="${d}">${d}</option>`;
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        frag.appendChild(opt);
     });
-    DOM.districtSelect.innerHTML = opts;
+
+    DOM.districtSelect.innerHTML = "";
+    DOM.districtSelect.appendChild(frag);
     DOM.districtSelect.disabled = false;
     DOM.districtSelect.value = STATE.selectedDistrict || '';
 }
 
 function filterPlaces() {
-    const search = DOM.searchInput.value.toLowerCase();
+    const search = (DOM.searchInput.value || "").toLowerCase();
     const cat    = DOM.categoryFilter.value;
     const dist   = STATE.selectedDistrict || DOM.districtSelect.value;
 
-    STATE.filteredPlaces = STATE.places.filter(p => {
-        const matchSearch = p.ad.toLowerCase().includes(search) || p.ilce.toLowerCase().includes(search);
+    const filtered = STATE.places.filter(p => {
+        const matchSearch = p.ad.toLowerCase().includes(search) || (p.ilce || "").toLowerCase().includes(search);
         const matchCat    = cat  === '' || p.kategori === cat;
         const matchDist   = dist === '' || p.ilce === dist;
         return matchSearch && matchCat && matchDist;
     });
 
+    // DOM'a basmadan önce popülerliğe göre sırala
+    STATE.filteredPlaces = sortPlacesByPopularity(filtered);
+
     updateExploreUI();
     syncProvinceMapSelection();
 }
 
+/**
+ * Tek bir mekan kartı için DOM elementi üretir (innerHTML += kullanmadan DocumentFragment içine eklenir).
+ */
+function createPlaceCardElement(place) {
+    const inRoute = isPlaceInRoute(place.id);
+    const card = document.createElement("div");
+    card.className = "place-card glass-panel";
+    card.addEventListener("click", () => {
+        window.location.hash = `#place/${place.id}`;
+    });
+
+    const tags = place.tags || {};
+    card.innerHTML = `
+        <div class="card-image-wrapper">
+            <img class="card-image" src="" alt="${place.ad}"
+                 data-wiki="${place.ad}"
+                 data-img="${place.img || ''}"
+                 data-static="${place.fromStatic ? '1' : ''}"
+                 data-wiki2="${place.wiki || ''}"
+                 data-wikidata="${tags.wikidata || ''}"
+                 data-osm-image="${tags.image || tags['image:0'] || ''}"
+                 data-kategori="${place.kategori}"
+                 loading="lazy">
+        </div>
+        <div class="card-content">
+            <span class="card-category">${place.kategori}</span>
+            <h3 class="card-title">${place.ad}</h3>
+            <div class="card-location">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                ${place.ilce ? place.ilce + ', ' : ''}${place.il}
+            </div>
+            <div class="card-actions-row">
+                <button type="button"
+                        class="card-route-btn ${inRoute ? 'added' : ''}"
+                        data-route-id="${place.id}">
+                    ${inRoute ? '✓ Günlükte (Çıkar)' : '📜 Rotama Ekle'}
+                </button>
+            </div>
+        </div>
+    `;
+
+    const routeBtn = card.querySelector(".card-route-btn");
+    if (routeBtn) {
+        routeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            window.handleCardRouteClick(place.id);
+        });
+    }
+
+    return card;
+}
+
+function createInFeedAdElement() {
+    const adDiv = document.createElement("div");
+    adDiv.className = "vintage-ad-slot vintage-ad-card";
+    adDiv.setAttribute("data-ad-slot", "1000000002");
+    adDiv.setAttribute("data-ad-format", "fluid");
+    adDiv.setAttribute("aria-label", "Sponsorlu Keşif Kartı");
+    adDiv.innerHTML = `
+        <div class="vintage-ad-header">
+            <span>🧭 SEYAHATNAME NOTU</span>
+            <span class="vintage-ad-badge">İLAN</span>
+        </div>
+        <div class="vintage-ad-body">
+            <div class="vintage-ad-placeholder">
+                <span class="vintage-ad-compass">🏕️</span>
+                <strong>${STATE.selectedCity || 'Anadolu'} Keşif &amp; Konaklama Rehberi</strong>
+                <p>Rotanız üzerindeki butik taş konaklar, yerel rehberler ve doğa kampları için ayrılmış özel vitrin.</p>
+            </div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="${ADS_CONFIG.client}"
+                 data-ad-slot="1000000002"
+                 data-ad-format="fluid"></ins>
+        </div>
+    `;
+    return adDiv;
+}
+
+/**
+ * Sıradaki 24 mekanlık partiyi DocumentFragment ile tek seferde DOM'a basar (Lazy Rendering).
+ * Alt kısma "Daha Fazla Göster" butonu + IntersectionObserver (sonsuz kaydırma) ekler.
+ */
+function renderNextPlacesBatch() {
+    const total = STATE.filteredPlaces.length;
+    if (_placesRenderedCount >= total) return;
+
+    // Eski "Daha Fazla Göster" sentinel kutusunu kaldır
+    const oldSentinel = document.getElementById("placesLoadMoreSentinel");
+    if (oldSentinel) oldSentinel.remove();
+    disconnectPlacesObserver();
+
+    const startIdx = _placesRenderedCount;
+    const endIdx = Math.min(startIdx + LAZY_RENDER_BATCH_SIZE, total);
+    const batch = STATE.filteredPlaces.slice(startIdx, endIdx);
+
+    const fragment = document.createDocumentFragment();
+    const newImages = [];
+
+    batch.forEach((place, i) => {
+        const globalIdx = startIdx + i;
+        // İlk partide 4. karttan sonra In-Feed Seyahatname reklam kartını ekle
+        if (globalIdx === 4) {
+            fragment.appendChild(createInFeedAdElement());
+        }
+        const cardEl = createPlaceCardElement(place);
+        const imgEl = cardEl.querySelector("img[data-wiki]");
+        if (imgEl) newImages.push(imgEl);
+        fragment.appendChild(cardEl);
+    });
+
+    _placesRenderedCount = endIdx;
+
+    // Hâlâ gösterilmemiş mekanlar varsa "Daha Fazla Göster" butonu + IntersectionObserver ekle
+    const remaining = total - _placesRenderedCount;
+    let sentinelEl = null;
+    if (remaining > 0) {
+        sentinelEl = document.createElement("div");
+        sentinelEl.id = "placesLoadMoreSentinel";
+        sentinelEl.className = "load-more-sentinel";
+        sentinelEl.innerHTML = `
+            <button type="button" class="btn-primary btn-load-more">
+                📜 Daha Fazla Keşif Noktası Göster (${remaining} mekan daha)
+            </button>
+        `;
+        const loadMoreBtn = sentinelEl.querySelector(".btn-load-more");
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener("click", () => renderNextPlacesBatch());
+        }
+        fragment.appendChild(sentinelEl);
+    }
+
+    // DocumentFragment'i DOM'a tek seferde ekle (Reflow / UI Blocking sıfırlanır)
+    DOM.placesGrid.appendChild(fragment);
+
+    // Sadece yeni eklenen kartların görsellerini yükle
+    if (newImages.length > 0) {
+        loadWikiImagesForCards(newImages);
+    }
+
+    // Sonsuz kaydırma (IntersectionObserver) ile kullanıcı aşağı indikçe otomatik yükle
+    if (sentinelEl && "IntersectionObserver" in window) {
+        _placesIntersectionObserver = new IntersectionObserver((entries) => {
+            if (entries.some(e => e.isIntersecting)) {
+                renderNextPlacesBatch();
+            }
+        }, { rootMargin: "320px 0px" });
+        _placesIntersectionObserver.observe(sentinelEl);
+    }
+}
+
 function updateExploreUI() {
+    disconnectPlacesObserver();
+    _placesRenderedCount = 0;
     DOM.globalStatsLabel.textContent = `${STATE.filteredPlaces.length} Mekan Bulundu`;
     
     if (STATE.filteredPlaces.length === 0) {
         DOM.placesGrid.innerHTML = `
           <div class="empty-state">
             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <p>Seçilen kritele uygun mekan bulunamadı.</p>
+            <p>Seçilen kritere uygun mekan bulunamadı.</p>
           </div>`;
         return;
     }
 
-    const cardsHtml = STATE.filteredPlaces.slice(0, 100).map(place => {
-        const inRoute = isPlaceInRoute(place.id);
-        return `
-        <div class="place-card glass-panel" onclick="window.location.hash='#place/${place.id}'">
-            <div class="card-image-wrapper">
-                <img class="card-image" src="" alt="${place.ad}"
-                     data-wiki="${place.ad}"
-                     data-img="${place.img || ''}"
-                     data-static="${place.fromStatic ? '1' : ''}"
-                     data-wiki2="${place.wiki || ''}"
-                     data-wikidata="${place.tags.wikidata || ''}"
-                     data-osm-image="${place.tags.image || place.tags['image:0'] || ''}"
-                     data-kategori="${place.kategori}"
-                     loading="lazy">
-            </div>
-            <div class="card-content">
-                <span class="card-category">${place.kategori}</span>
-                <h3 class="card-title">${place.ad}</h3>
-                <div class="card-location">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    ${place.ilce ? place.ilce + ', ' : ''}${place.il}
-                </div>
-                <div class="card-actions-row">
-                    <button type="button"
-                            class="card-route-btn ${inRoute ? 'added' : ''}"
-                            data-route-id="${place.id}"
-                            onclick="event.stopPropagation(); window.handleCardRouteClick('${place.id}')">
-                        ${inRoute ? '✓ Günlükte (Çıkar)' : '📜 Rotama Ekle'}
-                    </button>
-                </div>
-            </div>
-        </div>
-        `;
-    });
+    // Grid'i temizle ve ilk 24 popüler mekanı DocumentFragment ile anında bas
+    DOM.placesGrid.innerHTML = "";
+    renderNextPlacesBatch();
 
-    // Mekan kartları arasına (4. karttan sonra) Polaroid/Seyahatname tarzı In-Feed reklam kartı yerleştir
-    if (cardsHtml.length >= 4) {
-        const inFeedAdHtml = `
-        <div class="vintage-ad-slot vintage-ad-card"
-             data-ad-slot="1000000002"
-             data-ad-format="fluid"
-             aria-label="Sponsorlu Keşif Kartı">
-            <div class="vintage-ad-header">
-                <span>🧭 SEYAHATNAME NOTU</span>
-                <span class="vintage-ad-badge">İLAN</span>
-            </div>
-            <div class="vintage-ad-body">
-                <div class="vintage-ad-placeholder">
-                    <span class="vintage-ad-compass">🏕️</span>
-                    <strong>${STATE.selectedCity || 'Anadolu'} Keşif &amp; Konaklama Rehberi</strong>
-                    <p>Rotanız üzerindeki butik taş konaklar, yerel rehberler ve doğa kampları için ayrılmış özel vitrin.</p>
-                </div>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="${ADS_CONFIG.client}"
-                     data-ad-slot="1000000002"
-                     data-ad-format="fluid"></ins>
-            </div>
-        </div>`;
-        cardsHtml.splice(4, 0, inFeedAdHtml);
-    }
-
-    DOM.placesGrid.innerHTML = cardsHtml.join('');
-
-    // Trigger lazy loading of Wiki Images
-    loadWikiImagesForCards();
     // Grid güncellendiğinde yeni eklenen in-feed reklam yuvasını gecikmeli yükle
     scheduleRefreshAds('explore');
 }
@@ -1517,8 +1749,10 @@ function cachePhoto(key, url) {
     setPhotoCache(cache);
 }
 
-async function loadWikiImagesForCards() {
-    const images = Array.from(DOM.placesGrid.querySelectorAll('img[data-wiki]'));
+async function loadWikiImagesForCards(targetImages = null) {
+    const images = Array.isArray(targetImages)
+        ? targetImages
+        : Array.from(DOM.placesGrid.querySelectorAll('img[data-wiki]:not([data-loaded="true"])'));
 
     const markLoaded = (img) => {
         img.classList.add('loaded');
