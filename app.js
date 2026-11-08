@@ -13,6 +13,10 @@ const inFlightRequests = new Map();
  * Eğer veri dataCache içinde varsa ağa çıkmadan anında (Promise.resolve) döner,
  * yoksa fetch ile çekip dataCache.set(key, data) ile hafızaya kaydeder.
  */
+// Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
+// ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
+const DATA_VERSION = "20261108b";
+
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
     return Promise.resolve(dataCache.get(url));
@@ -473,7 +477,7 @@ async function loadFoodListOsm(area, cacheKey, token) {
     const slug = getCitySlug(STATE.selectedCity);
     let data = null;
     try {
-      data = await fetchCachedJSON(`./data/food/${slug}.json`);
+      data = await fetchCachedJSON(`./data/food/${slug}.json?v=${DATA_VERSION}`);
     } catch (e) {
       data = { counts: {}, items: [] };
     }
@@ -792,7 +796,7 @@ function cleanupD3Map() {
 // ================= D3 MAP INITIALIZATION =================
 function initD3Map() {
   showMapCompass(DOM.d3Container, "Anadolu haritası açılıyor...");
-  return fetchCachedJSON("./assets/geo/tr_provinces_simplified.geojson")
+  return fetchCachedJSON(`./assets/geo/tr_provinces_simplified.geojson?v=${DATA_VERSION}`)
     .then(data => {
       STATE.geoData = data;
       populateSelects();
@@ -1025,7 +1029,7 @@ async function loadDistrictGeo(cityName) {
   if (DISTRICT_GEO_CACHE[cityName]) return DISTRICT_GEO_CACHE[cityName];
   const slug = getCitySlug(cityName);
   if (!slug) return null;
-  const cacheKey = `./assets/geo/districts/${slug}.geojson`;
+  const cacheKey = `./assets/geo/districts/${slug}.geojson?v=${DATA_VERSION}`;
   try {
     const data = await fetchCachedJSON(cacheKey);
     if (data) DISTRICT_GEO_CACHE[cityName] = data;
@@ -1331,7 +1335,7 @@ async function selectCity(cityName) {
   const slug = getCitySlug(cityName);
   const isCached = Boolean(
     CITY_CACHE[cityName] &&
-    (DISTRICT_GEO_CACHE[cityName] || (slug && dataCache.has(`./assets/geo/districts/${slug}.geojson`)))
+    (DISTRICT_GEO_CACHE[cityName] || (slug && dataCache.has(`./assets/geo/districts/${slug}.geojson?v=${DATA_VERSION}`)))
   );
   if (!isCached) {
     showMapCompass(DOM.d3Container, `${cityName} haritası hazırlanıyor...`);
@@ -1477,7 +1481,7 @@ async function loadStaticCityData(cityName) {
     return cached;
   }
   try {
-    const list = await fetchCachedJSON(`./data/places/${slug}.json`);
+    const list = await fetchCachedJSON(`./data/places/${slug}.json?v=${DATA_VERSION}`);
     if (!Array.isArray(list)) return null;
     // Fotoğrafı olmayan (ama Wikidata/Wikipedia ile doğrulanmış) yerler de listelenir;
     // böylece plaj, yayla, göl gibi eksik kalan yerler görünür. Fotoğraflılar sıralamada öne geçer.
