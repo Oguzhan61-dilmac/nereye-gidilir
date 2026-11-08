@@ -1,6 +1,6 @@
 # large generated data
 dataset/
-places/
+/places/
 images/places/
 *.bin
 *.cache

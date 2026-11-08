@@ -3,32 +3,105 @@
     {
       "source": "/",
       "headers": [
-        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
       ]
     },
     {
       "source": "/(.*)\\.html",
       "headers": [
-        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
       ]
     },
     {
       "source": "/(.*)\\.css",
       "headers": [
-        { "key": "Content-Type", "value": "text/css; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "text/css; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=600, stale-while-revalidate=86400"
+        }
       ]
     },
     {
       "source": "/(.*)\\.js",
       "headers": [
-        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=600, stale-while-revalidate=86400"
+        }
       ]
     },
     {
       "source": "/(.*)\\.json",
       "headers": [
-        { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.geojson",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/geo+json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/data/places/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/assets/geo/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=2592000"
+        }
       ]
     }
-  ]
+  ],
+  "redirects": [
+    {
+      "source": "/blog.html",
+      "destination": "/#blog",
+      "permanent": true
+    },
+    {
+      "source": "/hakkimizda.html",
+      "destination": "/#about",
+      "permanent": true
+    },
+    {
+      "source": "/map.html",
+      "destination": "/#map",
+      "permanent": true
+    },
+    {
+      "source": "/yer.html",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
+  "cleanUrls": false
 }

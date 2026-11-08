@@ -119,22 +119,30 @@ const ADS_CONFIG = {
   client: "ca-pub-0000000000000000",
   // Harita (D3.js / Leaflet) çizimini ve pan/zoom performansını engellememek için gecikme süresi (ms)
   lazyDelayMs: 1600,
-  // Test modunda gerçek AdSense hesabı bağlanana kadar konsol hatalarını bastır
+  // AdSense'in "In-Feed" reklam birimi için verdiği data-ad-layout-key (yoksa otomatik formata düşer)
+  inFeedLayoutKey: "",
+  // AdSense panelinden alınacak reklam birimi (slot) kimlikleri
+  slots: { sidebar: "", inFeed: "", banner: "" },
+  // Gerçek yayıncı kimliği girilene kadar reklam yuvaları gizli kalır (bkz. adsAreLive)
   enabled: true
 };
 
 let _adScriptLoaded = false;
 let _adRefreshTimer = null;
 
+// Gerçek yayıncı kimliği girilene kadar reklam yuvaları (ve "SPONSORLU" yer tutucuları) hiç gösterilmez.
+// AdSense incelemesinde sahte "sponsorlu" içerik görünmemesi için önemlidir.
+function adsAreLive() {
+  return Boolean(
+    ADS_CONFIG.enabled &&
+    ADS_CONFIG.client &&
+    ADS_CONFIG.client !== "ca-pub-0000000000000000"
+  );
+}
+
 function ensureAdSenseScriptLoaded() {
-  if (_adScriptLoaded) return;
+  if (_adScriptLoaded || !adsAreLive()) return;
   _adScriptLoaded = true;
-
-  // Placeholder yayıncı kimliği kullanılıyorsa harici script isteği atıp 400 hatası üretme
-  if (!ADS_CONFIG.client || ADS_CONFIG.client === "ca-pub-0000000000000000") {
-    return;
-  }
-
   if (document.querySelector('script[data-vintage-adsense="true"]')) return;
 
   const script = document.createElement("script");
@@ -145,65 +153,63 @@ function ensureAdSenseScriptLoaded() {
   document.head.appendChild(script);
 }
 
-/**
- * SPA Görünümü (View) veya İçerik Değiştiğinde Reklam Yuvalarını Güvenle Yeniler
- * - Harita kapsayıcılarını (.interactive-map-box, #d3MapContainer, #leafletMap, #view-map) kesinlikle hariç tutar.
- * - Eski iframe / ins kalıntılarını temizleyip yeni <ins class="adsbygoogle"> oluşturur ve push({}) çağırır.
- */
-function refreshAds(targetViewId = STATE.view) {
-  if (!ADS_CONFIG.enabled) return;
-  // Tam ekran harita (#map) görünümünde pan/zoom performansını korumak için reklam yükleme!
-  if (targetViewId === "map") return;
-
-  ensureAdSenseScriptLoaded();
-
-  const activeSection = DOM.views[targetViewId] || document;
-  const adSlots = activeSection.querySelectorAll(".vintage-ad-slot");
-
-  adSlots.forEach((slotEl) => {
-    // Güvenlik: Eğer yanlışlıkla harita kutusunun içine konmuşsa asla çalıştırma
-    if (
-      slotEl.closest(".interactive-map-box") ||
-      slotEl.closest("#d3MapContainer") ||
-      slotEl.closest("#leafletMap") ||
-      slotEl.closest("#view-map")
-    ) {
-      return;
-    }
-
-    const bodyEl = slotEl.querySelector(".vintage-ad-body") || slotEl;
-    const adSlotId = slotEl.getAttribute("data-ad-slot") || "1000000001";
-    const adFormat = slotEl.getAttribute("data-ad-format") || "auto";
-
-    // Eski AdSense <ins> ve iframe kalıntılarını temizle (SPA'da duplicate push hatasını önler)
-    const oldInsList = bodyEl.querySelectorAll("ins.adsbygoogle, iframe");
-    oldInsList.forEach((node) => node.remove());
-
-    // Yeni temiz <ins class="adsbygoogle"> elementi oluştur
-    const ins = document.createElement("ins");
-    ins.className = "adsbygoogle";
-    ins.style.display = "block";
-    ins.setAttribute("data-ad-client", ADS_CONFIG.client);
-    ins.setAttribute("data-ad-slot", adSlotId);
-    ins.setAttribute("data-ad-format", adFormat);
-    ins.setAttribute("data-full-width-responsive", "true");
-
-    bodyEl.appendChild(ins);
-
-    // Gerçek AdSense yayıncı kimliği tanımlıysa güvenli şekilde tetikle
-    if (ADS_CONFIG.client && ADS_CONFIG.client !== "ca-pub-0000000000000000") {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        slotEl.classList.add("ad-requested");
-      } catch (err) {
-        console.warn("AdSense yenileme uyarısı:", err);
-      }
-    }
-  });
+function isInsideMap(el) {
+  return Boolean(
+    el.closest(".interactive-map-box") ||
+    el.closest("#d3MapContainer") ||
+    el.closest("#leafletMap") ||
+    el.closest("#view-map")
+  );
 }
 
 /**
- * Harita çizimi ve sayfa geçiş animasyonu tamamlandıktan 1.6 sn sonra
+ * Tek bir .vintage-ad-slot yuvasını temiz bir <ins class="adsbygoogle"> ile doldurur ve push({}) çağırır.
+ * Eski ins/iframe kalıntıları silinir (SPA'da "already have ads" hatasını önler).
+ */
+function fillAdSlot(slotEl) {
+  if (!adsAreLive() || !slotEl || isInsideMap(slotEl)) return;
+  ensureAdSenseScriptLoaded();
+
+  const bodyEl = slotEl.querySelector(".vintage-ad-body") || slotEl;
+  const slotKey = slotEl.getAttribute("data-ad-slot-key") || "";
+  const adSlotId = (slotKey && ADS_CONFIG.slots[slotKey]) || slotEl.getAttribute("data-ad-slot") || "";
+  let adFormat = slotEl.getAttribute("data-ad-format") || "auto";
+  const layoutKey = slotEl.getAttribute("data-ad-layout-key") || "";
+  // "fluid" (In-Feed) formatı AdSense'in verdiği layout-key olmadan çalışmaz → otomatik formata düş
+  if (adFormat === "fluid" && !layoutKey) adFormat = "auto";
+
+  bodyEl.querySelectorAll("ins.adsbygoogle, iframe").forEach((node) => node.remove());
+
+  const ins = document.createElement("ins");
+  ins.className = "adsbygoogle";
+  ins.style.display = "block";
+  ins.setAttribute("data-ad-client", ADS_CONFIG.client);
+  if (adSlotId) ins.setAttribute("data-ad-slot", adSlotId);
+  ins.setAttribute("data-ad-format", adFormat);
+  if (layoutKey) ins.setAttribute("data-ad-layout-key", layoutKey);
+  if (adFormat !== "fluid") ins.setAttribute("data-full-width-responsive", "true");
+  bodyEl.appendChild(ins);
+
+  try {
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+    slotEl.classList.add("ad-requested");
+  } catch (err) {
+    console.warn("AdSense yenileme uyarısı:", err);
+  }
+}
+
+/**
+ * SPA görünümü (route) değiştiğinde o görünümdeki reklam yuvalarını yeniler.
+ * Filtre / arama / kaydırma gibi küçük etkileşimlerde ÇAĞRILMAZ (AdSense yenileme politikası).
+ */
+function refreshAds(targetViewId = STATE.view) {
+  if (!adsAreLive() || targetViewId === "map") return;
+  const activeSection = DOM.views[targetViewId] || document;
+  activeSection.querySelectorAll(".vintage-ad-slot").forEach(fillAdSlot);
+}
+
+/**
+ * Harita çizimi ve sayfa geçiş animasyonu tamamlandıktan sonra
  * tarayıcı boşta iken (requestIdleCallback) reklamları asenkron tetikler.
  */
 function scheduleRefreshAds(viewId = STATE.view) {
@@ -211,7 +217,7 @@ function scheduleRefreshAds(viewId = STATE.view) {
     clearTimeout(_adRefreshTimer);
     _adRefreshTimer = null;
   }
-  if (viewId === "map") return;
+  if (viewId === "map" || !adsAreLive()) return;
 
   _adRefreshTimer = setTimeout(() => {
     _adRefreshTimer = null;
@@ -223,6 +229,46 @@ function scheduleRefreshAds(viewId = STATE.view) {
   }, ADS_CONFIG.lazyDelayMs);
 }
 
+// ================= GÜVENLİK & LİNK YARDIMCILARI =================
+const _HTML_ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function escapeHtml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, (c) => _HTML_ESC[c]);
+}
+
+// Mekan kimlikleri (wd:Q123, node:456 ...) inline onclick içinde kullanılmadan önce doğrulanır
+function safeId(value) {
+  const v = String(value == null ? "" : value);
+  return /^[A-Za-z0-9:._-]+$/.test(v) ? v : "";
+}
+
+// Yalnızca http(s) görsel adreslerine izin ver (javascript: vb. engellenir)
+function safeUrl(value) {
+  const v = String(value == null ? "" : value).trim();
+  return /^https:\/\//i.test(v) ? escapeHtml(v) : "";
+}
+
+/**
+ * Mekan detay linki: #place/{il-slug}/{id}
+ * İl slug'ı sayesinde doğrudan açılan linklerde mekan, statik JSON'dan anında bulunur.
+ */
+function getPlaceHash(place) {
+  if (!place) return "#explore";
+  const slug = getCitySlug(place.il || STATE.selectedCity || "");
+  const id = safeId(place.id);
+  return slug ? `#place/${slug}/${id}` : `#place/${id}`;
+}
+
+// Wikimedia "Special:FilePath" görsellerini kart boyutunda iste (daha az bayt, daha hızlı liste)
+function sizedImageUrl(url, width) {
+  if (!url) return url;
+  if (/Special:FilePath\//.test(url)) {
+    return /[?&]width=\d+/.test(url)
+      ? url.replace(/([?&]width=)\d+/, `$1${width}`)
+      : `${url}${url.includes("?") ? "&" : "?"}width=${width}`;
+  }
+  return url;
+}
+
 // ================= CORE ROUTER =================
 function setupRouter() {
   window.addEventListener('hashchange', handleRoute);
@@ -231,11 +277,14 @@ function setupRouter() {
 function handleRoute() {
   const hash = window.location.hash || '#explore';
   
-  // Hash Parser (#place/node:123)
+  // Hash Parser: #place/{il-slug}/{id}  (eski format #place/{id} de desteklenir)
   if (hash.startsWith('#place/')) {
-    const id = hash.replace('#place/', '');
+    const rest = decodeURIComponent(hash.slice('#place/'.length));
+    const slashIdx = rest.indexOf('/');
+    const slug = slashIdx > -1 ? rest.slice(0, slashIdx) : '';
+    const id = slashIdx > -1 ? rest.slice(slashIdx + 1) : rest;
     showView('place');
-    renderPlaceDetails(id);
+    renderPlaceDetails(id, slug);
     return;
   }
 
@@ -256,8 +305,11 @@ function handleRoute() {
   showView('explore');
 }
 
+const DEFAULT_DOC_TITLE = document.title;
+
 function showView(viewId) {
   STATE.view = viewId;
+  if (viewId !== 'place') document.title = DEFAULT_DOC_TITLE;
   window.scrollTo(0, 0);
   Object.values(DOM.views).forEach(el => el.classList.remove('active'));
   if (DOM.views[viewId]) DOM.views[viewId].classList.add('active');
@@ -516,6 +568,41 @@ function updateTooltipPositionRaf(tooltip, event, container) {
   });
 }
 
+/**
+ * Harita kapsayıcısını ölçer ve Mercator projeksiyonunu sıfır boşlukla (fitExtent) hazırlar.
+ * - geoIdentity ham boylam/enlemi düz çizdiği için Türkiye ~3:1 yassı görünüyordu;
+ *   Mercator gerçek oranı (~2.3:1) verir ve haritayı belirgin biçimde büyütür.
+ * - Mobilde (<=768px) kapsayıcı yüksekliği haritanın gerçek oranına göre ayarlanır;
+ *   böylece 50vh kutunun içinde küçük bir şerit + boş alan kalmaz.
+ */
+function measureMapContainer(container, geo) {
+  let width = container.clientWidth || container.getBoundingClientRect().width
+    || (container.parentElement && container.parentElement.clientWidth) || 800;
+  if (width < 100) width = 800;
+
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const pad = isMobile ? 6 : 12;
+  let height;
+
+  if (isMobile) {
+    const probe = d3.geoMercator().fitWidth(width - pad * 2, geo);
+    const b = d3.geoPath(probe).bounds(geo);
+    const natural = Math.ceil((b[1][1] - b[0][1]) + pad * 2);
+    const maxH = Math.round((window.innerHeight || 700) * 0.72);
+    height = Math.max(220, Math.min(natural, maxH));
+    container.style.height = `${height}px`;
+    container.style.minHeight = `${height}px`;
+  } else {
+    container.style.height = "";
+    container.style.minHeight = "";
+    height = container.clientHeight || container.getBoundingClientRect().height || 480;
+    if (height < 100) height = 480;
+  }
+
+  const projection = d3.geoMercator().fitExtent([[pad, pad], [width - pad, height - pad]], geo);
+  return { width, height, projection };
+}
+
 function drawD3Map() {
   cleanupD3Map();
   if (DOM.mapBoxTitle) DOM.mapBoxTitle.textContent = "🗺️ Katlanmış Anadolu Yol Haritası";
@@ -528,15 +615,7 @@ function drawD3Map() {
     const container = DOM.d3Container;
     hideMapCompass(container);
 
-    let width = container.clientWidth || container.offsetWidth 
-      || container.getBoundingClientRect().width 
-      || (container.parentElement && container.parentElement.clientWidth)
-      || 800;
-    let height = container.clientHeight || container.offsetHeight
-      || container.getBoundingClientRect().height
-      || 420;
-    if (width < 100) width = 800;
-    if (height < 100) height = 420;
+    const { width, height, projection } = measureMapContainer(container, STATE.geoData);
 
     const tooltip = d3.select("#d3MapContainer")
       .append("div")
@@ -563,9 +642,6 @@ function drawD3Map() {
     drawNauticalGridLines(bgGroup, width, height);
 
     // Tight Bounding Box: Türkiye GeoJSON verisini sıfır boşlukla (fitSize / [[0,0],[width,height]]) SVG'ye tam yay
-    const projection = d3.geoIdentity()
-      .reflectY(true)
-      .fitSize([width, height], STATE.geoData);
 
     const path = d3.geoPath().projection(projection);
 
@@ -618,6 +694,8 @@ function drawD3Map() {
     // Zoom Davranışı (Pinch & Mouse Wheel) — .map-zoom-group üzerinde GPU hızlandırmalı
     const zoom = d3.zoom()
       .scaleExtent([1, 8])
+      .translateExtent([[0, 0], [width, height]])
+      .extent([[0, 0], [width, height]])
       .on("zoom", (event) => {
         const t = event.transform;
         if (_d3ZoomRafId) cancelAnimationFrame(_d3ZoomRafId);
@@ -665,15 +743,7 @@ function drawProvinceMap(cityName, districtGeo) {
     const container = DOM.d3Container;
     hideMapCompass(container);
 
-    let width = container.clientWidth || container.offsetWidth
-      || container.getBoundingClientRect().width
-      || (container.parentElement && container.parentElement.clientWidth)
-      || 800;
-    let height = container.clientHeight || container.offsetHeight
-      || container.getBoundingClientRect().height
-      || 420;
-    if (width < 100) width = 800;
-    if (height < 100) height = 420;
+    const { width, height, projection } = measureMapContainer(container, geoToRender);
 
     const tooltip = d3.select("#d3MapContainer")
       .append("div")
@@ -698,9 +768,6 @@ function drawProvinceMap(cityName, districtGeo) {
     drawNauticalGridLines(bgGroup, width, height);
 
     // Tight Bounding Box: İl/İlçe sınırlarını sıfır boşlukla (fitSize) SVG'nin tamamına yay
-    const projection = d3.geoIdentity()
-      .reflectY(true)
-      .fitSize([width, height], geoToRender);
 
     const path = d3.geoPath().projection(projection);
     const g = svg.append("g").attr("class", "map-zoom-group vintage-map-root");
@@ -823,7 +890,7 @@ function drawProvinceMap(cityName, districtGeo) {
           .on("mouseenter", function(event, d) {
             tooltip
               .classed("visible", true)
-              .html(`<strong>${d.ad}</strong> (${d.kategori})${d.ilce ? ` · ${d.ilce}` : ""}`);
+              .html(`<strong>${escapeHtml(d.ad)}</strong> (${escapeHtml(d.kategori)})${d.ilce ? ` · ${escapeHtml(d.ilce)}` : ""}`);
             updateTooltipPositionRaf(tooltip, event, container);
           })
           .on("mousemove", function(event) {
@@ -834,7 +901,7 @@ function drawProvinceMap(cityName, districtGeo) {
           });
 
         bindD3TapAndClick(mergedPins, function(event, d) {
-          window.location.hash = `#place/${d.id}`;
+          window.location.hash = getPlaceHash(d);
         });
       });
     }
@@ -856,6 +923,8 @@ function drawProvinceMap(cityName, districtGeo) {
     // Zoom & Pan (Pinch & Mouse Wheel) — .map-zoom-group üzerinde 60 FPS akıcı pan/zoom
     const zoom = d3.zoom()
       .scaleExtent([1, 8])
+      .translateExtent([[0, 0], [width, height]])
+      .extent([[0, 0], [width, height]])
       .on("zoom", (event) => {
         const t = event.transform;
         if (_d3ZoomRafId) cancelAnimationFrame(_d3ZoomRafId);
@@ -1140,45 +1209,32 @@ function scheduleBackgroundPrefetch() {
     "Mardin", "Aydın", "Balıkesir", "Konya", "Adana", "Şanlıurfa", "Kars"
   ];
 
-  runIdle(async () => {
-    // 1) index.json'u önbelleğe al
-    try {
-      await fetchCachedJSON("./data/places/index.json");
-    } catch (_) {}
+  // Veri tasarrufu modu / yavaş bağlantıda arka plan indirmesi yapma (mobil veriyi koru)
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ""))) return;
+  const isCellular = Boolean(conn && conn.type === "cellular");
 
-    // 2) Öncelikli popüler illerin mekan + ilçe GeoJSON verilerini küçük paketler halinde RAM'e çek
-    const allCities = STATE.geoData
-      ? STATE.geoData.features.map(f => f.properties.name_tr)
-      : priorityCities;
-
-    const orderedQueue = [
-      ...priorityCities,
-      ...allCities.filter(c => !priorityCities.includes(c))
-    ];
-
+  runIdle(() => {
+    // Yalnızca en çok ziyaret edilen illeri 2'şerli küçük paketlerle RAM'e al.
+    // (Önceden 81 ilin tamamı + 81 ilçe GeoJSON'u indiriliyordu: mobilde gereksiz megabaytlar.)
+    // Hücresel bağlantıda sadece küçük ilçe sınırlarını al; mekan listesi il seçilince gelir.
     let idx = 0;
     const prefetchNextBatch = () => {
-      // Kullanıcı aktif olarak harita/il yüklemesi yapıyorsa sıradaki paketi hafif geciktir
-      const batch = orderedQueue.slice(idx, idx + 3);
-      idx += 3;
+      const batch = priorityCities.slice(idx, idx + 2);
+      idx += 2;
       if (batch.length === 0) return;
 
       Promise.allSettled(
-        batch.map(cityName =>
-          Promise.all([
-            loadStaticCityData(cityName),
-            loadDistrictGeo(cityName)
-          ])
-        )
+        batch.map(cityName => isCellular
+          ? loadDistrictGeo(cityName)
+          : Promise.all([loadStaticCityData(cityName), loadDistrictGeo(cityName)]))
       ).finally(() => {
-        if (idx < orderedQueue.length) {
-          runIdle(prefetchNextBatch, 350);
-        }
+        if (idx < priorityCities.length) runIdle(prefetchNextBatch, 500);
       });
     };
 
     prefetchNextBatch();
-  }, 400);
+  }, 1200);
 }
 
 function applyCityPlaces(cityName, places) {
@@ -1285,10 +1341,13 @@ async function loadCityDataFromOverpass(cityName) {
       DOM.placesGrid.innerHTML = `
         <div class="empty-state">
           <p style="color:var(--accent-color);">Veri çekilirken sunucu hatası (504) veya Limit engeli oluştu.</p>
-          <button onclick="loadCityData('${cityName}')" class="btn-primary" style="width: auto;">Tekrar Dene</button>
+          <button type="button" class="btn-primary btn-retry-city" style="width: auto;">Tekrar Dene</button>
         </div>`;
       STATE.places = [];
-      updateExploreUI();
+      STATE.filteredPlaces = [];
+      DOM.globalStatsLabel.textContent = "Veri alınamadı";
+      const retryBtn = DOM.placesGrid.querySelector(".btn-retry-city");
+      if (retryBtn) retryBtn.addEventListener("click", () => loadCityData(cityName));
       return;
   }
 
@@ -1513,33 +1572,33 @@ function createPlaceCardElement(place) {
     const card = document.createElement("div");
     card.className = "place-card glass-panel";
     card.addEventListener("click", () => {
-        window.location.hash = `#place/${place.id}`;
+        window.location.hash = getPlaceHash(place);
     });
 
     const tags = place.tags || {};
     card.innerHTML = `
         <div class="card-image-wrapper">
-            <img class="card-image" src="" alt="${place.ad}"
-                 data-wiki="${place.ad}"
-                 data-img="${place.img || ''}"
+            <img class="card-image" src="" alt="${escapeHtml(place.ad)}"
+                 data-wiki="${escapeHtml(place.ad)}"
+                 data-img="${safeUrl(place.img)}"
                  data-static="${place.fromStatic ? '1' : ''}"
-                 data-wiki2="${place.wiki || ''}"
-                 data-wikidata="${tags.wikidata || ''}"
-                 data-osm-image="${tags.image || tags['image:0'] || ''}"
-                 data-kategori="${place.kategori}"
+                 data-wiki2="${escapeHtml(place.wiki || '')}"
+                 data-wikidata="${escapeHtml(tags.wikidata || '')}"
+                 data-osm-image="${safeUrl(tags.image || tags['image:0'] || '')}"
+                 data-kategori="${escapeHtml(place.kategori)}"
                  loading="lazy">
         </div>
         <div class="card-content">
-            <span class="card-category">${place.kategori}</span>
-            <h3 class="card-title">${place.ad}</h3>
+            <span class="card-category">${escapeHtml(place.kategori)}</span>
+            <h3 class="card-title">${escapeHtml(place.ad)}</h3>
             <div class="card-location">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                ${place.ilce ? place.ilce + ', ' : ''}${place.il}
+                ${place.ilce ? escapeHtml(place.ilce) + ', ' : ''}${escapeHtml(place.il)}
             </div>
             <div class="card-actions-row">
                 <button type="button"
                         class="card-route-btn ${inRoute ? 'added' : ''}"
-                        data-route-id="${place.id}">
+                        data-route-id="${safeId(place.id)}">
                     ${inRoute ? '✓ Günlükte (Çıkar)' : '📜 Rotama Ekle'}
                 </button>
             </div>
@@ -1560,7 +1619,7 @@ function createPlaceCardElement(place) {
 function createInFeedAdElement() {
     const adDiv = document.createElement("div");
     adDiv.className = "vintage-ad-slot vintage-ad-card";
-    adDiv.setAttribute("data-ad-slot", "1000000002");
+    adDiv.setAttribute("data-ad-slot-key", "inFeed");
     adDiv.setAttribute("data-ad-format", "fluid");
     adDiv.setAttribute("aria-label", "Sponsorlu Keşif Kartı");
     adDiv.innerHTML = `
@@ -1571,16 +1630,12 @@ function createInFeedAdElement() {
         <div class="vintage-ad-body">
             <div class="vintage-ad-placeholder">
                 <span class="vintage-ad-compass">🏕️</span>
-                <strong>${STATE.selectedCity || 'Anadolu'} Keşif &amp; Konaklama Rehberi</strong>
+                <strong>${escapeHtml(STATE.selectedCity || 'Anadolu')} Keşif &amp; Konaklama Rehberi</strong>
                 <p>Rotanız üzerindeki butik taş konaklar, yerel rehberler ve doğa kampları için ayrılmış özel vitrin.</p>
             </div>
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="${ADS_CONFIG.client}"
-                 data-ad-slot="1000000002"
-                 data-ad-format="fluid"></ins>
         </div>
     `;
+    if (ADS_CONFIG.inFeedLayoutKey) adDiv.setAttribute("data-ad-layout-key", ADS_CONFIG.inFeedLayoutKey);
     return adDiv;
 }
 
@@ -1603,12 +1658,14 @@ function renderNextPlacesBatch() {
 
     const fragment = document.createDocumentFragment();
     const newImages = [];
+    let inFeedAdEl = null;
 
     batch.forEach((place, i) => {
         const globalIdx = startIdx + i;
         // İlk partide 4. karttan sonra In-Feed Seyahatname reklam kartını ekle
-        if (globalIdx === 4) {
-            fragment.appendChild(createInFeedAdElement());
+        if (globalIdx === 4 && adsAreLive()) {
+            inFeedAdEl = createInFeedAdElement();
+            fragment.appendChild(inFeedAdEl);
         }
         const cardEl = createPlaceCardElement(place);
         const imgEl = cardEl.querySelector("img[data-wiki]");
@@ -1639,6 +1696,12 @@ function renderNextPlacesBatch() {
 
     // DocumentFragment'i DOM'a tek seferde ekle (Reflow / UI Blocking sıfırlanır)
     DOM.placesGrid.appendChild(fragment);
+
+    // Yalnızca yeni eklenen In-Feed yuvasını doldur (filtre değişiminde diğer reklamlar yenilenmez)
+    if (inFeedAdEl) {
+        const slotEl = inFeedAdEl;
+        setTimeout(() => fillAdSlot(slotEl), ADS_CONFIG.lazyDelayMs);
+    }
 
     // Sadece yeni eklenen kartların görsellerini yükle
     if (newImages.length > 0) {
@@ -1673,9 +1736,6 @@ function updateExploreUI() {
     // Grid'i temizle ve ilk 24 popüler mekanı DocumentFragment ile anında bas
     DOM.placesGrid.innerHTML = "";
     renderNextPlacesBatch();
-
-    // Grid güncellendiğinde yeni eklenen in-feed reklam yuvasını gecikmeli yükle
-    scheduleRefreshAds('explore');
 }
 
 // ================= FOTOĞRAF SİSTEMİ =================
@@ -1782,7 +1842,7 @@ async function loadWikiImagesForCards(targetImages = null) {
 
         // ── HAZIR VERİ: build_images.py ile doğrulanmış fotoğraf ──
         // (Wikidata/Wikipedia bağlantısı veya koordinat+isim eşleşmesi)
-        if (img.dataset.img) { setImage(img, img.dataset.img, null); return; }
+        if (img.dataset.img) { setImage(img, sizedImageUrl(img.dataset.img, 500), null); return; }
         // Hazır veride fotoğraf yoksa: yanlış fotoğraf yerine fotoğrafsız kart
         if (img.dataset.static) { hideNoPhoto(img); return; }
 
@@ -1862,7 +1922,8 @@ async function initOrUpdateLeafletMap() {
             preferCanvas: true,
             renderer: STATE.leafletCanvasRenderer,
             fadeAnimation: false,
-            markerZoomAnimation: true
+            markerZoomAnimation: true,
+            zoomSnap: 0.5
         }).setView([39.0, 35.0], 6);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1965,7 +2026,7 @@ function renderMapMarkers() {
 
         const icon = L.divIcon({
             className: 'vintage-map-pin',
-            html: `<div class="vintage-pin-seal" title="${place.ad}"><span class="vintage-pin-core">✦</span></div>`,
+            html: `<div class="vintage-pin-seal" title="${escapeHtml(place.ad)}"><span class="vintage-pin-core">✦</span></div>`,
             iconSize: [28, 28],
             iconAnchor: [14, 14],
             popupAnchor: [0, -14]
@@ -1978,12 +2039,12 @@ function renderMapMarkers() {
             const inRoute = isPlaceInRoute(place.id);
             return `
                 <div style="font-family: 'Lora', Georgia, serif; padding:6px; min-width:210px;">
-                    ${place.img ? `<img src="${place.img}" alt="${place.ad}" style="width:100%; height:auto; max-height:140px; object-fit:cover; margin-bottom:6px; border:1px solid #8B5A2B;" loading="lazy" onerror="this.remove()"/>` : ''}
-                    <h4 style="margin:0 0 4px 0; font-size:15px; font-family:'Playfair Display', serif; color:#3b281e;">${place.ad}</h4>
-                    <p style="margin:0 0 8px 0; color:#6e523e; font-size:12px;">${place.kategori}${place.ilce ? ' • ' + place.ilce : ''}</p>
+                    ${safeUrl(place.img) ? `<img src="${safeUrl(sizedImageUrl(place.img, 330))}" alt="${escapeHtml(place.ad)}" style="width:100%; height:auto; max-height:140px; object-fit:cover; margin-bottom:6px; border:1px solid #8B5A2B;" loading="lazy" onerror="this.remove()"/>` : ''}
+                    <h4 style="margin:0 0 4px 0; font-size:15px; font-family:'Playfair Display', serif; color:#3b281e;">${escapeHtml(place.ad)}</h4>
+                    <p style="margin:0 0 8px 0; color:#6e523e; font-size:12px;">${escapeHtml(place.kategori)}${place.ilce ? ' • ' + escapeHtml(place.ilce) : ''}</p>
                     <div style="display:flex; gap:4px; flex-wrap:wrap;">
-                        <a href="#place/${place.id}" style="display:inline-block; padding:5px 9px; background:#a83228; color:#fdf8ee; border-radius:3px; text-decoration:none; font-size:12px; font-weight:bold;">Detay</a>
-                        <button type="button" data-route-id="${place.id}" onclick="window.handleCardRouteClick('${place.id}')" style="padding:5px 9px; background:${inRoute ? '#8B5A2B' : '#2d5a3c'}; color:#fdf8ee; border:none; border-radius:3px; font-size:12px; font-weight:bold; cursor:pointer;">
+                        <a href="${getPlaceHash(place)}" style="display:inline-block; padding:5px 9px; background:#a83228; color:#fdf8ee; border-radius:3px; text-decoration:none; font-size:12px; font-weight:bold;">Detay</a>
+                        <button type="button" data-route-id="${safeId(place.id)}" onclick="window.handleCardRouteClick('${safeId(place.id)}')" style="padding:5px 9px; background:${inRoute ? '#8B5A2B' : '#2d5a3c'}; color:#fdf8ee; border:none; border-radius:3px; font-size:12px; font-weight:bold; cursor:pointer;">
                             ${inRoute ? '✓ Günlükte' : '+ Rotama Ekle'}
                         </button>
                         <a href="https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}" target="_blank" style="display:inline-block; padding:5px 9px; background:#5C4033; color:#fdf8ee; border-radius:3px; text-decoration:none; font-size:12px; font-weight:bold;">Yol Tarifi</a>
@@ -2011,37 +2072,100 @@ function renderMapMarkers() {
 
 
 // ================= PLACE DETAILS VIEW =================
-async function renderPlaceDetails(id) {
-    DOM.detailTitle.textContent = "Yükleniyor...";
-    DOM.detailImageWrapper.innerHTML = "";
-    DOM.detailImageWrapper.classList.add("skeleton-loading");
-    document.getElementById("btnWikipedia").classList.add("hidden");
-    
-    // Hafızadan veya Overpass'tan tekli çek (Zaten hafızada var ise anında açar)
-    let place = STATE.places.find(p => p.id === id);
-    
-    if (!place) {
-        // Eğer uygulama direkt ID linkiyle açıldıysa fetchingle
-        showLoader("Mekan bilgisi getiriliyor...");
-        place = await tryFetchSinglePlace(id);
-        hideLoader();
+function getCityNameBySlug(slug) {
+  if (!slug || !STATE.geoData) return "";
+  const f = STATE.geoData.features.find(x => x.properties.slug === slug);
+  return f ? f.properties.name_tr : "";
+}
+
+function findPlaceInMemory(id) {
+  const direct = (STATE.places || []).find(p => p.id === id)
+    || (STATE.nearbyPlaces || []).find(p => p.id === id);
+  if (direct) return direct;
+  for (const list of Object.values(CITY_CACHE)) {
+    const hit = Array.isArray(list) && list.find(p => p.id === id);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/**
+ * Doğrudan açılan (paylaşılan) mekan linkleri için mekanı STATİK veriden bulur:
+ * 1) RAM önbelleği  2) linkteki il slug'ı  3) Seyahat Günlüğü kaydındaki il
+ * 4) Eski formattaki linkler için illeri küçük paketlerle tarama  5) Son çare: Overpass
+ */
+async function resolvePlaceForDetail(id, slug) {
+  let place = findPlaceInMemory(id);
+  if (place) return place;
+
+  const tryCity = async (cityName) => {
+    if (!cityName) return null;
+    const list = await loadStaticCityData(cityName);
+    return Array.isArray(list) ? (list.find(p => p.id === id) || null) : null;
+  };
+
+  place = await tryCity(getCityNameBySlug(slug));
+  if (place) return place;
+
+  const saved = getSavedRoute().find(item => item.id === id);
+  if (saved && saved.il) {
+    place = await tryCity(saved.il);
+    if (place) return place;
+  }
+
+  if (STATE.geoData) {
+    const cities = STATE.geoData.features.map(f => f.properties.name_tr);
+    for (let i = 0; i < cities.length; i += 6) {
+      const found = (await Promise.all(cities.slice(i, i + 6).map(tryCity))).find(Boolean);
+      if (found) return found;
     }
+  }
+
+  return /^(node|way|relation):\d+$/.test(id) ? tryFetchSinglePlace(id) : null;
+}
+
+let _detailRequestToken = 0;
+
+async function renderPlaceDetails(id, slug = "") {
+    const token = ++_detailRequestToken;
+    DOM.detailTitle.textContent = "Yükleniyor...";
+    DOM.detailCategory.textContent = "";
+    DOM.detailLocation.textContent = "";
+    DOM.detailDescription.textContent = "";
+    DOM.detailTags.innerHTML = "";
+    DOM.detailImageWrapper.innerHTML = "";
+    DOM.detailImageWrapper.style.display = "";
+    DOM.detailImageWrapper.classList.add("skeleton-loading");
+    DOM.btnWikipedia.classList.add("hidden");
+
+    let place = findPlaceInMemory(id);
+    if (!place) {
+        showLoader("Mekan bilgisi getiriliyor...");
+        try {
+            place = await resolvePlaceForDetail(id, slug);
+        } finally {
+            hideLoader();
+        }
+    }
+    if (token !== _detailRequestToken) return; // Kullanıcı bu arada başka bir mekana geçti
 
     if (!place) {
+        DOM.detailImageWrapper.classList.remove("skeleton-loading");
+        DOM.detailImageWrapper.style.display = "none";
         DOM.detailTitle.textContent = "Mekan Bulunamadı.";
+        DOM.detailDescription.textContent = "Bu bağlantıdaki mekan artık listemizde yer almıyor olabilir. Haritadan yeni bir durak seçebilirsiniz.";
         return;
     }
 
+    const cityLabel = place.il || STATE.selectedCity || "";
     DOM.detailTitle.textContent = place.ad;
-    DOM.detailCategory.textContent = place.kategori;
-    DOM.detailLocation.textContent = `${place.ilce ? place.ilce + ', ' : ''}${place.il || STATE.selectedCity}`;
-    DOM.detailTags.innerHTML = '';
+    DOM.detailCategory.textContent = place.kategori || "";
+    DOM.detailLocation.textContent = `${place.ilce ? place.ilce + ', ' : ''}${cityLabel}`;
     place.tags = place.tags || {};
-    
-    // Özellik etiketleri (Türkçe)
-    const chips = [place.kategori, place.ilce ? `${place.ilce} ilçesi` : '', place.il || STATE.selectedCity]
-        .filter(Boolean);
-    if (place.tags.wikipedia || place.tags.wikidata) chips.push('Wikipedia kaydı var');
+    document.title = `${place.ad} (${cityLabel}) | Gezi Atlası`;
+
+    const chips = [place.kategori, place.ilce ? `${place.ilce} ilçesi` : '', cityLabel].filter(Boolean);
+    if (place.wp || place.tags.wikipedia || place.tags.wikidata || place.wikidata) chips.push('Wikipedia kaydı var');
     chips.forEach(text => {
         const div = document.createElement("div");
         div.className = "detail-tag";
@@ -2049,47 +2173,61 @@ async function renderPlaceDetails(id) {
         DOM.detailTags.appendChild(div);
     });
 
-    DOM.btnDirections.href = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lon}`;
+    DOM.btnDirections.href = `https://www.google.com/maps/dir/?api=1&destination=${Number(place.lat)},${Number(place.lon)}`;
+    DOM.btnDirections.rel = "noopener";
 
-    // Detay sayfasındaki "Rotama Ekle" butonunu güncelle
     STATE.currentDetailPlace = place;
     syncDetailRouteButton();
 
-    // Fotoğraf ve açıklama: SADECE mekana bağlı kaynaklar
-    const showImage = (src) => {
-        DOM.detailImageWrapper.classList.remove("skeleton-loading");
-        DOM.detailImageWrapper.style.display = '';
-        DOM.detailImageWrapper.innerHTML = `<img src="${src}" alt="${place.ad}" style="width:100%; height:100%; object-fit:cover;">`;
-        DOM.detailImageWrapper.querySelector('img').onerror = hideImage;
-    };
     const hideImage = () => {
         DOM.detailImageWrapper.classList.remove("skeleton-loading");
         DOM.detailImageWrapper.innerHTML = '';
         DOM.detailImageWrapper.style.display = 'none';
     };
-    DOM.detailImageWrapper.style.display = '';
-    if (place.img) showImage(place.img);
+    const showImage = (src) => {
+        if (!/^https:\/\//i.test(String(src || ""))) return;
+        DOM.detailImageWrapper.classList.remove("skeleton-loading");
+        DOM.detailImageWrapper.style.display = '';
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = place.ad;
+        img.decoding = "async";
+        img.style.cssText = "width:100%; height:100%; object-fit:cover;";
+        img.onerror = hideImage;
+        DOM.detailImageWrapper.replaceChildren(img);
+    };
+    if (place.img) showImage(sizedImageUrl(place.img, 960));
 
     DOM.detailDescription.textContent = "Bu mekan için Wikipedia açıklaması bulunmuyor.";
-    const ref = place.wp || place.tags.wikipedia || '';
+    const ref = String(place.wp || place.tags.wikipedia || '');
     const m = ref.match(/^([a-z]{2,3}):(.+)$/);
     if (m) {
+        DOM.detailDescription.textContent = "Wikipedia'dan özet getiriliyor...";
         try {
             const res = await fetch(`https://${m[1]}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(m[2])}`);
+            if (token !== _detailRequestToken) return;
             if (res.ok) {
                 const data = await res.json();
+                if (token !== _detailRequestToken) return;
                 if (data.type !== 'disambiguation') {
-                    if (data.extract) DOM.detailDescription.textContent = data.extract;
+                    DOM.detailDescription.textContent = data.extract || "Bu mekan için Wikipedia açıklaması bulunmuyor.";
                     if (data.content_urls && data.content_urls.desktop) {
                         DOM.btnWikipedia.classList.remove("hidden");
                         DOM.btnWikipedia.href = data.content_urls.desktop.page;
+                        DOM.btnWikipedia.rel = "noopener";
                     }
                     if (!place.img && data.thumbnail) showImage(data.thumbnail.source);
+                } else {
+                    DOM.detailDescription.textContent = "Bu mekan için Wikipedia açıklaması bulunmuyor.";
                 }
+            } else {
+                DOM.detailDescription.textContent = "Bu mekan için Wikipedia açıklaması bulunmuyor.";
             }
-        } catch(e) {}
+        } catch (e) {
+            if (token === _detailRequestToken) DOM.detailDescription.textContent = "Wikipedia özeti şu an alınamadı.";
+        }
     }
-    if (!DOM.detailImageWrapper.querySelector('img')) hideImage();
+    if (token === _detailRequestToken && !DOM.detailImageWrapper.querySelector('img')) hideImage();
 }
 
 async function tryFetchSinglePlace(fullId) {
@@ -2252,11 +2390,11 @@ function renderRouteJournal() {
     DOM.routeJournalList.innerHTML = route.map((item, idx) => `
         <div class="journal-item">
             <span class="journal-step-num">${idx + 1}</span>
-            <div class="journal-item-info" onclick="window.location.hash='#place/${item.id}'">
-                <div class="journal-item-title">${item.ad}</div>
-                <div class="journal-item-sub">${item.ilce ? item.ilce + ', ' : ''}${item.il} • ${item.kategori}</div>
+            <div class="journal-item-info" onclick="window.location.hash='${getPlaceHash(item)}'">
+                <div class="journal-item-title">${escapeHtml(item.ad)}</div>
+                <div class="journal-item-sub">${item.ilce ? escapeHtml(item.ilce) + ', ' : ''}${escapeHtml(item.il)} • ${escapeHtml(item.kategori)}</div>
             </div>
-            <button type="button" class="btn-journal-remove" title="Rotadan Çıkar" onclick="window.removeRouteStop('${item.id}')">✕</button>
+            <button type="button" class="btn-journal-remove" title="Rotadan Çıkar" onclick="window.removeRouteStop('${safeId(item.id)}')">✕</button>
         </div>
     `).join("");
 }
@@ -2378,23 +2516,23 @@ function renderNearbyPlaces(places) {
         const inRoute = isPlaceInRoute(place.id);
         const distLabel = `${place.distanceKm.toFixed(1)} km`;
         return `
-        <div class="place-card glass-panel" onclick="window.location.hash='#place/${place.id}'">
+        <div class="place-card glass-panel" onclick="window.location.hash='${getPlaceHash(place)}'">
             <div class="card-image-wrapper">
                 <span class="distance-stamp">📍 ${distLabel}</span>
-                <img class="card-image loaded" src="${place.img || ''}" alt="${place.ad}" loading="lazy">
+                ${safeUrl(place.img) ? `<img class="card-image loaded" src="${safeUrl(sizedImageUrl(place.img, 500))}" alt="${escapeHtml(place.ad)}" loading="lazy" decoding="async" onerror="this.closest('.card-image-wrapper').classList.add('img-loaded')">` : ''}
             </div>
             <div class="card-content">
-                <span class="card-category">${place.kategori}</span>
-                <h3 class="card-title">${place.ad}</h3>
+                <span class="card-category">${escapeHtml(place.kategori)}</span>
+                <h3 class="card-title">${escapeHtml(place.ad)}</h3>
                 <div class="card-location">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    ${place.ilce ? place.ilce + ', ' : ''}${place.il}
+                    ${place.ilce ? escapeHtml(place.ilce) + ', ' : ''}${escapeHtml(place.il)}
                 </div>
                 <div class="card-actions-row">
                     <button type="button"
                             class="card-route-btn ${inRoute ? 'added' : ''}"
-                            data-route-id="${place.id}"
-                            onclick="event.stopPropagation(); window.handleCardRouteClick('${place.id}')">
+                            data-route-id="${safeId(place.id)}"
+                            onclick="event.stopPropagation(); window.handleCardRouteClick('${safeId(place.id)}')">
                         ${inRoute ? '✓ Günlükte (Çıkar)' : '📜 Rotama Ekle'}
                     </button>
                 </div>
@@ -2440,13 +2578,17 @@ function setupEventListeners() {
     }, 220));
 
     // Back buttons & Map navigation button
+    // Görünüm değişimi YALNIZCA router (hashchange) üzerinden yapılır; aksi halde
+    // showView + initOrUpdateLeafletMap iki kez çalışıyordu.
+    const navigateTo = (hash) => {
+        if (window.location.hash === hash) handleRoute();
+        else window.location.hash = hash;
+    };
     if (DOM.btnGoToMap) {
         DOM.btnGoToMap.addEventListener("click", (e) => {
             e.preventDefault();
             if (!STATE.selectedCity) return;
-            window.location.hash = '#map';
-            showView('map');
-            initOrUpdateLeafletMap();
+            navigateTo('#map');
         });
     }
     const navMapLink = document.querySelector('.nav-link[data-target="map"]');
@@ -2454,24 +2596,20 @@ function setupEventListeners() {
         navMapLink.addEventListener("click", (e) => {
             e.preventDefault();
             if (!STATE.selectedCity) {
-                alert("Tam ekran haritayı açmak için lütfen önce haritadan veya listeden bir il seçin.");
-                window.location.hash = '#explore';
-                showView('explore');
+                navigateTo('#explore');
+                if (DOM.mapBoxTitle) {
+                    DOM.mapBoxTitle.textContent = "🗺️ Tam ekran harita için önce bir il seçin";
+                    setTimeout(() => {
+                        if (!STATE.selectedCity && DOM.mapBoxTitle) DOM.mapBoxTitle.textContent = "🗺️ Katlanmış Anadolu Yol Haritası";
+                    }, 3500);
+                }
                 return;
             }
-            window.location.hash = '#map';
-            showView('map');
-            initOrUpdateLeafletMap();
+            navigateTo('#map');
         });
     }
-    DOM.btnBackFromMap.addEventListener("click", () => {
-        window.location.hash = '#explore';
-        showView('explore');
-    });
-    DOM.btnBackFromPlace.addEventListener("click", () => {
-        window.location.hash = '#explore';
-        showView('explore');
-    });
+    DOM.btnBackFromMap.addEventListener("click", () => navigateTo('#explore'));
+    DOM.btnBackFromPlace.addEventListener("click", () => navigateTo('#explore'));
 
     // Seyahat Günlüğü (Route Journal) bindings
     if (DOM.btnToggleJournal) DOM.btnToggleJournal.addEventListener("click", openRouteJournal);
@@ -2532,6 +2670,8 @@ function setupTheme() {
 // ================= INIT (BUG #1 FIX) =================
 // initApp() fonksiyonu daha önce hiç tanımlanmamıştı — uygulama hiç başlamıyordu!
 async function initApp() {
+  // Gerçek AdSense kimliği girilene kadar "SPONSORLU" yer tutucuları gizle
+  document.body.classList.toggle("ads-off", !adsAreLive());
   setupTheme();
   setupRouter();
   setupEventListeners();

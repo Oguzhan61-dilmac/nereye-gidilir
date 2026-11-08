@@ -1079,8 +1079,7 @@ a {
 .loader-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(5px);
+  background: rgba(38, 27, 19, 0.82);
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -1096,7 +1095,7 @@ a {
   width: 50px;
   height: 50px;
   border: 4px solid rgba(255,255,255,0.3);
-  border-top-color: #ef4444;
+  border-top-color: var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem auto;
@@ -1316,7 +1315,7 @@ a {
 
 .blog-tag {
   display: inline-block;
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(168, 50, 40, 0.12);
   color: var(--accent-color);
   font-size: 0.72rem;
   font-weight: 700;
@@ -2154,15 +2153,32 @@ a {
     gap: 1.25rem;
     margin-bottom: 1.5rem;
   }
-  .interactive-map-box,
   .controls-box { padding: 0.65rem; }
 
-  /* D3 kapsayıcı: kısıtlayıcı aspect-ratio kaldırıldı, mobilde min-height: 50vh */
+  /* Mobil harita: kenardan kenara (full-bleed) katlanmış harita.
+     Yükseklik JS (measureMapContainer) ile haritanın gerçek oranına göre ayarlanır;
+     aşağıdaki değer yalnızca ilk çizimden önceki yer tutucudur (layout shift önlenir). */
+  .interactive-map-box {
+    padding: 0.5rem 0 0.4rem;
+    margin-left: -0.6rem;
+    margin-right: -0.6rem;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+  .interactive-map-box .box-header { padding: 0 0.75rem 0.5rem; margin-bottom: 0.4rem; font-size: 1rem; }
+  .interactive-map-box .map-footer-legend { padding: 0.45rem 0.75rem 0; }
   .d3-container {
     width: 100%;
-    min-height: 50vh;
-    height: 50vh;
+    flex: none;
+    min-height: 46vw;
+    height: 46vw;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
   }
+  .district-label { font-size: 9px; }
+  .province-place-pin { r: 3.5px; }
   .map-footer-legend { font-size: 0.68rem; justify-content: center; text-align: center; }
   .map-box-header { flex-wrap: wrap; }
 
@@ -2261,3 +2277,62 @@ a {
 
 
 
+
+/* ================= FOOTER BAĞLANTILARI & KAYNAK ATIFLARI ================= */
+.app-footer .footer-links,
+.app-footer .footer-credits {
+  margin-top: 0.45rem;
+  font-size: 0.8rem;
+}
+.app-footer .footer-credits {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.74rem;
+  opacity: 0.85;
+}
+.app-footer a {
+  color: var(--brown-warm);
+  border-bottom: 1px dashed currentColor;
+}
+.app-footer a:hover { color: var(--accent-color); }
+
+/* =========================================================================
+   MOBİL KOMPAKT BAŞLIK & HERO
+   3 satırlık yapışkan başlık ekranın ~%37'sini kaplıyor, harita ilk ekranın altında kalıyordu.
+   Satır 1: logo + günlük + tema • Satır 2: 4 sekme
+========================================================================= */
+@media (max-width: 768px) {
+  .app-header { padding: 0.45rem 0.75rem 0.3rem; margin-bottom: 0.6rem; }
+  .header-container {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    align-items: center;
+    row-gap: 0.15rem;
+    column-gap: 0.4rem;
+  }
+  .nav-links { display: contents; }
+  .brand-logo { grid-column: 1 / 3; grid-row: 1; font-size: 1.2rem; white-space: nowrap; }
+  .btn-journal-toggle { grid-column: 3; grid-row: 1; justify-self: end; padding: 0.3rem 0.6rem; min-height: 40px; }
+  .btn-journal-toggle > span:first-child { font-size: 0; }
+  .btn-journal-toggle > span:first-child::before { content: "📜"; font-size: 1.05rem; }
+  .theme-btn { grid-column: 4; grid-row: 1; justify-self: end; min-height: 40px; min-width: 40px; padding: 0.35rem; }
+  .theme-btn svg { width: 19px; height: 19px; }
+  .nav-link {
+    grid-row: 2;
+    justify-self: center;
+    font-size: 0.86rem;
+    min-height: 38px;
+    padding-bottom: 0;
+  }
+
+  .explore-hero { padding: 0.55rem 0.5rem 0.65rem; margin-bottom: 0.8rem; }
+  .explorer-stamp-banner { display: none; }
+  .hero-title { font-size: 1.55rem; line-height: 1.2; margin-bottom: 0.2rem; }
+  .hero-subtitle { font-size: 1.12rem; line-height: 1.3; }
+  .dashboard-grid { margin-bottom: 1rem; }
+  .map-box-header { gap: 0.4rem; }
+  .btn-map-back { padding: 0.3rem 0.7rem; font-size: 0.8rem; min-height: 36px; }
+}
+@media (max-width: 768px) {
+  .map-footer-legend span:first-child,
+  .map-footer-legend span:last-child { display: none; }
+}

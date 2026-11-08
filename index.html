@@ -31,13 +31,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,700;0,800;1,600&family=Special+Elite&display=swap" rel="stylesheet">
   
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  <!-- Leaflet CSS: yalnızca tam ekran haritada gerekir, ilk çizimi bloklamasın -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson" as="fetch" type="application/geo+json" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" media="print" onload="this.media='all'">
   
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=14.0-perf">
-  <link rel="stylesheet" href="./about-extra.css?v=14.0-perf">
+  <link rel="stylesheet" href="./style.css?v=15.0">
+  <link rel="stylesheet" href="./about-extra.css?v=15.0">
   <style>
     /* Fotoğrafsız kartlar */
     .place-card.no-photo .card-image-wrapper { display: none !important; }
@@ -46,6 +49,8 @@
     /* Blog görselleri */
     .blog-card-image img { width:100%; height:100%; object-fit:cover; display:block; }
     .blog-card-image { overflow:hidden; }
+    /* AdSense kimliği girilene kadar reklam / "sponsorlu" yer tutucuları gösterme */
+    body.ads-off .vintage-ad-slot { display: none !important; }
   </style>
 </head>
 <body class="theme-light">
@@ -61,7 +66,7 @@
   <!-- HEADER -->
   <header class="app-header glass-panel">
     <div class="header-container">
-      <a href="#explore" class="brand-logo">🧭 Nereye Gidilir?</a>
+      <a href="#explore" class="brand-logo">🧭 Gezi Atlası</a>
       <nav class="nav-links">
         <a href="#explore" class="nav-link active" data-target="explore">Keşfet</a>
         <a href="#map" class="nav-link" data-target="map">Harita</a>
@@ -144,7 +149,7 @@
 
           <!-- Vintage Yan Panel İlan Köşesi (Haritadan İzole) -->
           <div class="vintage-ad-slot vintage-ad-sidebar"
-               data-ad-slot="1000000001"
+               data-ad-slot-key="sidebar"
                data-ad-format="auto"
                aria-label="Sponsorlu Seyahatname İlanı">
             <div class="vintage-ad-header">
@@ -156,12 +161,6 @@
                 <strong>Anadolu Kervansaray &amp; Konaklama Rehberi</strong>
                 <p>Keşif rotanız üzerindeki tarihi konaklar, yerel lezzet durakları ve müze kart fırsatları.</p>
               </div>
-              <ins class="adsbygoogle"
-                   style="display:block"
-                   data-ad-client="ca-pub-0000000000000000"
-                   data-ad-slot="1000000001"
-                   data-ad-format="auto"
-                   data-full-width-responsive="true"></ins>
             </div>
           </div>
         </div>
@@ -270,7 +269,7 @@
 
       <!-- Mekan Detay Sayfası Altı Vintage Gazete Küpürü Reklam Alanı -->
       <div class="vintage-ad-slot vintage-ad-banner"
-           data-ad-slot="1000000003"
+           data-ad-slot-key="banner"
            data-ad-format="horizontal"
            aria-label="Sponsorlu Keşif Notu">
         <div class="vintage-ad-header">
@@ -282,12 +281,6 @@
             <strong>Bu Diyarın Yerel Rehberi &amp; Gezi Notları</strong>
             <p>Bölgedeki geleneksel zanaat atölyeleri, yöresel mutfak durakları ve kültür turları için ayrılmış ilan alanı.</p>
           </div>
-          <ins class="adsbygoogle"
-               style="display:block"
-               data-ad-client="ca-pub-0000000000000000"
-               data-ad-slot="1000000003"
-               data-ad-format="horizontal"
-               data-full-width-responsive="true"></ins>
         </div>
       </div>
     </section>
@@ -533,14 +526,17 @@
 
   <footer class="app-footer">
     <p>&copy; 2026 Gezi Atlası (geziatlasi.com.tr) • Türkiye'nin İnteraktif Keşif ve Seyahat Rehberi</p>
+    <p class="footer-links"><a href="/gizlilik.html">Gizlilik Politikası &amp; Çerezler</a> • <a href="#about">Hakkında</a></p>
+    <p class="footer-credits">Harita verisi © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıcıları • Görseller ve özetler: <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a> / Wikipedia (CC BY-SA)</p>
   </footer>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  
+  <!-- Sürümleri sabitlenmiş kütüphaneler (unpkg yönlendirme zinciri yok), defer ile ayrıştırmayı bloklamaz -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
+
   <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=14.0-perf"></script>
+  <script src="./app.js?v=15.0" defer></script>
 </body>
 </html>
