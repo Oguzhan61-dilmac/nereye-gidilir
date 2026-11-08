@@ -2341,7 +2341,7 @@ a {
    YÖRE SOFRASI (Google yorumlu restoranlar) — eski lokanta menüsü / defter yaprağı
 ========================================================================= */
 .food-section {
-  margin: 0 0 3.5rem;
+  margin: 0 0 2.2rem;
   padding: 1.5rem 1.6rem;
   background: var(--bg-secondary);
   background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(139, 90, 43, 0.09) 32px);
@@ -2365,7 +2365,6 @@ a {
 }
 .food-header h2 { margin: 0.2rem 0 0.1rem; font-size: 1.7rem; color: var(--brown-deep); }
 .food-subtitle { font-family: 'Caveat', cursive; font-size: 1.3rem; color: var(--text-muted); line-height: 1.3; }
-.food-toggle { width: auto; padding-left: 1.2rem; padding-right: 1.2rem; }
 .food-list { margin-top: 1.25rem; }
 .food-items { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.9rem; }
 .food-item {
@@ -2400,7 +2399,7 @@ a {
 @media (max-width: 768px) {
   .food-section { padding: 1.1rem 0.85rem; margin-bottom: 2.5rem; }
   .food-header h2 { font-size: 1.4rem; }
-  .food-toggle { width: 100%; }
+  .food-close { align-self: flex-end; }
   .food-items { grid-template-columns: 1fr; }
 }
 .food-google-cta {
@@ -2419,3 +2418,40 @@ a {
 .food-google-cta:hover { filter: brightness(1.08); color: #fff; }
 .food-phone { margin-left: 0.8rem; }
 .food-attribution a { color: var(--accent-color); border-bottom: 1px dashed currentColor; }
+
+/* Kategori çubuğundaki "Restoranlar" düğmesi — mühür kırmızısı etiket */
+.filter-food-btn {
+  flex: none;
+  padding: 0 1.1rem;
+  min-height: 44px;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  color: #fdf8ee;
+  background: var(--forest-green);
+  border: 1.5px solid var(--brown-deep);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 rgba(92, 64, 51, 0.3);
+  cursor: pointer;
+}
+.filter-food-btn:hover { filter: brightness(1.1); }
+.filter-food-btn.active {
+  background: var(--accent-color);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.25);
+  transform: translateY(1px);
+}
+.filter-food-btn[hidden] { display: none; }
+.food-section[hidden] { display: none; }
+.food-close { flex: none; }
+@media (max-width: 768px) {
+  .filter-bar { flex-wrap: wrap; }
+  .filter-bar .search-input { flex: 1 1 100%; }
+  .filter-bar .filter-select { flex: 1 1 0; min-width: 0; }
+  .filter-food-btn { flex: 0 0 auto; }
+}
+.food-section, .results-header { scroll-margin-top: 110px; }
+@media (max-width: 768px) {
+  .filter-bar { flex-direction: row; flex-wrap: wrap; align-items: stretch; }
+  .filter-bar .filter-select { width: auto; }
+  .filter-food-btn { padding: 0 0.9rem; font-size: 0.9rem; }
+}

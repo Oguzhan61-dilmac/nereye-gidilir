@@ -343,14 +343,21 @@ function getFoodAreaBounds() {
   return { west, south, east, north };
 }
 
+function setFoodPanelOpen(open) {
+  DOM.foodSection.hidden = !open;
+  DOM.btnShowFood.classList.toggle("active", open);
+  DOM.btnShowFood.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
 function updateFoodSection() {
-  if (!DOM.foodSection) return;
+  if (!DOM.foodSection || !DOM.btnShowFood) return;
   if (!foodFeatureEnabled() || !STATE.selectedCity) {
-    DOM.foodSection.classList.add("hidden");
+    DOM.btnShowFood.hidden = true;
+    setFoodPanelOpen(false);
     _foodAreaKey = "";
     return;
   }
-  DOM.foodSection.classList.remove("hidden");
+  DOM.btnShowFood.hidden = false;
   const area = STATE.selectedDistrict ? `${STATE.selectedDistrict}, ${STATE.selectedCity}` : STATE.selectedCity;
   const key = `${STATE.selectedCity}|${STATE.selectedDistrict || ""}`;
   if (key === _foodAreaKey) return;
@@ -360,10 +367,9 @@ function updateFoodSection() {
   DOM.foodSubtitle.textContent = googleModeEnabled()
     ? `Google yorumlarında yüksek puan almış, ${area} bölgesinde en çok tercih edilen lokantalar.`
     : `${area} bölgesindeki lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.`;
-  DOM.foodList.hidden = true;
   DOM.foodList.replaceChildren();
-  DOM.btnShowFood.textContent = "🍲 Restoranları Göster";
-  DOM.btnShowFood.setAttribute("aria-expanded", "false");
+  // Panel açıksa yeni bölgenin listesini getir, kapalıysa kapalı kalsın
+  if (!DOM.foodSection.hidden) loadFoodList();
 }
 
 const PRICE_LABELS = { FREE: "Ücretsiz", INEXPENSIVE: "₺", MODERATE: "₺₺", EXPENSIVE: "₺₺₺", VERY_EXPENSIVE: "₺₺₺₺" };
@@ -512,9 +518,7 @@ async function loadFoodList() {
   const cacheKey = `${city}|${district}`;
   const token = ++_foodRequestToken;
 
-  DOM.foodList.hidden = false;
-  DOM.btnShowFood.textContent = "▲ Listeyi Gizle";
-  DOM.btnShowFood.setAttribute("aria-expanded", "true");
+  setFoodPanelOpen(true);
 
   if (_foodCache.has(cacheKey)) {
     const cached = _foodCache.get(cacheKey);
@@ -574,14 +578,13 @@ async function loadFoodList() {
 }
 
 function toggleFoodList() {
-  if (!DOM.foodList) return;
-  if (!DOM.foodList.hidden) {
-    DOM.foodList.hidden = true;
-    DOM.btnShowFood.textContent = "🍲 Restoranları Göster";
-    DOM.btnShowFood.setAttribute("aria-expanded", "false");
+  if (!DOM.foodSection) return;
+  if (!DOM.foodSection.hidden) {
+    setFoodPanelOpen(false);
     return;
   }
   loadFoodList();
+  DOM.foodSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // ================= CORE ROUTER =================
@@ -2945,6 +2948,11 @@ function setupEventListeners() {
     }
 
     if (DOM.btnShowFood) DOM.btnShowFood.addEventListener("click", toggleFoodList);
+    const btnCloseFood = document.getElementById("btnCloseFood");
+    if (btnCloseFood) btnCloseFood.addEventListener("click", () => {
+        setFoodPanelOpen(false);
+        DOM.btnShowFood.focus({ preventScroll: true });
+    });
 
     // Yakınımdakileri Bul (Geolocation & Haversine) bindings
     if (DOM.btnFindNearby) DOM.btnFindNearby.addEventListener("click", findNearbyPlaces);

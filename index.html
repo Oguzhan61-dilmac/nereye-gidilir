@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" media="print" onload="this.media='all'">
   
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=18.1">
-  <link rel="stylesheet" href="./about-extra.css?v=18.1">
+  <link rel="stylesheet" href="./style.css?v=19.1">
+  <link rel="stylesheet" href="./about-extra.css?v=19.1">
   <style>
     /* Fotoğrafsız kartlar */
     .place-card.no-photo .card-image-wrapper { display: none !important; }
@@ -189,8 +189,24 @@
             <select id="categoryFilter" class="filter-select" disabled>
               <option value="">Tüm Kategoriler</option>
             </select>
+            <button id="btnShowFood" type="button" class="filter-food-btn" aria-expanded="false" aria-controls="foodSection" hidden>
+              🍲 Restoranlar
+            </button>
           </div>
         </div>
+
+        <!-- YÖRE SOFRASI: kategori çubuğundaki "Restoranlar" düğmesiyle açılır -->
+        <section id="foodSection" class="food-section" aria-labelledby="foodTitle" hidden>
+          <div class="food-header">
+            <div>
+              <span class="food-eyebrow">🍽️ YÖRE SOFRASI • KAŞİFİN MOLA DEFTERİ</span>
+              <h2 id="foodTitle">Nerede Yenir?</h2>
+              <p id="foodSubtitle" class="food-subtitle">Bölgedeki lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.</p>
+            </div>
+            <button id="btnCloseFood" type="button" class="btn-map-back food-close" aria-label="Restoran listesini kapat">✕ Kapat</button>
+          </div>
+          <div id="foodList" class="food-list"></div>
+        </section>
 
         <div id="placesGrid" class="places-grid">
           <div class="empty-state">
@@ -200,20 +216,6 @@
         </div>
       </div>
 
-      <!-- YÖRE SOFRASI: Google yorumlarına göre en beğenilen restoranlar (tıklayınca yüklenir) -->
-      <section id="foodSection" class="food-section hidden" aria-labelledby="foodTitle">
-        <div class="food-header">
-          <div>
-            <span class="food-eyebrow">🍽️ YÖRE SOFRASI • KAŞİFİN MOLA DEFTERİ</span>
-            <h2 id="foodTitle">Nerede Yenir?</h2>
-            <p id="foodSubtitle" class="food-subtitle">Bölgedeki lokantalar; her birinin Google puanını ve yorumlarını tek tıkla açabilirsiniz.</p>
-          </div>
-          <button id="btnShowFood" type="button" class="btn-compass food-toggle" aria-expanded="false" aria-controls="foodList">
-            🍲 Restoranları Göster
-          </button>
-        </div>
-        <div id="foodList" class="food-list" hidden></div>
-      </section>
     </section>
 
     <!-- VIEW 2: MAP (LEAFLET FULLSCREEN) -->
@@ -552,6 +554,6 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
 
   <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=18.1" defer></script>
+  <script src="./app.js?v=19.1" defer></script>
 </body>
 </html>
