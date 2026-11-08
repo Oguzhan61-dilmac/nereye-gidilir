@@ -2,12 +2,12 @@
  "Adana": {
   "slug": "adana",
   "count": 203,
-  "with_img": 107
+  "with_img": 116
  },
  "Adıyaman": {
   "slug": "adiyaman",
   "count": 56,
-  "with_img": 21
+  "with_img": 22
  },
  "Afyonkarahisar": {
   "slug": "afyonkarahisar",
@@ -17,12 +17,12 @@
  "Ağrı": {
   "slug": "agri",
   "count": 40,
-  "with_img": 20
+  "with_img": 22
  },
  "Aksaray": {
   "slug": "aksaray",
   "count": 259,
-  "with_img": 35
+  "with_img": 36
  },
  "Amasya": {
   "slug": "amasya",
@@ -32,12 +32,12 @@
  "Ankara": {
   "slug": "ankara",
   "count": 507,
-  "with_img": 245
+  "with_img": 255
  },
  "Antalya": {
   "slug": "antalya",
   "count": 1095,
-  "with_img": 253
+  "with_img": 306
  },
  "Ardahan": {
   "slug": "ardahan",
