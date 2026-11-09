@@ -2455,3 +2455,200 @@ a {
   .filter-bar .filter-select { width: auto; }
   .filter-food-btn { padding: 0 0.9rem; font-size: 0.9rem; }
 }
+
+/* =========================================================================
+   FOTOĞRAFSIZ KART: kategori simgeli eski kartpostal yer tutucusu
+========================================================================= */
+.card-image-wrapper.no-photo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(139, 90, 43, 0.05) 0 8px, transparent 8px 16px),
+    var(--bg-paper-dark);
+}
+.card-image-wrapper.no-photo-wrapper::after {
+  content: attr(data-icon);
+  font-size: 2.6rem;
+  line-height: 1;
+  opacity: 0.75;
+  filter: sepia(0.5) saturate(0.8);
+}
+.lbl-short { display: none; }
+
+/* "Yukarı" düğmesi (yalnızca mobilde görünür) */
+.btn-to-top {
+  position: fixed;
+  right: 14px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 900;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #f6e7c8;
+  background: var(--accent-color);
+  color: #fdf8ee;
+  font-family: 'Special Elite', monospace;
+  font-size: 1.4rem;
+  box-shadow: 0 0 0 1.5px var(--brown-deep), 0 6px 16px rgba(28, 22, 18, 0.35);
+  cursor: pointer;
+  display: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* Dokunmatik cihazlarda "yapışkan hover" efektlerini kapat */
+@media (hover: none) {
+  .place-card:nth-child(odd):hover,
+  .place-card:nth-child(even):hover { transform: none; }
+  .place-card:hover .card-image { transform: none; }
+}
+
+/* =========================================================================
+   MOBİL DENEYİM (≤ 768px)
+========================================================================= */
+@media (max-width: 768px) {
+  html { -webkit-text-size-adjust: 100%; }
+  body { -webkit-tap-highlight-color: rgba(168, 50, 40, 0.12); }
+  /* iOS'ta odaklanınca sayfanın yakınlaşmasını önle (16px altı yazı yakınlaştırır) */
+  .premium-select, .search-input, .filter-select, input, select, textarea { font-size: 16px; }
+
+  /* --- Pusula kutusu: il + ilçe yan yana, düğmeler yan yana --- */
+  .controls-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 0.5rem;
+    row-gap: 0.55rem;
+    align-content: start;
+  }
+  .controls-box > .box-header,
+  .controls-box > .selection-info,
+  .controls-box > .action-buttons,
+  .controls-box > .vintage-ad-slot { grid-column: 1 / -1; }
+  .controls-box > .box-header { margin-bottom: 0; padding-bottom: 0.45rem; }
+  .controls-box .input-group { margin-bottom: 0; min-width: 0; }
+  .controls-box .premium-select { padding: 0.6rem 0.65rem; min-width: 0; }
+  .selection-info { flex-direction: row !important; align-items: center !important; margin-bottom: 0; }
+  .selection-info .highlight-badge,
+  .selection-info .stats-badge { flex: 1 1 0; text-align: center; font-size: 0.8rem; padding: 0.45rem 0.4rem; }
+  .action-buttons { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .action-buttons .btn-primary,
+  .action-buttons .btn-compass { padding: 0.65rem 0.4rem; font-size: 0.86rem; gap: 0.35rem; }
+  .action-buttons svg { width: 17px; height: 17px; flex: none; }
+  .lbl-long { display: none; }
+  .lbl-short { display: inline; }
+
+  /* --- Liste başlığı --- */
+  .results-header { margin-bottom: 1.1rem; gap: 0.6rem; }
+  .results-header h2 { font-size: 1.55rem; margin: 0; }
+  .filter-bar { padding: 0.5rem; }
+
+  /* --- Mekanlar: 2'li ızgara, kompakt kartpostallar --- */
+  .places-grid,
+  .nearby-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.05rem 0.6rem;
+  }
+  .places-grid > .empty-state,
+  .places-grid > .vintage-ad-slot,
+  .places-grid > .load-more-sentinel,
+  .places-grid > .btn-load-more,
+  .nearby-grid > .empty-state { grid-column: 1 / -1; }
+  .place-card {
+    padding: 5px 5px 0;
+    box-shadow: 2px 3px 0 rgba(92, 64, 51, 0.2), 0 6px 12px rgba(59, 40, 30, 0.08);
+    min-width: 0;
+  }
+  .place-card::before { width: 42px; height: 12px; top: -6px; }
+  .card-image-wrapper { height: auto; aspect-ratio: 4 / 3; }
+  .card-image-wrapper.no-photo-wrapper::after { font-size: 2rem; }
+  .card-content { padding: 0.5rem 0.2rem 0.55rem; }
+  .card-category {
+    font-size: 0.6rem;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-title {
+    font-size: 0.95rem;
+    line-height: 1.22;
+    margin-bottom: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  .card-location {
+    font-size: 0.74rem;
+    margin-bottom: 0.45rem;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+  .card-location svg { width: 12px; height: 12px; flex: none; }
+  .card-location {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  .card-location svg { vertical-align: -1px; margin-right: 2px; }
+  .card-actions-row { padding-top: 0.4rem; }
+  .card-route-btn {
+    min-height: 38px;
+    padding: 0.3rem 0.25rem;
+    font-size: 0.72rem;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* --- Mekan detayı --- */
+  .btn-back { margin-bottom: 0.6rem; }
+  .place-detail-container { padding: 1rem 0.9rem 1.2rem; margin-bottom: 2rem; }
+  .place-header { margin-bottom: 1rem; padding-bottom: 0.9rem; }
+  #detailTitle { font-size: 1.9rem; line-height: 1.15; margin-top: 0.5rem; overflow-wrap: anywhere; }
+  .place-content { gap: 1.3rem; }
+  .image-wrapper { height: 230px; border-radius: 4px; }
+  .place-image-col { gap: 0.9rem; }
+  .action-buttons-col {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .action-buttons-col .full-width { width: 100%; padding: 0.7rem 0.4rem; font-size: 0.88rem; }
+  .action-buttons-col #btnWikipedia { grid-column: 1 / -1; }
+  .place-info-col h3 { font-size: 1.15rem; }
+  .description-text { font-size: 1rem; line-height: 1.65; }
+
+  /* --- Yakınımdakiler paneli: kartlar da 2'li --- */
+  .nearby-panel, .nearby-section { padding-left: 0.6rem; padding-right: 0.6rem; }
+
+  /* --- Yukarı düğmesi --- */
+  .btn-to-top { display: block; }
+  .btn-to-top.visible { opacity: 1; transform: none; }
+}
+
+/* Çok dar telefonlar (≤ 360px): yine 2 sütun, biraz daha sıkı */
+@media (max-width: 360px) {
+  .places-grid, .nearby-grid { gap: 0.9rem 0.45rem; }
+  .card-title { font-size: 0.88rem; }
+  .card-route-btn { font-size: 0.66rem; }
+  .action-buttons .btn-primary, .action-buttons .btn-compass { font-size: 0.8rem; }
+}
+@media (max-width: 768px) {
+  /* Kategori + "Ne Yenir?" düğmesi eşit genişlikte; uzun etiket iki satıra inebilir */
+  .filter-bar .filter-select { flex: 1 1 0; }
+  .filter-food-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.15;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.82rem;
+  }
+}

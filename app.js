@@ -1395,6 +1395,19 @@ function calculateCityBBox(cityName) {
 }
 
 // ================= POPÜLERLİK PUANLAMA & SIRALAMA SİSTEMİ =================
+const CATEGORY_ICONS = [
+  [/plaj|koy|sahil|kordon/i, "🏖️"], [/yayla/i, "⛰️"], [/göl|nehir/i, "🏞️"], [/şelale/i, "💧"],
+  [/mağara/i, "🪨"], [/kanyon|vadi/i, "🏜️"], [/kale|hisar/i, "🏰"], [/antik|kalıntı|ören/i, "🏛️"],
+  [/müze/i, "🖼️"], [/cami|türbe|külliye|medrese/i, "🕌"], [/kilise|manastır/i, "⛪"],
+  [/park|bahçe|mesire|botanik|orman/i, "🌳"], [/kaplıca|hamam/i, "♨️"], [/köprü|kemer/i, "🌉"],
+  [/seyir/i, "🔭"], [/kamp/i, "⛺"], [/ada/i, "🏝️"], [/kervansaray|han/i, "🐪"], [/saray|köşk|konak/i, "🏯"],
+  [/kule|fener/i, "🗼"], [/anıt|kapı/i, "🗿"]
+];
+function getCategoryIcon(category) {
+  const hit = CATEGORY_ICONS.find(([rx]) => rx.test(category || ""));
+  return hit ? hit[1] : "🧭";
+}
+
 const CATEGORY_POPULARITY_WEIGHTS = {
   "Antik Kent": 10,
   "Tarihi / Antik Kent": 10,
@@ -2160,11 +2173,16 @@ async function loadWikiImagesForCards(targetImages = null) {
         img.classList.add('loaded');
         img.closest('.card-image-wrapper')?.classList.add('img-loaded');
     };
+    // Fotoğrafı olmayan kartlarda görsel alanı gizlenmez: kategori simgeli kartpostal yer tutucusu
+    // gösterilir (2 sütunlu mobil ızgarada kart yükseklikleri eşit kalır).
     const hideNoPhoto = (img) => {
         const wrapper = img.closest('.card-image-wrapper');
         if (wrapper) {
-            wrapper.style.display = 'none';
-            wrapper.closest('.place-card')?.classList.add('no-photo');
+            const card = wrapper.closest('.place-card');
+            wrapper.classList.add('img-loaded', 'no-photo-wrapper');
+            wrapper.dataset.icon = getCategoryIcon(img.dataset.kategori || '');
+            img.remove();
+            card?.classList.add('no-photo');
         }
     };
     const setImage = (img, src, cacheKey) => {
@@ -2526,7 +2544,9 @@ async function renderPlaceDetails(id, slug = "") {
         DOM.detailImageWrapper.innerHTML = '';
         DOM.detailImageWrapper.style.display = 'none';
     };
-    const showImage = (src) => {
+    // Wikimedia: istenen genişlik orijinalden büyükse orijinal dosyaya yönlendirir ve bu istekler
+    // sık sık hız sınırına (429) takılır → 960 olmazsa 500 px'lik standart küçük boyuta düş.
+    const showImage = (src, fallbacks = []) => {
         if (!/^https:\/\//i.test(String(src || ""))) return;
         DOM.detailImageWrapper.classList.remove("skeleton-loading");
         DOM.detailImageWrapper.style.display = '';
@@ -2535,10 +2555,17 @@ async function renderPlaceDetails(id, slug = "") {
         img.alt = place.ad;
         img.decoding = "async";
         img.style.cssText = "width:100%; height:100%; object-fit:cover;";
-        img.onerror = hideImage;
+        img.onerror = () => {
+            if (fallbacks.length) showImage(fallbacks[0], fallbacks.slice(1));
+            else hideImage();
+        };
         DOM.detailImageWrapper.replaceChildren(img);
     };
-    if (place.img) showImage(sizedImageUrl(place.img, 960));
+    if (place.img) {
+        const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+        showImage(sizedImageUrl(place.img, isSmallScreen ? 500 : 960),
+            isSmallScreen ? [sizedImageUrl(place.img, 330)] : [sizedImageUrl(place.img, 500)]);
+    }
 
     DOM.detailDescription.textContent = "Bu mekan için Wikipedia açıklaması bulunmuyor.";
     const ref = String(place.wp || place.tags.wikipedia || '');
@@ -2962,6 +2989,25 @@ function setupEventListeners() {
     if (DOM.btnAddToRouteDetail) {
         DOM.btnAddToRouteDetail.addEventListener("click", () => {
             if (STATE.currentDetailPlace) toggleRoutePlace(STATE.currentDetailPlace);
+        });
+    }
+
+    // Mobilde uzun listede hızlı dönüş: "Yukarı" düğmesi
+    const btnToTop = document.getElementById("btnToTop");
+    if (btnToTop) {
+        let ticking = false;
+        window.addEventListener("scroll", () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                btnToTop.classList.toggle("visible", window.scrollY > 1100 && STATE.view === "explore");
+                ticking = false;
+            });
+        }, { passive: true });
+        btnToTop.addEventListener("click", () => {
+            const target = document.querySelector(".results-header");
+            const y = target ? Math.max(0, target.getBoundingClientRect().top + window.scrollY - 100) : 0;
+            window.scrollTo({ top: window.scrollY > y + 50 ? y : 0, behavior: "smooth" });
         });
     }
 
