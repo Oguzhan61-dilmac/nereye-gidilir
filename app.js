@@ -97,6 +97,7 @@ const DOM = {
   searchInput: document.getElementById("searchInput"),
   categoryFilter: document.getElementById("categoryFilter"),
   placesGrid: document.getElementById("placesGrid"),
+  resultsTitle: document.getElementById("resultsTitle"),
   // Map Elements
   btnBackFromMap: document.getElementById("btnBackFromMap"),
   mapTitle: document.getElementById("mapTitle"),
@@ -646,6 +647,9 @@ function handleRoute() {
 
   // Default
   showView('explore');
+  if (!STATE.selectedCity) {
+    renderTurkeyHighlights();
+  }
 }
 
 const DEFAULT_DOC_TITLE = document.title;
@@ -801,6 +805,19 @@ function throttle(fn, limit = 80) {
 let _d3ZoomRafId = null;
 let _d3TooltipRafId = null;
 let _d3DrawRafId = null;
+
+// D3 Zoom Filtresi: Tek parmakla sayfa dikey kaydırmaya (pan-y) izin verir;
+// Sadece fare tekerleği, sol tık sürüklemesi veya iki+ parmaklı dokunuşta (pinch zoom) devreye girer.
+function d3ZoomFilter(event) {
+  if (event.type === "wheel") return true;
+  if (event.type.startsWith("mouse") || event.pointerType === "mouse") {
+    return !event.button; // Sadece sol tık (0)
+  }
+  if (event.touches) {
+    return event.touches.length >= 2;
+  }
+  return false;
+}
 
 function cleanupD3Map() {
   if (_d3ZoomRafId) {
@@ -1036,6 +1053,7 @@ function drawD3Map() {
 
     // Zoom Davranışı (Pinch & Mouse Wheel) — .map-zoom-group üzerinde GPU hızlandırmalı
     const zoom = d3.zoom()
+      .filter(d3ZoomFilter)
       .scaleExtent([1, 8])
       .translateExtent([[0, 0], [width, height]])
       .extent([[0, 0], [width, height]])
@@ -1265,6 +1283,7 @@ function drawProvinceMap(cityName, districtGeo) {
 
     // Zoom & Pan (Pinch & Mouse Wheel) — .map-zoom-group üzerinde 60 FPS akıcı pan/zoom
     const zoom = d3.zoom()
+      .filter(d3ZoomFilter)
       .scaleExtent([1, 8])
       .translateExtent([[0, 0], [width, height]])
       .extent([[0, 0], [width, height]])
@@ -1308,14 +1327,9 @@ function resetToTurkeyMap() {
   DOM.categoryFilter.disabled = true;
   DOM.btnGoToMap.classList.add("disabled");
 
-  DOM.placesGrid.innerHTML = `
-    <div class="empty-state">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-      <p>Lütfen önce arama yapmak için haritadan veya listeden bir il seçin.</p>
-    </div>`;
-
   updateFoodSection();
   drawD3Map();
+  renderTurkeyHighlights();
 }
 
 function populateSelects() {
@@ -1350,6 +1364,8 @@ async function selectCity(cityName) {
   STATE.selectedDistrict = '';         // İl değişince ilçe sıfırla
   DOM.citySelect.value = cityName;
   DOM.globalCityLabel.textContent = cityName;
+  if (DOM.resultsTitle) DOM.resultsTitle.textContent = `${cityName} Keşfet Listesi`;
+  if (DOM.searchInput) DOM.searchInput.placeholder = "Mekan, müze, mağara ara...";
   // İlçe dropdown'ı sıfırla yüklenene kadar
   DOM.districtSelect.innerHTML = '<option value="">Yükleniyor...</option>';
   DOM.districtSelect.disabled = true;
@@ -1596,12 +1612,108 @@ function scheduleBackgroundPrefetch() {
           ? loadDistrictGeo(cityName)
           : Promise.all([loadStaticCityData(cityName), loadDistrictGeo(cityName)]))
       ).finally(() => {
+        if (!STATE.selectedCity) {
+          renderTurkeyHighlights();
+        }
         if (idx < priorityCities.length) runIdle(prefetchNextBatch, 500);
       });
     };
 
     prefetchNextBatch();
   }, 1200);
+}
+
+
+// ================= TÜRKİYE'DEN ÖNE ÇIKANLAR (BOŞ DURUM & İLK AÇILIŞ) =================
+const TURKEY_HIGHLIGHT_CITIES = [
+  "Antalya", "İstanbul", "Nevşehir", "İzmir", "Çanakkale",
+  "Muğla", "Trabzon", "Bursa", "Ankara", "Mardin", "Gaziantep", "Şanlıurfa"
+];
+
+let _isHighlightRendering = false;
+
+async function renderTurkeyHighlights() {
+  if (STATE.selectedCity) return; // İl seçilmişse müdahale etme
+  if (_isHighlightRendering) return;
+  _isHighlightRendering = true;
+
+  try {
+    if (DOM.resultsTitle) {
+      DOM.resultsTitle.textContent = "Türkiye'den Öne Çıkan Keşif Noktaları";
+    }
+    if (DOM.globalCityLabel) DOM.globalCityLabel.textContent = "Tüm Türkiye";
+
+    // 1) CITY_CACHE ve dataCache içindeki önceden yüklenmiş mekanları topla
+    const combinedPlaces = [];
+    const seenPlaceIds = new Set();
+
+    for (const cityName of TURKEY_HIGHLIGHT_CITIES) {
+      let places = CITY_CACHE[cityName];
+      if (!places) {
+        const slug = getCitySlug(cityName);
+        if (slug && dataCache.has(`places_parsed:${slug}`)) {
+          places = dataCache.get(`places_parsed:${slug}`);
+        }
+      }
+      if (Array.isArray(places)) {
+        for (const p of places) {
+          if (p && p.id && !seenPlaceIds.has(p.id)) {
+            seenPlaceIds.add(p.id);
+            combinedPlaces.push(p);
+          }
+        }
+      }
+    }
+
+    // 2) Eğer henüz RAM'de hiç mekan yoksa (ilk açılış anı), öncelikli illeri derhal getir
+    if (combinedPlaces.length === 0) {
+      const initialBatch = TURKEY_HIGHLIGHT_CITIES.slice(0, 4);
+      await Promise.allSettled(initialBatch.map(cityName => loadStaticCityData(cityName)));
+      if (STATE.selectedCity) return;
+
+      for (const cityName of initialBatch) {
+        const places = CITY_CACHE[cityName];
+        if (Array.isArray(places)) {
+          for (const p of places) {
+            if (p && p.id && !seenPlaceIds.has(p.id)) {
+              seenPlaceIds.add(p.id);
+              combinedPlaces.push(p);
+            }
+          }
+        }
+      }
+    }
+
+    if (combinedPlaces.length === 0 || STATE.selectedCity) return;
+
+    // 3) Popülerlik puanına göre sırala
+    const sorted = sortPlacesByPopularity(combinedPlaces);
+    STATE.places = sorted;
+    STATE.filteredPlaces = [...sorted];
+
+    // Arama ve filtreleri aç
+    if (DOM.searchInput) {
+      DOM.searchInput.disabled = false;
+      DOM.searchInput.placeholder = "Öne çıkan mekanlarda ara...";
+    }
+    if (DOM.categoryFilter) {
+      DOM.categoryFilter.disabled = false;
+      updateCategoryFilters();
+    }
+    if (DOM.globalStatsLabel) {
+      DOM.globalStatsLabel.textContent = `${sorted.length} Öne Çıkan Mekan`;
+    }
+
+    // UI'ı güncelle ve ilk 24 mekanı lazy-render ile bas
+    disconnectPlacesObserver();
+    _placesRenderedCount = 0;
+    DOM.placesGrid.innerHTML = "";
+    renderNextPlacesBatch();
+  } catch (err) {
+    console.warn("Öne çıkan mekanlar yüklenirken hata:", err);
+  } finally {
+    _isHighlightRendering = false;
+  }
 }
 
 function applyCityPlaces(cityName, places) {
@@ -1918,7 +2030,7 @@ function filterPlaces() {
     const dist   = STATE.selectedDistrict || DOM.districtSelect.value;
 
     const filtered = STATE.places.filter(p => {
-        const matchSearch = p.ad.toLowerCase().includes(search) || (p.ilce || "").toLowerCase().includes(search);
+        const matchSearch = p.ad.toLowerCase().includes(search) || (p.ilce || "").toLowerCase().includes(search) || (p.il || "").toLowerCase().includes(search);
         const matchCat    = cat  === '' || p.kategori === cat;
         const matchDist   = dist === '' || p.ilce === dist;
         return matchSearch && matchCat && matchDist;
@@ -2091,6 +2203,11 @@ function updateExploreUI() {
     disconnectPlacesObserver();
     _placesRenderedCount = 0;
     DOM.globalStatsLabel.textContent = `${STATE.filteredPlaces.length} Mekan Bulundu`;
+    if (DOM.resultsTitle) {
+      DOM.resultsTitle.textContent = STATE.selectedCity
+        ? `${STATE.selectedCity} Keşfet Listesi`
+        : "Türkiye'den Öne Çıkan Keşif Noktaları";
+    }
     
     if (STATE.filteredPlaces.length === 0) {
         DOM.placesGrid.innerHTML = `

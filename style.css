@@ -2032,7 +2032,7 @@ a {
   width: 100%;
   height: 100%;
   display: block;
-  touch-action: none;
+  touch-action: pan-y;
   pointer-events: all !important;
 }
 
@@ -2059,12 +2059,19 @@ a {
   pointer-events: none !important;
 }
 
-/* D3 ve Leaflet haritalarında 2 parmakla pinch-to-zoom ve pan için touch-action: none */
+/* D3 haritasında tek parmakla sayfa kaydırmaya (pan-y) izin ver, iki parmakla pinch-to-zoom */
 .map-container,
 #d3-map-wrapper,
-#d3MapContainer,
+#d3MapContainer {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 #leafletMap {
-  touch-action: none;
+  touch-action: auto;
   overscroll-behavior: contain;
   -webkit-user-select: none;
   user-select: none;
