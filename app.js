@@ -4,6 +4,19 @@
 // Tüm yapı Vanilla JS ile "Tek Sayfa Uygulaması"nda (SPA) birleşti.
 // ==========================================
 
+// ================= SERVICE WORKER REGISTRATION (PWA / TWA) =================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => {
+        // Service worker hazır
+      })
+      .catch((err) => {
+        console.warn('ServiceWorker kaydı başarısız:', err);
+      });
+  });
+}
+
 // ================= GLOBAL IN-MEMORY DATA CACHE =================
 const dataCache = new Map();
 const inFlightRequests = new Map();
