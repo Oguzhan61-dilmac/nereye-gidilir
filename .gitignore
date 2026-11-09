@@ -12,3 +12,4 @@ scripts/__pycache__/
 .vercel
 .env*
 android-twa/
+android-release/
