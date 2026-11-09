@@ -77,7 +77,7 @@ CLASSES = [
 ]
 
 # Ad içinde geçerse yer büyük olasılıkla gezilecek yer değildir (idari birim vb.)
-JUNK_NAME = re.compile(r"\b(mahallesi|köyü|ilçesi|belediyesi|okulu|lisesi|hastanesi)\b", re.I)
+JUNK_NAME = re.compile(r"\b(mahallesi|köyü|ilçesi|belediyesi|okulu|lisesi|hastanesi|havalimanı|havaalanı|airport|avm)\b", re.I)
 
 
 def http_json(url, data=None, headers=None, retries=4):

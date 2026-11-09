@@ -201,8 +201,8 @@
  },
  "İzmir": {
   "slug": "izmir",
-  "count": 896,
-  "with_img": 589
+  "count": 895,
+  "with_img": 588
  },
  "Kahramanmaraş": {
   "slug": "kahramanmaras",
@@ -291,7 +291,7 @@
  },
  "Muğla": {
   "slug": "mugla",
-  "count": 521,
+  "count": 520,
   "with_img": 168
  },
  "Muş": {
@@ -311,7 +311,7 @@
  },
  "Ordu": {
   "slug": "ordu",
-  "count": 78,
+  "count": 77,
   "with_img": 23
  },
  "Osmaniye": {
@@ -321,8 +321,8 @@
  },
  "Rize": {
   "slug": "rize",
-  "count": 262,
-  "with_img": 47
+  "count": 261,
+  "with_img": 46
  },
  "Sakarya": {
   "slug": "sakarya",

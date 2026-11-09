@@ -15,7 +15,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261109a";
+const DATA_VERSION = "20261109b";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
