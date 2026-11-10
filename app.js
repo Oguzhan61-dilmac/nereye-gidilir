@@ -28,7 +28,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261110b";
+const DATA_VERSION = "20261111a";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
@@ -2205,7 +2205,6 @@ function filterPlaces() {
  * Tek bir mekan kartı için DOM elementi üretir (innerHTML += kullanmadan DocumentFragment içine eklenir).
  */
 function createPlaceCardElement(place) {
-    const inRoute = isPlaceInRoute(place.id);
     const card = document.createElement("div");
     card.className = "place-card glass-panel";
     card.addEventListener("click", () => {
@@ -2213,6 +2212,10 @@ function createPlaceCardElement(place) {
     });
 
     const tags = place.tags || {};
+    const mapsUrl = (place.lat && place.lon)
+        ? `https://www.google.com/maps/dir/?api=1&destination=${Number(place.lat)},${Number(place.lon)}`
+        : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${place.ad || ''} ${place.ilce || ''} ${place.il || ''}`.trim())}`;
+
     card.innerHTML = `
         <div class="card-image-wrapper">
             <img class="card-image" src="" alt="${escapeHtml(place.ad)}"
@@ -2233,20 +2236,22 @@ function createPlaceCardElement(place) {
                 ${place.ilce ? escapeHtml(place.ilce) + ', ' : ''}${escapeHtml(place.il)}
             </div>
             <div class="card-actions-row">
-                <button type="button"
-                        class="card-route-btn ${inRoute ? 'added' : ''}"
-                        data-route-id="${safeId(place.id)}">
-                    ${inRoute ? '✓ Günlükte (Çıkar)' : '📜 Rotama Ekle'}
-                </button>
+                <a href="${mapsUrl}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="card-directions-btn"
+                   onclick="event.stopPropagation();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                    Yol Tarifi Al
+                </a>
             </div>
         </div>
     `;
 
-    const routeBtn = card.querySelector(".card-route-btn");
-    if (routeBtn) {
-        routeBtn.addEventListener("click", (e) => {
+    const dirBtn = card.querySelector(".card-directions-btn");
+    if (dirBtn) {
+        dirBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            window.handleCardRouteClick(place.id);
         });
     }
 
@@ -3169,8 +3174,10 @@ function renderNearbyPlaces(places) {
     }
 
     DOM.nearbyGrid.innerHTML = places.map(place => {
-        const inRoute = isPlaceInRoute(place.id);
         const distLabel = `${place.distanceKm.toFixed(1)} km`;
+        const mapsUrl = (place.lat && place.lon)
+            ? `https://www.google.com/maps/dir/?api=1&destination=${Number(place.lat)},${Number(place.lon)}`
+            : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${place.ad || ''} ${place.ilce || ''} ${place.il || ''}`.trim())}`;
         return `
         <div class="place-card glass-panel" onclick="window.location.hash='${getPlaceHash(place)}'">
             <div class="card-image-wrapper">
@@ -3185,12 +3192,14 @@ function renderNearbyPlaces(places) {
                     ${place.ilce ? escapeHtml(place.ilce) + ', ' : ''}${escapeHtml(place.il)}
                 </div>
                 <div class="card-actions-row">
-                    <button type="button"
-                            class="card-route-btn ${inRoute ? 'added' : ''}"
-                            data-route-id="${safeId(place.id)}"
-                            onclick="event.stopPropagation(); window.handleCardRouteClick('${safeId(place.id)}')">
-                        ${inRoute ? '✓ Günlükte (Çıkar)' : '📜 Rotama Ekle'}
-                    </button>
+                    <a href="${mapsUrl}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="card-directions-btn"
+                       onclick="event.stopPropagation();">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                        Yol Tarifi Al
+                    </a>
                 </div>
             </div>
         </div>

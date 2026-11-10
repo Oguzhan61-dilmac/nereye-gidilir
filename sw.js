@@ -3,7 +3,7 @@
 // PWA & TWA Offline Desteği & Stale-While-Revalidate / Network-First Önbellekleme
 // =========================================================================
 
-const CACHE_NAME = 'gezi-atlasi-v1.0.4';
+const CACHE_NAME = 'gezi-atlasi-v1.0.5';
 
 // Uygulama kabuğu (App Shell) için önbelleğe alınacak kritik statik dosyalar
 const PRECACHE_ASSETS = [

@@ -930,6 +930,49 @@ a {
   gap: 0.5rem;
 }
 
+.card-directions-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fdf8ee;
+  background: var(--accent-color);
+  border: 1px solid var(--brown-deep);
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(92, 64, 51, 0.25);
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-directions-btn:hover {
+  background: var(--accent-hover);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 2px 3px 0 rgba(92, 64, 51, 0.35);
+}
+
+.card-directions-btn:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0 rgba(92, 64, 51, 0.2);
+}
+
+.card-directions-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.card-directions-btn:hover svg {
+  transform: translateX(2px) translateY(-1px);
+}
+
 .card-route-btn {
   width: 100%;
   padding: 0.45rem 0.75rem;
@@ -2296,6 +2339,7 @@ a {
   .btn-journal-close,
   .btn-journal-remove,
   .btn-journal-clear,
+  .card-directions-btn,
   .card-route-btn,
   .btn-back,
   .btn-icon,
@@ -2878,6 +2922,7 @@ a {
   }
   .card-location svg { vertical-align: -1px; margin-right: 2px; }
   .card-actions-row { padding-top: 0.4rem; }
+  .card-directions-btn,
   .card-route-btn {
     min-height: 38px;
     padding: 0.3rem 0.25rem;
@@ -2918,6 +2963,7 @@ a {
 @media (max-width: 360px) {
   .places-grid, .nearby-grid { gap: 0.9rem 0.45rem; }
   .card-title { font-size: 0.88rem; }
+  .card-directions-btn,
   .card-route-btn { font-size: 0.66rem; }
   .action-buttons .btn-primary, .action-buttons .btn-compass { font-size: 0.8rem; }
 }
