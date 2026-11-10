@@ -28,7 +28,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261109b";
+const DATA_VERSION = "20261110a";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
@@ -300,9 +300,9 @@ function sizedImageUrl(url, width) {
 // kısıtlaması: https://geziatlasi.com.tr/*  (anahtar boşsa bölüm hiç görünmez)
 const GOOGLE_PLACES_CONFIG = {
   apiKey: "",
-  minRating: 4.0,      // bu puanın altındaki yerler listelenmez
-  minReviews: 20,      // çok az yorumlu (güvenilmez) yerleri ele
-  maxShown: 10
+  minRating: 3.5,      // 3.5 ve 4+ üstü mekanlar listelenir ve sıralanır
+  minReviews: 15,      // çok az yorumlu yerleri ele
+  maxShown: 15
 };
 
 const _foodCache = new Map(); // yalnızca bu sayfa oturumu boyunca (bellekte) tutulur
@@ -482,13 +482,14 @@ function renderOsmFoodResults(items, area, total) {
     const phone = t.phone || t["contact:phone"] || "";
     const li = document.createElement("li");
     li.className = "food-item";
+    const scoreBadge = (r.sc && r.sc >= 3.5) ? `<span class="food-stars">★ ${r.sc >= 6.5 ? '4.8+' : r.sc >= 5.0 ? '4.5+' : '4.0+'} Tavsiye</span> · ` : '';
     li.innerHTML = `
       <span class="food-rank">${i + 1}</span>
       <div class="food-info">
         <div class="food-name">${escapeHtml(t.name)}</div>
-        <div class="food-meta">${escapeHtml(uniqueCuisines || "Restoran")}${district ? ` · ${escapeHtml(district)}` : ""}</div>
+        <div class="food-meta">${scoreBadge}${escapeHtml(uniqueCuisines || "Restoran")}${district ? ` · ${escapeHtml(district)}` : ""}</div>
         ${street ? `<div class="food-address" title="${escapeHtml(street)}">📍 ${escapeHtml(street)}</div>` : ""}
-        <a class="food-link" href="${escapeHtml(googleMapsSearchUrl(searchQ))}" target="_blank" rel="noopener">⭐ Google puanı ve yorumları →</a>
+        <a class="food-link" href="${escapeHtml(googleMapsSearchUrl(searchQ))}" target="_blank" rel="noopener">⭐ Google puanı ve yorumları (3.5+ Hedefli) →</a>
         ${phone ? `<a class="food-link food-phone" href="tel:${escapeHtml(phone.replace(/[^+\d]/g, ""))}">📞 Ara</a>` : ""}
       </div>`;
     ol.appendChild(li);
@@ -516,11 +517,23 @@ async function loadFoodListOsm(area, cacheKey, token) {
     if (token !== _foodRequestToken) return;
 
     const district = STATE.selectedDistrict || "";
-    const items = (data.items || [])
-      .filter(r => !district || r.i === district)
+    let rawItems = (data.items || []).filter(r => !district || r.i === district);
+    
+    // Kapalı veya tadilattaki mekanları ele
+    rawItems = rawItems.filter(r => {
+      const n = (r.n || "").toLowerCase();
+      return !n.includes("closed") && !n.includes("kapatıldı") && !n.includes("kapalı") && !n.includes("tadilat");
+    });
+
+    // 3.5 ve 4.0 üstü puanlı olanları sırala
+    let highRated = rawItems.filter(r => (r.sc || 0) >= 3.5);
+    let chosen = highRated.length >= 3 ? highRated : rawItems;
+    chosen.sort((a, b) => (b.sc || 0) - (a.sc || 0));
+
+    const items = chosen
       .slice(0, 15)
       .map(r => ({
-        lat: r.lat, lon: r.lon, ilce: r.i,
+        lat: r.lat, lon: r.lon, ilce: r.i, sc: r.sc,
         tags: { name: r.n, cuisine: r.c || "", "addr:street": r.s || "", phone: r.p || "" }
       }));
     const counts = data.counts || {};
@@ -564,7 +577,7 @@ async function loadFoodList() {
     const { Place } = await google.maps.importLibrary("places");
     const request = {
       textQuery: `${area} restoran`,
-      fields: ["displayName", "rating", "userRatingCount", "formattedAddress", "googleMapsURI", "priceLevel", "primaryTypeDisplayName"],
+      fields: ["displayName", "rating", "userRatingCount", "formattedAddress", "googleMapsURI", "priceLevel", "primaryTypeDisplayName", "businessStatus"],
       includedType: "restaurant",
       maxResultCount: 20,
       minRating: GOOGLE_PLACES_CONFIG.minRating,
@@ -580,6 +593,11 @@ async function loadFoodList() {
     // Bayes ortalaması: 4,9 puan/12 yorum, 4,6 puan/2.000 yorumun önüne geçmesin
     const C = 4.2, M = 150;
     const items = (places || [])
+      .filter(p => {
+        // Kapalı mekanları (CLOSED_PERMANENTLY / CLOSED_TEMPORARILY) kesinlikle ele
+        if (p.businessStatus && p.businessStatus !== "OPERATIONAL") return false;
+        return true;
+      })
       .map(p => ({
         name: p.displayName || "",
         rating: Number(p.rating) || 0,
@@ -590,8 +608,7 @@ async function loadFoodList() {
         type: p.primaryTypeDisplayName || ""
       }))
       .filter(r => r.name && r.rating >= GOOGLE_PLACES_CONFIG.minRating && r.count >= GOOGLE_PLACES_CONFIG.minReviews)
-      .map(r => ({ ...r, score: (r.count / (r.count + M)) * r.rating + (M / (r.count + M)) * C }))
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => b.rating - a.rating || b.count - a.count)
       .slice(0, GOOGLE_PLACES_CONFIG.maxShown);
 
     _foodCache.set(cacheKey, items);
@@ -1557,11 +1574,21 @@ async function loadStaticCityData(cityName) {
       wiki: p.wiki || p.wikidata || null,
       tags: { wikipedia: p.wiki, wikidata: p.wikidata, image: p.image }
     }));
-    // Alfabetik yerine popülerlik puanına göre sırala
-    sortPlacesByPopularity(mapped);
-    dataCache.set(parsedCacheKey, mapped);
-    CITY_CACHE[cityName] = mapped;
-    return mapped;
+    // Mükerrer (aynı isimli) mekanları çalışma anında da tekilleştir
+    const seenNames = new Set();
+    const dedupedMapped = [];
+    for (const p of mapped) {
+      const k = (p.ad || "").toLowerCase().trim();
+      if (seenNames.has(k)) continue;
+      seenNames.add(k);
+      dedupedMapped.push(p);
+    }
+
+    // Popülerlik puanına göre sırala
+    sortPlacesByPopularity(dedupedMapped);
+    dataCache.set(parsedCacheKey, dedupedMapped);
+    CITY_CACHE[cityName] = dedupedMapped;
+    return dedupedMapped;
   } catch (e) {
     console.error("Veri yüklenemedi:", e);
     return null;
@@ -1646,6 +1673,7 @@ async function renderTurkeyHighlights() {
     // 1) CITY_CACHE ve dataCache içindeki önceden yüklenmiş mekanları topla
     const combinedPlaces = [];
     const seenPlaceIds = new Set();
+    const seenPlaceNames = new Set();
 
     for (const cityName of TURKEY_HIGHLIGHT_CITIES) {
       let places = CITY_CACHE[cityName];
@@ -1657,8 +1685,10 @@ async function renderTurkeyHighlights() {
       }
       if (Array.isArray(places)) {
         for (const p of places) {
-          if (p && p.id && !seenPlaceIds.has(p.id)) {
+          const normN = (p.ad || "").toLowerCase().trim();
+          if (p && p.id && !seenPlaceIds.has(p.id) && !seenPlaceNames.has(normN)) {
             seenPlaceIds.add(p.id);
+            seenPlaceNames.add(normN);
             combinedPlaces.push(p);
           }
         }
@@ -1675,8 +1705,10 @@ async function renderTurkeyHighlights() {
         const places = CITY_CACHE[cityName];
         if (Array.isArray(places)) {
           for (const p of places) {
-            if (p && p.id && !seenPlaceIds.has(p.id)) {
+            const normN = (p.ad || "").toLowerCase().trim();
+            if (p && p.id && !seenPlaceIds.has(p.id) && !seenPlaceNames.has(normN)) {
               seenPlaceIds.add(p.id);
+              seenPlaceNames.add(normN);
               combinedPlaces.push(p);
             }
           }
