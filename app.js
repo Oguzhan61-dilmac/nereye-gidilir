@@ -28,7 +28,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261110a";
+const DATA_VERSION = "20261110b";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
@@ -88,6 +88,9 @@ const DOM = {
   d3Container: document.getElementById("d3MapContainer"),
   mapBoxTitle: document.getElementById("mapBoxTitle"),
   btnBackToTurkeyMap: document.getElementById("btnBackToTurkeyMap"),
+  btnD3ZoomIn: document.getElementById("btnD3ZoomIn"),
+  btnD3ZoomOut: document.getElementById("btnD3ZoomOut"),
+  btnD3ZoomReset: document.getElementById("btnD3ZoomReset"),
   // Explore Elements
   citySelect: document.getElementById("provinceSelect"),
   districtSelect: document.getElementById("districtSelect"),
@@ -885,17 +888,70 @@ function throttle(fn, limit = 80) {
 let _d3ZoomRafId = null;
 let _d3TooltipRafId = null;
 let _d3DrawRafId = null;
+let _lastTouchTime = 0;
+let _wheelCtrlHintTimer = null;
 
-// D3 Zoom Filtresi: Tek parmakla sayfa dikey kaydırmaya (pan-y) izin verir;
-// Sadece fare tekerleği, sol tık sürüklemesi veya iki+ parmaklı dokunuşta (pinch zoom) devreye girer.
-function d3ZoomFilter(event) {
-  if (event.type === "wheel") return true;
-  if (event.type.startsWith("mouse") || event.pointerType === "mouse") {
-    return !event.button; // Sadece sol tık (0)
+// Dokunmatik olay zamanını izle (sentetik mouse eventlerinin sayfa kaydırmasını kilitlemesini önlemek için)
+if (typeof window !== "undefined") {
+  window.addEventListener("touchstart", () => { _lastTouchTime = Date.now(); }, { passive: true, capture: true });
+  window.addEventListener("touchend", () => { _lastTouchTime = Date.now(); }, { passive: true, capture: true });
+  window.addEventListener("touchcancel", () => { _lastTouchTime = Date.now(); }, { passive: true, capture: true });
+}
+
+function showD3CtrlWheelHint() {
+  const container = document.getElementById("d3MapContainer");
+  if (!container) return;
+  let hint = container.querySelector(".d3-zoom-hint");
+  if (!hint) {
+    hint = document.createElement("div");
+    hint.className = "d3-zoom-hint";
+    hint.innerHTML = "<span>🧭 Haritayı büyütmek için <strong>Ctrl + Tekerlek</strong> kullanın</span>";
+    container.appendChild(hint);
   }
+  hint.classList.add("visible");
+  if (_wheelCtrlHintTimer) clearTimeout(_wheelCtrlHintTimer);
+  _wheelCtrlHintTimer = setTimeout(() => {
+    hint.classList.remove("visible");
+  }, 1200);
+}
+
+// D3 Zoom Filtresi:
+// 1) Tek parmakla veya tuşsuz fare tekerleğiyle sayfanın kesintisiz dikey kaymasına izin verir (pan-y).
+// 2) İki parmakla (pinch) veya Ctrl + Tekerlek ile haritayı yakınlaştırır.
+// 3) Dokunmatik cihazlarda sentetik mousedown/mousemove olaylarının sayfayı kilitlemesini önler.
+function d3ZoomFilter(event) {
+  // A) Fare Tekerleği (Wheel / Trackpad):
+  if (event.type === "wheel") {
+    // Yalnızca Ctrl (Windows/Linux) veya Cmd (Mac) basılıysa D3 zoom yapar
+    if (event.ctrlKey || event.metaKey) {
+      return true;
+    }
+    // Tuş basılı değilse D3 araya girmez; browser sayfayı doğal olarak kaydırır
+    showD3CtrlWheelHint();
+    return false;
+  }
+
+  // B) Dokunmatik veya Sentetik Mouse Olayları:
+  const isTouchPointer = event.pointerType === "touch" || event.pointerType === "pen";
+  const isRecentTouch = (Date.now() - _lastTouchTime) < 800;
+  if (isTouchPointer || (isRecentTouch && (event.type.startsWith("mouse") || event.type.startsWith("pointer")))) {
+    // Dokunmada yalnızca 2 veya daha fazla parmak varsa (pinch-to-zoom) zoom devreye girer
+    if (event.touches) {
+      return event.touches.length >= 2;
+    }
+    return false;
+  }
+
+  // C) Gerçek Dokunmatik Olayları (TouchEvent):
   if (event.touches) {
     return event.touches.length >= 2;
   }
+
+  // D) Masaüstü Gerçek Fare Tıklama/Sürüklemesi:
+  if (event.type.startsWith("mouse") || event.pointerType === "mouse") {
+    return !event.button; // Sadece sol tık (0)
+  }
+
   return false;
 }
 
@@ -915,7 +971,7 @@ function cleanupD3Map() {
   const containerSel = d3.select("#d3MapContainer");
   containerSel.selectAll("svg").on(".zoom", null).on("click", null);
   containerSel.selectAll("path, circle").on("mouseenter mousemove mouseleave click touchstart touchend", null);
-  containerSel.selectAll("svg, .d3-map-tooltip").remove();
+  containerSel.selectAll("svg, .d3-map-tooltip, .d3-zoom-hint").remove();
 }
 
 // ================= D3 MAP INITIALIZATION =================
@@ -1146,6 +1202,8 @@ function drawD3Map() {
         });
       });
     svg.call(zoom).on("dblclick.zoom", null);
+    STATE.activeD3Zoom = zoom;
+    STATE.activeD3Svg = svg;
   });
 }
 
@@ -1376,6 +1434,8 @@ function drawProvinceMap(cityName, districtGeo) {
         });
       });
     svg.call(zoom).on("dblclick.zoom", null);
+    STATE.activeD3Zoom = zoom;
+    STATE.activeD3Svg = svg;
   });
 }
 
@@ -3155,6 +3215,27 @@ function setupEventListeners() {
     }
     if (DOM.btnBackToTurkeyMap) {
         DOM.btnBackToTurkeyMap.addEventListener('click', () => selectCity(''));
+    }
+    if (DOM.btnD3ZoomIn) {
+        DOM.btnD3ZoomIn.addEventListener('click', () => {
+            if (STATE.activeD3Svg && STATE.activeD3Zoom) {
+                STATE.activeD3Svg.transition().duration(260).call(STATE.activeD3Zoom.scaleBy, 1.4);
+            }
+        });
+    }
+    if (DOM.btnD3ZoomOut) {
+        DOM.btnD3ZoomOut.addEventListener('click', () => {
+            if (STATE.activeD3Svg && STATE.activeD3Zoom) {
+                STATE.activeD3Svg.transition().duration(260).call(STATE.activeD3Zoom.scaleBy, 0.714);
+            }
+        });
+    }
+    if (DOM.btnD3ZoomReset) {
+        DOM.btnD3ZoomReset.addEventListener('click', () => {
+            if (STATE.activeD3Svg && STATE.activeD3Zoom) {
+                STATE.activeD3Svg.transition().duration(320).call(STATE.activeD3Zoom.transform, d3.zoomIdentity);
+            }
+        });
     }
     
     // Filter bindings (Arama input'una Debounce eklendi — her tuş vuruşunda DOM yeniden çizimini önler)

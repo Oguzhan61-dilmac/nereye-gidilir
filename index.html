@@ -44,14 +44,14 @@
   <!-- Leaflet CSS -->
   <!-- Leaflet CSS: yalnızca tam ekran haritada gerekir, ilk çizimi bloklamasın -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson?v=20261110a" as="fetch" type="application/geo+json" crossorigin>
+  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson?v=20261110b" as="fetch" type="application/geo+json" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" media="print" onload="this.media='all'">
   
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=21.1">
-  <link rel="stylesheet" href="./about-extra.css?v=21.1">
+  <link rel="stylesheet" href="./style.css?v=21.2">
+  <link rel="stylesheet" href="./about-extra.css?v=21.2">
   <style>
     /* Fotoğrafsız kartlar */
     /* Blog görselleri */
@@ -109,9 +109,16 @@
           <div class="map-fold-creases" aria-hidden="true"></div>
           <div class="box-header map-box-header">
             <span id="mapBoxTitle">🗺️ Katlanmış Anadolu Yol Haritası</span>
-            <button id="btnBackToTurkeyMap" type="button" class="btn-map-back hidden">
-              ← Türkiye Haritasına Dön
-            </button>
+            <div class="map-header-actions">
+              <div class="d3-map-floating-controls" aria-label="Harita Yakınlaştırma Kontrolleri">
+                <button id="btnD3ZoomIn" type="button" class="btn-map-control" title="Yakınlaştır (+)" aria-label="Yakınlaştır">+</button>
+                <button id="btnD3ZoomOut" type="button" class="btn-map-control" title="Uzaklaştır (−)" aria-label="Uzaklaştır">−</button>
+                <button id="btnD3ZoomReset" type="button" class="btn-map-control" title="Görünümü Sıfırla (⟲)" aria-label="Görünümü Sıfırla">⟲</button>
+              </div>
+              <button id="btnBackToTurkeyMap" type="button" class="btn-map-back hidden">
+                ← Türkiye Haritasına Dön
+              </button>
+            </div>
           </div>
           <div id="d3MapContainer" class="d3-container"></div>
           <div class="map-footer-legend">
@@ -588,6 +595,6 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
 
   <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=21.1" defer></script>
+  <script src="./app.js?v=21.2" defer></script>
 </body>
 </html>
