@@ -44,21 +44,23 @@
   <!-- Leaflet CSS -->
   <!-- Leaflet CSS: yalnızca tam ekran haritada gerekir, ilk çizimi bloklamasın -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson?v=20261111a" as="fetch" type="application/geo+json" crossorigin>
+  <link rel="preload" href="./assets/geo/tr_provinces_simplified.geojson?v=20261111b" as="fetch" type="application/geo+json" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" media="print" onload="this.media='all'">
   
+  <!-- Yandex.RTB -->
+  <script>window.yaContextCb=window.yaContextCb||[]</script>
+  <script src="https://yandex.ru/ads/system/context.js" async></script>
+  
   <!-- App Styles -->
-  <link rel="stylesheet" href="./style.css?v=21.3">
-  <link rel="stylesheet" href="./about-extra.css?v=21.3">
+  <link rel="stylesheet" href="./style.css?v=21.4">
+  <link rel="stylesheet" href="./about-extra.css?v=21.4">
   <style>
     /* Fotoğrafsız kartlar */
     /* Blog görselleri */
     .blog-card-image img { width:100%; height:100%; object-fit:cover; display:block; }
     .blog-card-image { overflow:hidden; }
-    /* AdSense kimliği girilene kadar reklam / "sponsorlu" yer tutucuları gösterme */
-    body.ads-off .vintage-ad-slot { display: none !important; }
   </style>
 </head>
 <body class="theme-light">
@@ -162,20 +164,15 @@
             </button>
           </div>
 
-          <!-- Vintage Yan Panel İlan Köşesi (Haritadan İzole) -->
-          <div class="vintage-ad-slot vintage-ad-sidebar"
-               data-ad-slot-key="sidebar"
-               data-ad-format="auto"
-               aria-label="Sponsorlu Seyahatname İlanı">
+          <!-- Vintage Yan Panel İlan Köşesi (Yandex.RTB) -->
+          <div class="vintage-ad-slot vintage-ad-sidebar" aria-label="Sponsorlu Seyahatname İlanı">
             <div class="vintage-ad-header">
               <span>📰 SEYAHATNAME İLAN KÖŞESİ</span>
               <span class="vintage-ad-badge">SPONSORLU</span>
             </div>
             <div class="vintage-ad-body">
-              <div class="vintage-ad-placeholder">
-                <strong>Anadolu Kervansaray &amp; Konaklama Rehberi</strong>
-                <p>Keşif rotanız üzerindeki tarihi konaklar, yerel lezzet durakları ve müze kart fırsatları.</p>
-              </div>
+              <!-- Yandex.RTB R-A-20381725-2 -->
+              <div id="yandex_rtb_R-A-20381725-2"></div>
             </div>
           </div>
         </div>
@@ -553,6 +550,80 @@
       </div>
     </section>
 
+    <!-- VIEW 6: PRIVACY POLICY & COOKIES (GİZLİLİK POLİTİKASI VE ÇEREZLER) -->
+    <section id="view-privacy" class="view-section">
+      <div class="atlas-epistle-wrapper">
+        <article class="atlas-parchment-letter">
+          <div class="atlas-corner-ornament top-left" aria-hidden="true"></div>
+          <div class="atlas-corner-ornament top-right" aria-hidden="true"></div>
+          <div class="atlas-corner-ornament bottom-left" aria-hidden="true"></div>
+          <div class="atlas-corner-ornament bottom-right" aria-hidden="true"></div>
+
+          <header class="atlas-letter-header">
+            <div class="atlas-typewriter-stamp">
+              <span>📜 RESMÎ BEYANNAME • GİZLİLİK VE ÇEREZ AYDINLATMA METNİ</span>
+              <span>GEZIATLASI.COM.TR</span>
+            </div>
+            <div class="atlas-wax-emblem" aria-hidden="true">⚖️</div>
+            <h1 class="atlas-main-title">Gizlilik Politikası ve Çerezler</h1>
+            <p class="atlas-epigraph">
+              “Kullanıcılarımızın mahremiyeti ve dijital güvenliği, seyahatnamemizin en temel ilkesidir.”
+            </p>
+            <div class="atlas-ink-divider" aria-hidden="true">
+              <span>✦</span>
+            </div>
+          </header>
+
+          <section class="atlas-prose-section">
+            <h2 class="atlas-section-heading">1. Genel Bilgilendirme ve Veri Sorumlusu</h2>
+            <p class="atlas-lead-paragraph">
+              <span class="atlas-dropcap">G</span>ezi Atlası (<strong>geziatlasi.com.tr</strong>), Türkiye'nin 81 ilindeki tarihi ve doğal güzellikleri tanıtan bağımsız ve statik mimarili bir keşif rehberidir. Platformumuz, kullanıcıların kişisel mahremiyetine ve 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ile uluslararası veri koruma standartlarına (GDPR) tam uyumu taahhüt eder.
+            </p>
+
+            <h2 class="atlas-section-heading">2. Kişisel Verilerin İşlenmesi ve Depolanması</h2>
+            <p>
+              Platformumuzda üyelik, kayıt veya form doldurma zorunluluğu bulunmamaktadır. Kullanıcıların isim, soyisim, telefon numarası veya T.C. kimlik numarası gibi doğrudan kimlik belirleyici kişisel verileri <strong>kesinlikle toplanmaz, işlenmez ve sunucularımızda depolanmaz</strong>.
+            </p>
+            <p>
+              Sitede yer alan <em>"Seyahat Günlüğü / Rota Defteri"</em> özelliği kapsamında eklediğiniz mekanlar, yalnızca kullandığınız cihazın yerel tarayıcı hafızasında (<strong>LocalStorage</strong>) saklanır. Bu veriler hiçbir şekilde uzaktaki bir sunucuya veya üçüncü taraflara aktarılmaz; dilediğiniz an tarayıcı geçmişinizi temizleyerek silebilirsiniz.
+            </p>
+
+            <h2 class="atlas-section-heading">3. Konum İzni ve Coğrafi Veriler</h2>
+            <p>
+              Sitedeki <em>"Pusula / Yakınımdakileri Bul"</em> özelliğini kullandığınızda, tarayıcınız sizden anlık coğrafi konum erişim izni talep eder. Alınan enlem ve boylam koordinatları yalnızca cihazınızın tarayıcısında anlık matematiksel mesafe (Haversine formülü) hesabı için kullanılır. Konum verileriniz hiçbir sunucuya kaydedilmez ve konum geçmişiniz takip edilmez.
+            </p>
+
+            <h2 class="atlas-section-heading">4. Çerezler ve Yandex Reklam Ağı (Yandex.RTB)</h2>
+            <p>
+              Sitemizin teknik olarak sorunsuz çalışması, ziyaretçi trafiğinin anonim analizi ve ücretsiz yayın hayatını sürdürebilmesi amacıyla çerezler (cookies) ve benzeri teknolojiler kullanılmaktadır:
+            </p>
+            <ul style="margin: 0.8rem 0 1.2rem 1.4rem; line-height: 1.8;">
+              <li><strong>Zorunlu ve Tercih Çerezleri:</strong> Tema tercihi (Açık/Koyu mod) ve seyahat günlüğü gibi yerel ayarlarınızı hatırlamak için kullanılır.</li>
+              <li><strong>Yandex Reklam Ağı (Yandex.RTB):</strong> Sitemizde gelir modeli olarak Yandex.RTB reklam teknolojileri kullanılmaktadır. Yandex reklam sağlayıcıları, ilgi alanlarınıza uygun veya bağlamsal reklamlar sunabilmek, reklam sıklığını sınırlamak ve reklam etkinliğini ölçmek amacıyla tarayıcınıza üçüncü taraf çerezler yerleştirebilir veya mevcut çerezleri okuyabilir.</li>
+            </ul>
+            <p>
+              Dilediğiniz zaman tarayıcınızın ayarlarından çerezleri silebilir, engelleyebilir veya kişiselleştirilmiş reklam tercihlerini <a href="https://yandex.com.tr/legal/confidential/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); text-decoration: underline;">Yandex Gizlilik Politikası</a> üzerinden yönetebilirsiniz.
+            </p>
+
+            <h2 class="atlas-section-heading">5. Üçüncü Taraf Servisler ve Dış Bağlantılar</h2>
+            <p>
+              Gezi Atlası; harita altlığı için <em>OpenStreetMap</em>, açık kaynak görseller ve mekan özetleri için <em>Wikimedia Commons</em> ve <em>Wikipedia</em> API servislerini kullanır. Harici bağlantılara (örn. Google Haritalar yol tarifi) tıklandığında, ilgili platformların kendi gizlilik kuralları geçerli olur.
+            </p>
+
+            <h2 class="atlas-section-heading">6. İletişim ve Haklarınız</h2>
+            <p>
+              Gizlilik politikamız, çerez uygulamalarımız veya kişisel verilerinizin korunmasıyla ilgili her türlü soru, görüş ve bildiriminiz için bizimle doğrudan iletişime geçebilirsiniz:
+            </p>
+            <div style="background: rgba(139, 90, 43, 0.08); border-left: 3px solid var(--brown-warm); padding: 0.8rem 1.2rem; margin: 1rem 0; font-family: 'Special Elite', monospace;">
+              <strong>E-Posta:</strong> <a href="mailto:iletisim@geziatlasi.com.tr" style="color: var(--accent-color); font-weight: bold;">iletisim@geziatlasi.com.tr</a><br>
+              <strong>Alan Adı:</strong> geziatlasi.com.tr<br>
+              <strong>Yürürlük Tarihi:</strong> 11 Kasım 2026
+            </div>
+          </section>
+        </article>
+      </div>
+    </section>
+
   </main>
 
   <!-- SEYAHAT GÜNLÜĞÜ (ROUTE JOURNAL) YAN PANELİ -->
@@ -581,7 +652,7 @@
 
   <footer class="app-footer">
     <p>&copy; 2026 Gezi Atlası (geziatlasi.com.tr) • Türkiye'nin İnteraktif Keşif ve Seyahat Rehberi</p>
-    <p class="footer-links"><a href="/gizlilik.html">Gizlilik Politikası &amp; Çerezler</a> • <a href="#about">Hakkında</a></p>
+    <p class="footer-links"><a href="#privacy">Gizlilik Politikası &amp; Çerezler</a> • <a href="#about">Hakkında</a></p>
     <p class="footer-credits">Harita verisi © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> katkıcıları • Görseller ve özetler: <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a> / Wikipedia (CC BY-SA)</p>
   </footer>
 
@@ -595,6 +666,6 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
 
   <!-- Yekpare Single Page Uygulaması Mantığı -->
-  <script src="./app.js?v=21.3" defer></script>
+  <script src="./app.js?v=21.4" defer></script>
 </body>
 </html>

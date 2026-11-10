@@ -28,7 +28,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261111a";
+const DATA_VERSION = "20261111b";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
@@ -82,7 +82,8 @@ const DOM = {
     map: document.getElementById("view-map"),
     place: document.getElementById("view-place"),
     about: document.getElementById("view-about"),
-    blog: document.getElementById("view-blog")
+    blog: document.getElementById("view-blog"),
+    privacy: document.getElementById("view-privacy")
   },
   themeBtn: document.getElementById("themeToggle"),
   d3Container: document.getElementById("d3MapContainer"),
@@ -262,6 +263,27 @@ function scheduleRefreshAds(viewId = STATE.view) {
       requestAnimationFrame(() => refreshAds(viewId));
     }
   }, ADS_CONFIG.lazyDelayMs);
+}
+
+// ================= YANDEX REKLAM AĞI (YANDEX.RTB) SPA ENTEGRASYONU =================
+function refreshYandexAds() {
+  if (typeof window === "undefined") return;
+  const targetEl = document.getElementById("yandex_rtb_R-A-20381725-2");
+  if (!targetEl) return;
+
+  window.yaContextCb = window.yaContextCb || [];
+  window.yaContextCb.push(() => {
+    if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+      try {
+        window.Ya.Context.AdvManager.render({
+          blockId: "R-A-20381725-2",
+          renderTo: "yandex_rtb_R-A-20381725-2"
+        });
+      } catch (err) {
+        console.warn("Yandex.RTB render uyarısı:", err);
+      }
+    }
+  });
 }
 
 // ================= GÜVENLİK & LİNK YARDIMCILARI =================
@@ -727,6 +749,7 @@ function handleRoute() {
 
   if (hash === '#about') { showView('about'); return; }
   if (hash === '#blog')  { showView('blog');  return; }
+  if (hash === '#privacy' || hash === '#gizlilik') { showView('privacy'); return; }
 
   // Default
   showView('explore');
@@ -739,7 +762,11 @@ const DEFAULT_DOC_TITLE = document.title;
 
 function showView(viewId) {
   STATE.view = viewId;
-  if (viewId !== 'place') document.title = DEFAULT_DOC_TITLE;
+  if (viewId === 'privacy') {
+    document.title = "Gizlilik Politikası ve Çerezler | Gezi Atlası";
+  } else if (viewId !== 'place') {
+    document.title = DEFAULT_DOC_TITLE;
+  }
   window.scrollTo(0, 0);
   Object.values(DOM.views).forEach(el => el.classList.remove('active'));
   if (DOM.views[viewId]) DOM.views[viewId].classList.add('active');
@@ -754,8 +781,9 @@ function showView(viewId) {
     setTimeout(() => { if (STATE.leafletMap) STATE.leafletMap.invalidateSize(); }, 200);
     setTimeout(() => { if (STATE.leafletMap) STATE.leafletMap.invalidateSize(); }, 600);
   } else {
-    // Harita dışı görünümlerde 1.6 sn gecikmeli (lazy) reklam yenilemesini planla
+    // Harita dışı görünümlerde reklam yenilemesini tetikle
     scheduleRefreshAds(viewId);
+    refreshYandexAds();
   }
 }
 
@@ -1471,6 +1499,7 @@ function resetToTurkeyMap() {
   updateCityCuisineBanner("");
   drawD3Map();
   renderTurkeyHighlights();
+  refreshYandexAds();
 }
 
 function populateSelects() {
@@ -1538,6 +1567,7 @@ async function selectCity(cityName) {
 
   if (STATE.selectedCity === cityName) {
     drawProvinceMap(cityName, districtGeo);
+    refreshYandexAds();
   }
 }
 
@@ -3391,14 +3421,13 @@ function setupTheme() {
 // ================= INIT (BUG #1 FIX) =================
 // initApp() fonksiyonu daha önce hiç tanımlanmamıştı — uygulama hiç başlamıyordu!
 async function initApp() {
-  // Gerçek AdSense kimliği girilene kadar "SPONSORLU" yer tutucuları gizle
-  document.body.classList.toggle("ads-off", !adsAreLive());
   setupTheme();
   setupRouter();
   setupEventListeners();
   renderRouteJournal();
   await initD3Map();
   handleRoute();
+  refreshYandexAds();
 }
 
 // Start

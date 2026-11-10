@@ -2073,6 +2073,19 @@ a {
 
 .vintage-ad-body {
   position: relative;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#yandex_rtb_R-A-20381725-2 {
+  width: 100%;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
   min-height: 90px;
   display: flex;
   flex-direction: column;
@@ -2397,13 +2410,16 @@ a {
   }
   .journal-list { overscroll-behavior: contain; }
 
-  /* Hakkında sayfası parşömen mektup */
-  #view-about .atlas-parchment-letter {
+  /* Hakkında ve Gizlilik sayfası parşömen mektup */
+  #view-about .atlas-parchment-letter,
+  #view-privacy .atlas-parchment-letter {
     padding: 1.5rem;
     outline-offset: -7px;
   }
-  #view-about .atlas-corner-ornament { width: 16px; height: 16px; }
-  #view-about .atlas-prose-section p { text-align: left; font-size: 1rem; }
+  #view-about .atlas-corner-ornament,
+  #view-privacy .atlas-corner-ornament { width: 16px; height: 16px; }
+  #view-about .atlas-prose-section p,
+  #view-privacy .atlas-prose-section p { text-align: left; font-size: 1rem; }
   #view-about .atlas-numbers-section { padding: 1.25rem 0.9rem; }
 
   /* Mekan detay */

@@ -1,6 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /scripts/
-Disallow: /dataset/
-
 Sitemap: https://geziatlasi.com.tr/sitemap.xml
