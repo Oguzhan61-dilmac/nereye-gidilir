@@ -3,7 +3,7 @@
 // PWA & TWA Offline Desteği & Stale-While-Revalidate / Network-First Önbellekleme
 // =========================================================================
 
-const CACHE_NAME = 'gezi-atlasi-v1.0.2';
+const CACHE_NAME = 'gezi-atlasi-v1.0.3';
 
 // Uygulama kabuğu (App Shell) için önbelleğe alınacak kritik statik dosyalar
 const PRECACHE_ASSETS = [
@@ -16,7 +16,8 @@ const PRECACHE_ASSETS = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/geo/tr_provinces_simplified.geojson',
-  './data/places/index.json'
+  './data/places/index.json',
+  './data/cuisines.json'
 ];
 
 // 1. Kurulum (Install): Temel uygulama kabuğunu önbelleğe al

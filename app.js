@@ -98,6 +98,14 @@ const DOM = {
   categoryFilter: document.getElementById("categoryFilter"),
   placesGrid: document.getElementById("placesGrid"),
   resultsTitle: document.getElementById("resultsTitle"),
+  // Cuisine Elements
+  cuisineBanner: document.getElementById("cityCuisineBanner"),
+  cuisineCityTitle: document.getElementById("cuisineCityTitle"),
+  cuisineDishes: document.getElementById("cuisineDishes"),
+  cuisineDescription: document.getElementById("cuisineDescription"),
+  cuisineTipBox: document.getElementById("cuisineTipBox"),
+  cuisineTipText: document.getElementById("cuisineTipText"),
+  btnJumpToFood: document.getElementById("btnJumpToFood"),
   // Map Elements
   btnBackFromMap: document.getElementById("btnBackFromMap"),
   mapTitle: document.getElementById("mapTitle"),
@@ -371,6 +379,61 @@ function setFoodPanelOpen(open) {
   DOM.foodSection.hidden = !open;
   DOM.btnShowFood.classList.toggle("active", open);
   DOM.btnShowFood.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+
+// ================= SEYYAHIN DAMAK NOTU (NESİ MEŞHUR?) SİSTEMİ =================
+let _cuisinesData = null;
+
+async function loadCuisinesData() {
+  if (_cuisinesData) return _cuisinesData;
+  try {
+    _cuisinesData = await fetchCachedJSON(`./data/cuisines.json?v=${DATA_VERSION}`);
+    return _cuisinesData;
+  } catch (e) {
+    console.warn("Mutfak verisi yüklenemedi:", e);
+    return null;
+  }
+}
+
+async function updateCityCuisineBanner(cityName) {
+  if (!DOM.cuisineBanner) return;
+  if (!cityName) {
+    DOM.cuisineBanner.hidden = true;
+    return;
+  }
+
+  const cuisines = await loadCuisinesData();
+  if (!cuisines || !cuisines[cityName]) {
+    DOM.cuisineBanner.hidden = true;
+    return;
+  }
+
+  const info = cuisines[cityName];
+  if (DOM.cuisineCityTitle) {
+    DOM.cuisineCityTitle.textContent = `${cityName}'ın Nesi Meşhur?`;
+  }
+
+  if (DOM.cuisineDishes) {
+    DOM.cuisineDishes.innerHTML = (info.dishes || [])
+      .map(d => `<span class="cuisine-dish-tag">${escapeHtml(d)}</span>`)
+      .join("");
+  }
+
+  if (DOM.cuisineDescription) {
+    DOM.cuisineDescription.textContent = info.desc || "";
+  }
+
+  if (DOM.cuisineTipBox && DOM.cuisineTipText) {
+    if (info.tip) {
+      DOM.cuisineTipText.textContent = info.tip;
+      DOM.cuisineTipBox.hidden = false;
+    } else {
+      DOM.cuisineTipBox.hidden = true;
+    }
+  }
+
+  DOM.cuisineBanner.hidden = false;
 }
 
 function updateFoodSection() {
@@ -1345,6 +1408,7 @@ function resetToTurkeyMap() {
   DOM.btnGoToMap.classList.add("disabled");
 
   updateFoodSection();
+  updateCityCuisineBanner("");
   drawD3Map();
   renderTurkeyHighlights();
 }
@@ -1383,6 +1447,7 @@ async function selectCity(cityName) {
   DOM.globalCityLabel.textContent = cityName;
   if (DOM.resultsTitle) DOM.resultsTitle.textContent = `${cityName} Keşfet Listesi`;
   if (DOM.searchInput) DOM.searchInput.placeholder = "Mekan, müze, mağara ara...";
+  updateCityCuisineBanner(cityName);
   // İlçe dropdown'ı sıfırla yüklenene kadar
   DOM.districtSelect.innerHTML = '<option value="">Yükleniyor...</option>';
   DOM.districtSelect.disabled = true;
@@ -3079,6 +3144,15 @@ function renderNearbyPlaces(places) {
 // ================= EVENT LISTENERS =================
 function setupEventListeners() {
     DOM.citySelect.addEventListener('change', (e) => selectCity(e.target.value));
+    if (DOM.btnJumpToFood) {
+        DOM.btnJumpToFood.addEventListener('click', () => {
+            setFoodPanelOpen(true);
+            loadFoodList();
+            if (DOM.foodSection) {
+                DOM.foodSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
     if (DOM.btnBackToTurkeyMap) {
         DOM.btnBackToTurkeyMap.addEventListener('click', () => selectCity(''));
     }
