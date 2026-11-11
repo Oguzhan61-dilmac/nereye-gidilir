@@ -45,19 +45,19 @@
     "slug": "antalya",
     "count": 1095,
     "with_img": 272,
-    "total": 926
+    "total": 896
   },
   "Ardahan": {
     "slug": "ardahan",
     "count": 131,
     "with_img": 20,
-    "total": 127
+    "total": 125
   },
   "Artvin": {
     "slug": "artvin",
     "count": 252,
     "with_img": 64,
-    "total": 243
+    "total": 242
   },
   "Aydın": {
     "slug": "aydin",
@@ -105,7 +105,7 @@
     "slug": "bitlis",
     "count": 79,
     "with_img": 43,
-    "total": 72
+    "total": 71
   },
   "Bolu": {
     "slug": "bolu",
@@ -129,7 +129,7 @@
     "slug": "canakkale",
     "count": 320,
     "with_img": 138,
-    "total": 293
+    "total": 292
   },
   "Çankırı": {
     "slug": "cankiri",
@@ -147,7 +147,7 @@
     "slug": "denizli",
     "count": 153,
     "with_img": 65,
-    "total": 139
+    "total": 138
   },
   "Diyarbakır": {
     "slug": "diyarbakir",
@@ -165,7 +165,7 @@
     "slug": "edirne",
     "count": 494,
     "with_img": 183,
-    "total": 431
+    "total": 421
   },
   "Elazığ": {
     "slug": "elazig",
@@ -177,7 +177,7 @@
     "slug": "erzincan",
     "count": 32,
     "with_img": 13,
-    "total": 31
+    "total": 30
   },
   "Erzurum": {
     "slug": "erzurum",
@@ -189,7 +189,7 @@
     "slug": "eskisehir",
     "count": 183,
     "with_img": 55,
-    "total": 167
+    "total": 166
   },
   "Gaziantep": {
     "slug": "gaziantep",
@@ -219,7 +219,7 @@
     "slug": "hatay",
     "count": 141,
     "with_img": 53,
-    "total": 135
+    "total": 131
   },
   "Iğdır": {
     "slug": "igdir",
@@ -237,13 +237,13 @@
     "slug": "istanbul",
     "count": 3731,
     "with_img": 2502,
-    "total": 2972
+    "total": 2966
   },
   "İzmir": {
     "slug": "izmir",
     "count": 895,
     "with_img": 523,
-    "total": 816
+    "total": 815
   },
   "Kahramanmaraş": {
     "slug": "kahramanmaras",
@@ -267,7 +267,7 @@
     "slug": "kars",
     "count": 129,
     "with_img": 53,
-    "total": 120
+    "total": 118
   },
   "Kastamonu": {
     "slug": "kastamonu",
@@ -345,13 +345,13 @@
     "slug": "mersin",
     "count": 440,
     "with_img": 227,
-    "total": 387
+    "total": 386
   },
   "Muğla": {
     "slug": "mugla",
     "count": 520,
     "with_img": 144,
-    "total": 473
+    "total": 463
   },
   "Muş": {
     "slug": "mus",
@@ -387,7 +387,7 @@
     "slug": "rize",
     "count": 261,
     "with_img": 45,
-    "total": 254
+    "total": 253
   },
   "Sakarya": {
     "slug": "sakarya",
@@ -429,7 +429,7 @@
     "slug": "sivas",
     "count": 168,
     "with_img": 39,
-    "total": 163
+    "total": 162
   },
   "Tekirdağ": {
     "slug": "tekirdag",
@@ -465,7 +465,7 @@
     "slug": "van",
     "count": 99,
     "with_img": 39,
-    "total": 97
+    "total": 96
   },
   "Yalova": {
     "slug": "yalova",
