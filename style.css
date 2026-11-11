@@ -2219,7 +2219,75 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Lazy Rendering: "Daha Fazla Göster" Sentinel Kutusu */
+/* ================= VINTAGE "DAHA FAZLA GÖSTER" BUTONU ================= */
+#load-more-btn,
+.vintage-btn#load-more-btn {
+  display: none;
+  width: fit-content;
+  max-width: 90%;
+  margin: 2rem auto;
+  padding: 0.9rem 2.4rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #5C4033;
+  background-color: var(--bg-card, #fbf4e4);
+  background-image:
+    radial-gradient(rgba(139, 90, 43, 0.08) 1px, transparent 0),
+    linear-gradient(135deg, rgba(244, 236, 216, 0.95) 0%, rgba(223, 208, 176, 0.9) 100%);
+  background-size: 16px 16px, 100% 100%;
+  border: 2px solid #5C4033;
+  border-radius: 4px;
+  box-shadow:
+    3px 4px 0 rgba(92, 64, 51, 0.28),
+    inset 0 0 12px rgba(139, 90, 43, 0.12);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  position: relative;
+  outline: none;
+}
+
+#load-more-btn:hover {
+  background-color: #f5eedb;
+  color: var(--accent-color, #8b1e16);
+  border-color: var(--accent-color, #8b1e16);
+  box-shadow:
+    4px 6px 0 rgba(139, 30, 22, 0.25),
+    inset 0 0 16px rgba(139, 30, 22, 0.1);
+  transform: translateY(-2px);
+}
+
+#load-more-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    1px 2px 0 rgba(92, 64, 51, 0.3),
+    inset 0 0 8px rgba(139, 90, 43, 0.2);
+}
+
+.theme-dark #load-more-btn,
+.theme-dark .vintage-btn#load-more-btn {
+  background-color: var(--bg-card);
+  background-image:
+    radial-gradient(rgba(212, 178, 140, 0.06) 1px, transparent 0),
+    linear-gradient(135deg, rgba(52, 37, 26, 0.95) 0%, rgba(38, 27, 19, 0.95) 100%);
+  color: var(--parchment, #f4ecd8);
+  border-color: #8b5a2b;
+  box-shadow:
+    3px 4px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 12px rgba(0, 0, 0, 0.25);
+}
+
+.theme-dark #load-more-btn:hover {
+  color: #f7a89e;
+  border-color: #c94a3d;
+  box-shadow:
+    4px 6px 0 rgba(201, 74, 61, 0.3),
+    inset 0 0 16px rgba(201, 74, 61, 0.15);
+}
+
+/* Lazy Rendering: Eski Sentinel Uyumluluğu */
 .load-more-sentinel {
   grid-column: 1 / -1;
   display: flex;

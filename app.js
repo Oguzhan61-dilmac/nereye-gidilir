@@ -101,6 +101,7 @@ const DOM = {
   searchInput: document.getElementById("searchInput"),
   categoryFilter: document.getElementById("categoryFilter"),
   placesGrid: document.getElementById("placesGrid"),
+  loadMoreBtn: document.getElementById("load-more-btn"),
   resultsTitle: document.getElementById("resultsTitle"),
   // Cuisine Elements
   cuisineBanner: document.getElementById("cityCuisineBanner"),
@@ -2160,13 +2161,9 @@ async function enrichDistrictsFromNominatim() {
 // ================= UI RENDER (EXPLORE LIST — DOCUMENT FRAGMENT & LAZY RENDERING) =================
 const LAZY_RENDER_BATCH_SIZE = 24;
 let _placesRenderedCount = 0;
-let _placesIntersectionObserver = null;
 
 function disconnectPlacesObserver() {
-  if (_placesIntersectionObserver) {
-    _placesIntersectionObserver.disconnect();
-    _placesIntersectionObserver = null;
-  }
+  // Sonsuz kaydırma (IntersectionObserver) kaldırıldı — manuel "Daha Fazla Göster" butonu aktif
 }
 
 function updateCategoryFilters() {
@@ -2335,16 +2332,15 @@ function createInFeedAdElement() {
 
 /**
  * Sıradaki 24 mekanlık partiyi DocumentFragment ile tek seferde DOM'a basar (Lazy Rendering).
- * Alt kısma "Daha Fazla Göster" butonu + IntersectionObserver (sonsuz kaydırma) ekler.
+ * Manuel "Daha Fazla Göster" butonu ile kontrol edilir (Sonsuz kaydırma kaldırıldı).
  */
 function renderNextPlacesBatch() {
     const total = STATE.filteredPlaces.length;
-    if (_placesRenderedCount >= total) return;
-
-    // Eski "Daha Fazla Göster" sentinel kutusunu kaldır
-    const oldSentinel = document.getElementById("placesLoadMoreSentinel");
-    if (oldSentinel) oldSentinel.remove();
-    disconnectPlacesObserver();
+    const loadMoreBtn = DOM.loadMoreBtn || document.getElementById("load-more-btn");
+    if (_placesRenderedCount >= total) {
+        if (loadMoreBtn) loadMoreBtn.style.display = "none";
+        return;
+    }
 
     const startIdx = _placesRenderedCount;
     const endIdx = Math.min(startIdx + LAZY_RENDER_BATCH_SIZE, total);
@@ -2369,25 +2365,6 @@ function renderNextPlacesBatch() {
 
     _placesRenderedCount = endIdx;
 
-    // Hâlâ gösterilmemiş mekanlar varsa "Daha Fazla Göster" butonu + IntersectionObserver ekle
-    const remaining = total - _placesRenderedCount;
-    let sentinelEl = null;
-    if (remaining > 0) {
-        sentinelEl = document.createElement("div");
-        sentinelEl.id = "placesLoadMoreSentinel";
-        sentinelEl.className = "load-more-sentinel";
-        sentinelEl.innerHTML = `
-            <button type="button" class="btn-primary btn-load-more">
-                📜 Daha Fazla Keşif Noktası Göster (${remaining} mekan daha)
-            </button>
-        `;
-        const loadMoreBtn = sentinelEl.querySelector(".btn-load-more");
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener("click", () => renderNextPlacesBatch());
-        }
-        fragment.appendChild(sentinelEl);
-    }
-
     // DocumentFragment'i DOM'a tek seferde ekle (Reflow / UI Blocking sıfırlanır)
     DOM.placesGrid.appendChild(fragment);
 
@@ -2402,14 +2379,14 @@ function renderNextPlacesBatch() {
         loadWikiImagesForCards(newImages);
     }
 
-    // Sonsuz kaydırma (IntersectionObserver) ile kullanıcı aşağı indikçe otomatik yükle
-    if (sentinelEl && "IntersectionObserver" in window) {
-        _placesIntersectionObserver = new IntersectionObserver((entries) => {
-            if (entries.some(e => e.isIntersecting)) {
-                renderNextPlacesBatch();
-            }
-        }, { rootMargin: "320px 0px" });
-        _placesIntersectionObserver.observe(sentinelEl);
+    // Kalan mekan kontrolü: Başka mekan kaldıysa butonu görünür yap, yoksa gizle
+    const remaining = total - _placesRenderedCount;
+    if (loadMoreBtn) {
+        if (remaining > 0) {
+            loadMoreBtn.style.display = "block";
+        } else {
+            loadMoreBtn.style.display = "none";
+        }
     }
 }
 
@@ -2423,12 +2400,15 @@ function updateExploreUI() {
         : "Türkiye'den Öne Çıkan Keşif Noktaları";
     }
     
+    const loadMoreBtn = DOM.loadMoreBtn || document.getElementById("load-more-btn");
+
     if (STATE.filteredPlaces.length === 0) {
         DOM.placesGrid.innerHTML = `
           <div class="empty-state">
             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <p>Seçilen kritere uygun mekan bulunamadı.</p>
           </div>`;
+        if (loadMoreBtn) loadMoreBtn.style.display = "none";
         return;
     }
 
@@ -3395,6 +3375,15 @@ function setupEventListeners() {
         setFoodPanelOpen(false);
         DOM.btnShowFood.focus({ preventScroll: true });
     });
+
+    // Manuel "Daha Fazla Göster" Butonu (Sonsuz kaydırma yerine vintage buton)
+    const loadMoreBtn = document.getElementById("load-more-btn");
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener("click", () => {
+            renderNextPlacesBatch();
+            refreshYandexAds();
+        });
+    }
 
     // Yakınımdakileri Bul (Geolocation & Haversine) bindings
     if (DOM.btnFindNearby) DOM.btnFindNearby.addEventListener("click", findNearbyPlaces);
