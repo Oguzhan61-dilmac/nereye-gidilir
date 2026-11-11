@@ -12,7 +12,7 @@
 
   <!-- PWA & Android TWA Manifest / Meta Etiketleri -->
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#8b1e16">
+  <meta name="theme-color" content="#5c4033">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -674,5 +674,15 @@
 
   <!-- Yekpare Single Page Uygulaması Mantığı -->
   <script src="./app.js?v=21.8" defer></script>
+
+  <!-- Service Worker Kaydı (PWA & Offline Desteği) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .catch((err) => console.warn('ServiceWorker kaydı başarısız:', err));
+      });
+    }
+  </script>
 </body>
 </html>

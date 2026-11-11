@@ -3,6 +3,16 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
+      "package_name": "tr.com.geziatlasi.app",
+      "sha256_cert_fingerprints": [
+        "82:54:EA:D5:16:C7:C5:49:0F:22:67:FB:F3:46:84:D7:78:0D:37:0F:2D:C3:23:8A:59:4B:4B:B0:EB:F2:3B:69"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
       "package_name": "tr.com.geziatlasi.twa",
       "sha256_cert_fingerprints": [
         "82:54:EA:D5:16:C7:C5:49:0F:22:67:FB:F3:46:84:D7:78:0D:37:0F:2D:C3:23:8A:59:4B:4B:B0:EB:F2:3B:69"
