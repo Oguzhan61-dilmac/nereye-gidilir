@@ -28,7 +28,7 @@ const inFlightRequests = new Map();
  */
 // Veri dosyaları tarayıcıda 1 gün önbelleklenir; veri yeniden üretildiğinde bu sürümü artırın
 // ki ziyaretçiler eski listeyi görmesin (index.html'deki preload adresiyle aynı olmalı).
-const DATA_VERSION = "20261111b";
+const DATA_VERSION = "20261111c";
 
 async function fetchCachedJSON(url) {
   if (dataCache.has(url)) {
@@ -268,21 +268,43 @@ function scheduleRefreshAds(viewId = STATE.view) {
 // ================= YANDEX REKLAM AĞI (YANDEX.RTB) SPA ENTEGRASYONU =================
 function refreshYandexAds() {
   if (typeof window === "undefined") return;
-  const targetEl = document.getElementById("yandex_rtb_R-A-20381725-2");
-  if (!targetEl) return;
+
+  const yandexBlocks = [
+    { blockId: "R-A-20381725-2", renderTo: "yandex_rtb_R-A-20381725-2" },
+    { blockId: "R-A-20381725-3", renderTo: "yandex_rtb_R-A-20381725-3" }
+  ];
 
   window.yaContextCb = window.yaContextCb || [];
   window.yaContextCb.push(() => {
-    if (window.Ya && window.Ya.Context && window.Ya.Context.AdvManager) {
+    if (!window.Ya || !window.Ya.Context || !window.Ya.Context.AdvManager) return;
+
+    yandexBlocks.forEach(({ blockId, renderTo }) => {
+      const targetEl = document.getElementById(renderTo);
+      if (!targetEl) return;
+
       try {
         window.Ya.Context.AdvManager.render({
-          blockId: "R-A-20381725-2",
-          renderTo: "yandex_rtb_R-A-20381725-2"
+          blockId: blockId,
+          renderTo: renderTo,
+          onRender: function() {
+            const adContainer = document.getElementById(renderTo);
+            const slot = adContainer ? (adContainer.closest(".vintage-ad-slot") || adContainer.parentElement) : null;
+            if (slot) {
+              slot.style.display = "block";
+            }
+          },
+          onError: function(err) {
+            const adContainer = document.getElementById(renderTo);
+            const slot = adContainer ? (adContainer.closest(".vintage-ad-slot") || adContainer.parentElement) : null;
+            if (slot) {
+              slot.style.display = "none";
+            }
+          }
         });
       } catch (err) {
-        console.warn("Yandex.RTB render uyarısı:", err);
+        console.warn(`Yandex.RTB ${blockId} render uyarısı:`, err);
       }
-    }
+    });
   });
 }
 
