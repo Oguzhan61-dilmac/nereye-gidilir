@@ -1,326 +1,326 @@
 {
  "adana": {
-  "places": 106,
+  "places": 186,
   "with_img": 106
  },
  "adiyaman": {
-  "places": 21,
+  "places": 51,
   "with_img": 21
  },
  "afyonkarahisar": {
-  "places": 50,
+  "places": 126,
   "with_img": 50
  },
  "agri": {
-  "places": 19,
+  "places": 39,
   "with_img": 19
  },
  "aksaray": {
-  "places": 34,
+  "places": 253,
   "with_img": 34
  },
  "amasya": {
-  "places": 57,
+  "places": 84,
   "with_img": 57
  },
  "ankara": {
-  "places": 231,
+  "places": 470,
   "with_img": 231
  },
  "antalya": {
-  "places": 233,
+  "places": 896,
   "with_img": 233
  },
  "ardahan": {
-  "places": 21,
+  "places": 125,
   "with_img": 21
  },
  "artvin": {
-  "places": 69,
+  "places": 242,
   "with_img": 69
  },
  "aydin": {
-  "places": 103,
+  "places": 223,
   "with_img": 103
  },
  "balikesir": {
-  "places": 71,
+  "places": 230,
   "with_img": 71
  },
  "bartin": {
-  "places": 21,
+  "places": 63,
   "with_img": 21
  },
  "batman": {
-  "places": 9,
+  "places": 51,
   "with_img": 9
  },
  "bayburt": {
-  "places": 19,
+  "places": 41,
   "with_img": 19
  },
  "bilecik": {
-  "places": 10,
+  "places": 35,
   "with_img": 10
  },
  "bingol": {
-  "places": 6,
+  "places": 37,
   "with_img": 6
  },
  "bitlis": {
-  "places": 47,
+  "places": 71,
   "with_img": 47
  },
  "bolu": {
-  "places": 32,
+  "places": 158,
   "with_img": 32
  },
  "burdur": {
-  "places": 22,
+  "places": 77,
   "with_img": 22
  },
  "bursa": {
-  "places": 313,
+  "places": 371,
   "with_img": 313
  },
  "canakkale": {
-  "places": 124,
+  "places": 291,
   "with_img": 124
  },
  "cankiri": {
-  "places": 11,
+  "places": 67,
   "with_img": 11
  },
  "corum": {
-  "places": 34,
+  "places": 104,
   "with_img": 34
  },
  "denizli": {
-  "places": 54,
+  "places": 138,
   "with_img": 54
  },
  "diyarbakir": {
-  "places": 75,
+  "places": 153,
   "with_img": 75
  },
  "duzce": {
-  "places": 16,
+  "places": 64,
   "with_img": 16
  },
  "edirne": {
-  "places": 186,
+  "places": 420,
   "with_img": 186
  },
  "elazig": {
-  "places": 17,
+  "places": 37,
   "with_img": 17
  },
  "erzincan": {
-  "places": 14,
+  "places": 30,
   "with_img": 14
  },
  "erzurum": {
-  "places": 88,
+  "places": 240,
   "with_img": 88
  },
  "eskisehir": {
-  "places": 53,
+  "places": 166,
   "with_img": 53
  },
  "gaziantep": {
-  "places": 64,
+  "places": 138,
   "with_img": 64
  },
  "giresun": {
-  "places": 29,
+  "places": 88,
   "with_img": 29
  },
  "gumushane": {
-  "places": 10,
+  "places": 64,
   "with_img": 10
  },
  "hakkari": {
-  "places": 5,
+  "places": 32,
   "with_img": 5
  },
  "hatay": {
-  "places": 56,
+  "places": 131,
   "with_img": 56
  },
  "igdir": {
-  "places": 11,
+  "places": 15,
   "with_img": 11
  },
  "isparta": {
-  "places": 43,
+  "places": 99,
   "with_img": 43
  },
  "istanbul": {
-  "places": 3129,
+  "places": 2962,
   "with_img": 3129
  },
  "izmir": {
-  "places": 536,
+  "places": 815,
   "with_img": 536
  },
  "kahramanmaras": {
-  "places": 17,
+  "places": 104,
   "with_img": 17
  },
  "karabuk": {
-  "places": 77,
+  "places": 83,
   "with_img": 77
  },
  "karaman": {
-  "places": 22,
+  "places": 59,
   "with_img": 22
  },
  "kars": {
-  "places": 54,
+  "places": 118,
   "with_img": 54
  },
  "kastamonu": {
-  "places": 30,
+  "places": 92,
   "with_img": 30
  },
  "kayseri": {
-  "places": 57,
+  "places": 438,
   "with_img": 57
  },
  "kilis": {
-  "places": 2,
+  "places": 17,
   "with_img": 2
  },
  "kirikkale": {
-  "places": 4,
+  "places": 20,
   "with_img": 4
  },
  "kirklareli": {
-  "places": 106,
+  "places": 579,
   "with_img": 106
  },
  "kirsehir": {
-  "places": 7,
+  "places": 107,
   "with_img": 7
  },
  "kocaeli": {
-  "places": 75,
+  "places": 159,
   "with_img": 75
  },
  "konya": {
-  "places": 137,
+  "places": 493,
   "with_img": 137
  },
  "kutahya": {
-  "places": 40,
+  "places": 101,
   "with_img": 40
  },
  "malatya": {
-  "places": 20,
+  "places": 58,
   "with_img": 20
  },
  "manisa": {
-  "places": 122,
+  "places": 193,
   "with_img": 122
  },
  "mardin": {
-  "places": 51,
+  "places": 95,
   "with_img": 51
  },
  "mersin": {
-  "places": 243,
+  "places": 386,
   "with_img": 243
  },
  "mugla": {
-  "places": 136,
+  "places": 463,
   "with_img": 136
  },
  "mus": {
-  "places": 11,
+  "places": 31,
   "with_img": 11
  },
  "nevsehir": {
-  "places": 65,
+  "places": 190,
   "with_img": 65
  },
  "nigde": {
-  "places": 35,
+  "places": 97,
   "with_img": 35
  },
  "ordu": {
-  "places": 23,
+  "places": 71,
   "with_img": 23
  },
  "osmaniye": {
-  "places": 12,
+  "places": 71,
   "with_img": 12
  },
  "rize": {
-  "places": 36,
+  "places": 253,
   "with_img": 36
  },
  "sakarya": {
-  "places": 26,
+  "places": 73,
   "with_img": 26
  },
  "samsun": {
-  "places": 39,
+  "places": 115,
   "with_img": 39
  },
  "sanliurfa": {
-  "places": 52,
+  "places": 140,
   "with_img": 52
  },
  "siirt": {
-  "places": 11,
+  "places": 28,
   "with_img": 11
  },
  "sinop": {
-  "places": 19,
+  "places": 68,
   "with_img": 19
  },
  "sirnak": {
-  "places": 16,
+  "places": 29,
   "with_img": 16
  },
  "sivas": {
-  "places": 42,
+  "places": 162,
   "with_img": 42
  },
  "tekirdag": {
-  "places": 20,
+  "places": 128,
   "with_img": 20
  },
  "tokat": {
-  "places": 40,
+  "places": 116,
   "with_img": 40
  },
  "trabzon": {
-  "places": 83,
+  "places": 176,
   "with_img": 83
  },
  "tunceli": {
-  "places": 8,
+  "places": 21,
   "with_img": 8
  },
  "usak": {
-  "places": 13,
+  "places": 48,
   "with_img": 13
  },
  "van": {
-  "places": 38,
+  "places": 96,
   "with_img": 38
  },
  "yalova": {
-  "places": 11,
+  "places": 44,
   "with_img": 11
  },
  "yozgat": {
-  "places": 11,
+  "places": 116,
   "with_img": 11
  },
  "zonguldak": {
-  "places": 8,
+  "places": 51,
   "with_img": 8
  }
 }
